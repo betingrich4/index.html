@@ -3,185 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FootyLive · free football streams</title>
-    <!-- Tailwind (lightweight) + minimal custom style -->
+    <title>Marisel TV · Live Stream</title>
+    <!-- Tailwind via CDN (v4) – lightweight utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- simple HLS.js for m3u8 streams -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17"></script>
     <style>
-        body { background: #0a0c10; }
-        .animate-fade { animation: fade 0.2s ease; }
-        @keyframes fade { 0%{opacity:0;} 100%{opacity:1;} }
-        .seek-slider { -webkit-appearance: none; height: 4px; background: #ffffff4d; border-radius: 999px; }
-        .seek-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: #ef4444; border-radius: 999px; cursor: pointer; margin-top: -5px; }
-        .seek-slider::-moz-range-thumb { width: 14px; height: 14px; background: #ef4444; border: none; border-radius: 999px; cursor: pointer; }
-        .vol-slider { width: 70px; height: 4px; background: #ffffff4d; border-radius: 999px; }
+        /* custom fade / spinner extras */
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { 0%{opacity:0;} 100%{opacity:1;} }
+        .seek-hover-thumb::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: #ef4444; border-radius: 9999px; cursor: pointer; }
+        .seek-hover-thumb::-moz-range-thumb { width: 14px; height: 14px; background: #ef4444; border-radius: 9999px; cursor: pointer; border: none; }
     </style>
 </head>
-<body class="text-white">
+<body class="bg-black text-white font-sans antialiased overflow-x-hidden">
 
-<div id="app" class="min-h-screen flex flex-col"></div>
+<div id="root" class="min-h-screen"></div>
 
 <script>
 (function() {
-    // ----- FOOTBALL-DEDICATED IPTV PLAYLISTS (public, auto‑updated) -----
-    const PLAYLISTS = [
-        { name: '⚽ Sports (streamed-su)', url: 'https://raw.githubusercontent.com/streamed-su/sports/main/playlist.m3u' },
-        { name: '🏆 T-Sports (Bangladesh)', url: 'https://raw.githubusercontent.com/Shakib447/T-Sports-Playlist-Auto-Update/main/playlist.m3u' },
-        { name: '🌍 IPTV-org football subset', url: 'https://iptv-org.github.io/iptv/categories/sports.m3u' }
-    ];
+    // ----- Minimal React & ReactDOM (for self‑contained single file) -----
+    // using a simplified direct approach – we build the UI with vanilla JS
+    // but mimic a component structure. No JSX, no build step.
+    
+    // ----- HLS fallback helper -----
+    function attachHls(videoEl, url) {
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(videoEl);
+            return hls;
+        } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+            videoEl.src = url; // native Safari
+        }
+        return null;
+    }
 
-    // ----- fallback demo matches (when networks fail) -----
-    const DEMO_MATCHES = [
-        { name: '🔴 [DEMO] Premier League Live', url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', thumbnail: 'premier' },
-        { name: '🔴 [DEMO] UEFA Champions League', url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8', thumbnail: 'ucl' },
-        { name: '🔴 [DEMO] La Liga El Clásico', url: 'https://moctobpltc-i.akamaihd.net/hls/live/571329/eight/playlist.m3u8', thumbnail: 'laliga' },
-    ];
-
-    // ----- state management (simple) -----
+    // ----- Main state (observable pattern) -----
     let state = {
-        matches: [],                 // array of { name, url, thumbnail?, group? }
-        filteredMatches: [],
-        leagues: [],
-        selectedLeague: 'all',
+        channels: [],
+        filteredChannels: [],
         searchQuery: '',
-        loading: true,
-        error: null,
-        // player
-        currentMatch: null,
-        playing: false,
-        muted: false,
+        selectedChannelIndex: -1,          // -1 means no player open
+        isLoading: true,
+        isPlaying: false,
+        isMuted: false,
         volume: 80,
         currentTime: 0,
         duration: 0,
+        isFullscreen: false,
         showControls: true,
+        loadingStream: false,
         streamError: false,
-        buffering: false,
-        fullscreen: false,
+        // for placeholder generation
+        brokenThumbIds: new Set()
     };
 
-    const listeners = [];
-    function setState(upd) { state = { ...state, ...upd }; listeners.forEach(f => f()); }
-    function subscribe(fn) { listeners.push(fn); return () => listeners = listeners.filter(l => l !== fn); }
+    // micro event bus for UI updates
+    let listeners = [];
+    function setState(newPart) {
+        state = { ...state, ...newPart };
+        listeners.forEach(fn => fn());
+    }
+    function subscribe(fn) { listeners.push(fn); return () => { listeners = listeners.filter(l => l !== fn); }; }
 
-    // helpers
-    const formatTime = (sec) => {
+    // ----- helpers -----
+    function formatTime(sec) {
         if (!isFinite(sec)) return '0:00';
-        const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = Math.floor(sec % 60);
-        return h ? `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}` : `${m}:${s.toString().padStart(2,'0')}`;
-    };
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = Math.floor(sec % 60);
+        if (h > 0) return `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        return `${m}:${s.toString().padStart(2,'0')}`;
+    }
 
-    // ---- fetch & parse multiple playlists ----
-    async function loadFootballStreams() {
-        setState({ loading: true, error: null });
-        let allMatches = [];
-        for (const pl of PLAYLISTS) {
-            try {
-                console.log(`Fetching ${pl.name} ...`);
-                const res = await fetch(pl.url, { mode: 'cors', cache: 'no-cache' });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const text = await res.text();
-                const lines = text.split('\n');
-                let groupMatches = [];
-                for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].startsWith('#EXTINF')) {
-                        let name = lines[i].split(',').pop()?.trim() || 'football stream';
-                        // try to get logo from tvg-logo
+    // placeholder colour based on channel name
+    function getPlaceholderStyle(name) {
+        const lname = name.toLowerCase();
+        if (lname.includes('sport') || lname.includes('football') || lname.includes('tenis')) return 'bg-gradient-to-br from-red-700 to-orange-700';
+        if (lname.includes('news') || lname.includes('bbc') || lname.includes('cnn')) return 'bg-gradient-to-br from-blue-800 to-sky-800';
+        if (lname.includes('movie') || lname.includes('film')) return 'bg-gradient-to-br from-purple-800 to-pink-800';
+        if (lname.includes('music') || lname.includes('mtv')) return 'bg-gradient-to-br from-fuchsia-700 to-pink-700';
+        if (lname.includes('kid') || lname.includes('cartoon')) return 'bg-gradient-to-br from-green-600 to-teal-600';
+        return 'bg-gradient-to-br from-slate-700 to-slate-900';
+    }
+
+    // generate thumbnail / logo
+    function channelThumbUrl(ch) {
+        if (ch.logo && !state.brokenThumbIds.has(ch.id)) return ch.logo;
+        // fallback colour placeholder (represented as CSS class)
+        return null;
+    }
+
+    // ----- fetch & parse channels (marisel playlist – use a public IPTV list) -----
+    async function loadChannels() {
+        setState({ isLoading: true, streamError: false });
+        try {
+            // using the same iptv-org collection as original but we rename it "marisel"
+            const response = await fetch('https://iptv-org.github.io/iptv/index.m3u');
+            const text = await response.text();
+            const lines = text.split('\n');
+            const parsed = [];
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('#EXTINF')) {
+                    let name = lines[i].split(',').pop()?.trim() || 'unknown';
+                    const urlLine = lines[i+1]?.replace(/\r/g, '').trim();
+                    if (urlLine && (urlLine.startsWith('http') || urlLine.startsWith('https'))) {
+                        // try to extract tvg-logo
                         const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
                         const logo = logoMatch ? logoMatch[1] : null;
-                        const urlLine = lines[i+1]?.replace(/\r/g,'').trim();
-                        if (urlLine && (urlLine.startsWith('http'))) {
-                            // filter only football related (heuristic)
-                            const lower = name.toLowerCase();
-                            if (lower.includes('football') || lower.includes('soccer') || lower.includes('premier') || 
-                                lower.includes('laliga') || lower.includes('bundesliga') || lower.includes('serie a') ||
-                                lower.includes('champions league') || lower.includes('europa') || lower.includes('world cup') ||
-                                lower.includes('match') || lower.includes('live') || lower.includes('sport')) {
-                                groupMatches.push({
-                                    id: `footy-${Date.now()}-${i}`,
-                                    name: name,
-                                    url: urlLine,
-                                    logo: logo,
-                                    group: pl.name
-                                });
-                            }
-                        }
-                        i++; // skip url line
+                        parsed.push({
+                            id: `marisel-${i}-${name}`,
+                            name: name,
+                            url: urlLine,
+                            logo: logo,
+                        });
                     }
+                    i++; // skip next line
                 }
-                if (groupMatches.length > 0) {
-                    allMatches = [...allMatches, ...groupMatches];
-                } else {
-                    // fallback: if playlist empty, maybe add demo match for that league
-                    console.warn(`${pl.name} returned 0 matches, adding demo fallback`);
-                }
-            } catch (e) {
-                console.warn(`Error loading ${pl.name}:`, e);
-                // add demo fallback for this playlist so UI not empty
             }
+            // fallback if empty (demo channels)
+            let finalChannels = parsed.length > 0 ? parsed : getDemoChannels();
+            setState({ 
+                channels: finalChannels, 
+                filteredChannels: finalChannels.slice(0, 100),
+                isLoading: false,
+                selectedChannelIndex: -1
+            });
+        } catch (e) {
+            console.warn('Fetch failed, using demo channels', e);
+            const demo = getDemoChannels();
+            setState({ channels: demo, filteredChannels: demo.slice(0,100), isLoading: false });
         }
-
-        // if almost empty, inject demo matches
-        if (allMatches.length < 3) {
-            allMatches = DEMO_MATCHES.map((d,idx) => ({ ...d, id: `demo-${idx}`, group: '📺 Demo Matches' }));
-        } else {
-            // limit to avoid overload (max 80 matches)
-            allMatches = allMatches.slice(0, 80);
-        }
-
-        // extract unique league/group names
-        const leagueSet = new Set(allMatches.map(m => m.group).filter(Boolean));
-        const leagues = ['all', ...Array.from(leagueSet)];
-
-        setState({ 
-            matches: allMatches, 
-            filteredMatches: allMatches,
-            leagues,
-            loading: false,
-            selectedLeague: 'all'
-        });
     }
 
-    // filter by league & search
-    function filterMatches() {
-        let filtered = state.matches;
-        if (state.selectedLeague !== 'all') {
-            filtered = filtered.filter(m => m.group === state.selectedLeague);
-        }
-        if (state.searchQuery.trim()) {
-            const q = state.searchQuery.toLowerCase();
-            filtered = filtered.filter(m => m.name.toLowerCase().includes(q));
-        }
-        setState({ filteredMatches: filtered });
+    function getDemoChannels() {
+        return [
+            { id: 'd1', name: 'Marisel Sport HD', url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', logo: 'https://dummyimage.com/300x200/ef4444/fff&text=Sports' },
+            { id: 'd2', name: 'News 24/7', url: 'https://live-par-2-abr-cdn.livepush.com/live_live_news_720/load/?token=2025', logo: null },
+            { id: 'd3', name: 'Marisel Cinema', url: 'https://moctobpltc-i.akamaihd.net/hls/live/571329/eight/playlist.m3u8', logo: null },
+            { id: 'd4', name: 'Kids Cartoon', url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8', logo: null },
+            { id: 'd5', name: 'Music Box', url: 'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8', logo: null },
+        ];
     }
 
-    // ----- player refs & logic -----
+    // search filter
+    function filterChannels(query) {
+        const q = query.toLowerCase().trim();
+        if (!q) return state.channels.slice(0, 100);
+        return state.channels.filter(c => c.name.toLowerCase().includes(q)).slice(0, 100);
+    }
+
+    // DOM element references
     let videoElement = null;
     let hlsInstance = null;
 
-    function playMatch(match) {
-        if (!match) return;
-        // close current stream
+    // player logic: when selected channel changes
+    function playChannel(index) {
+        if (index < 0 || index >= state.channels.length) return;
+        setState({ 
+            selectedChannelIndex: index, 
+            loadingStream: true, 
+            streamError: false,
+            isPlaying: false,
+            currentTime: 0,
+            duration: 0
+        });
+        // actual video handling will be done inside component after render
+    }
+
+    function closePlayer() {
         if (videoElement) {
             videoElement.pause();
             videoElement.src = '';
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         }
-        setState({ 
-            currentMatch: match, 
-            playing: false, 
-            buffering: true, 
-            streamError: false,
-            currentTime: 0,
-            duration: 0
-        });
-    }
-
-    function closePlayer() {
-        if (videoElement) {
-            videoElement.pause(); videoElement.src = ''; 
-            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-        }
-        setState({ currentMatch: null, playing: false });
+        setState({ selectedChannelIndex: -1, isPlaying: false });
     }
 
     // fullscreen
@@ -193,218 +190,313 @@
         }
     }
 
-    // ----- UI components (return HTML string) -----
+    // ----- UI Components (plain functions that return html strings or elements) -----
     function Header() {
         return `
-            <nav class="fixed w-full top-0 z-40 bg-slate-950/90 backdrop-blur-sm border-b border-slate-800">
-                <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                    <div class="flex items-center gap-2 text-xl font-bold">
-                        <span class="text-2xl">⚽</span>
-                        <span class="bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent">FootyLive</span>
-                        <span class="text-xs bg-red-600/20 text-red-400 px-2 py-0.5 rounded-full ml-2">free streams</span>
+            <nav class="fixed w-full top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                    <div class="flex items-center gap-2 text-2xl font-bold">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10l8-5-8-5zM16 7v10l8-5-8-5z" transform="scale(0.75) translate(4,4)"/></svg>
+                        <span class="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">Marisel TV</span>
                     </div>
-                    <div class="text-sm text-slate-400">${state.matches.length} football channels</div>
+                    <div class="hidden md:flex gap-8 items-center">
+                        <a href="#" class="hover:text-red-600 transition">Home</a>
+                        <a href="#shows" class="hover:text-red-600 transition">Channels</a>
+                        <a href="#features" class="hover:text-red-600 transition">Features</a>
+                    </div>
                 </div>
             </nav>
         `;
     }
 
-    function LeagueFilter() {
-        const leagueOptions = state.leagues.map(l => {
-            const display = l === 'all' ? '🏁 All leagues' : l.replace(/[⚽🏆🌍]/g,'').trim();
-            return `<option value="${l}" ${state.selectedLeague === l ? 'selected' : ''}>${display}</option>`;
-        }).join('');
+    function Hero() {
+        const total = state.channels.length;
         return `
-            <div class="flex flex-wrap gap-3 items-center">
-                <select onchange="window.footyLeague(this.value)" class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-green-600">
-                    ${leagueOptions}
-                </select>
-                <div class="relative flex-1 max-w-xs">
-                    <input type="text" placeholder="Search matches..." value="${state.searchQuery}" oninput="window.footySearch(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-green-600">
-                    <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <section id="home" class="pt-32 pb-20 px-4 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-red-600/10 to-pink-600/10 blur-3xl -z-10"></div>
+                <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <h1 class="text-5xl md:text-6xl font-bold leading-tight">Watch <span class="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">Live TV</span> Free</h1>
+                        <p class="text-xl text-slate-400">Stream ${total.toLocaleString()} live TV channels from around the world. No subscriptions, no hidden fees. Pure entertainment.</p>
+                        <div class="flex gap-4 pt-4">
+                            <button onclick="window.mariselRandom()" class="bg-red-600 hover:bg-red-700 px-8 py-3 rounded-full font-bold flex items-center gap-2 transition transform hover:scale-105 group relative">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                Start Watching
+                                <span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap">Play random channel</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative cursor-pointer group" onclick="window.mariselRandom()">
+                        <div class="bg-gradient-to-br from-red-600 to-pink-600 rounded-2xl p-1 hover:scale-[1.02] transition-transform overflow-hidden">
+                            <div class="bg-slate-900 rounded-xl p-8 flex items-center justify-center aspect-video relative overflow-hidden">
+                                <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center animate-pulse group-hover:scale-110 transition-transform">
+                                    <svg class="w-10 h-10 ml-1 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                                ${state.channels.length > 0 ? `<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-xs px-3 py-1 rounded-full">${state.channels.length} channels</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
         `;
     }
 
-    function MatchGrid() {
-        if (state.loading) {
-            return `<div class="flex justify-center py-20"><div class="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div></div>`;
-        }
-        const items = state.filteredMatches.map(m => {
-            const thumbnail = m.logo || (m.thumbnail ? `https://dummyimage.com/300x180/0f5132/fff&text=⚽+${encodeURIComponent(m.name.substring(0,20))}` : `https://dummyimage.com/300x180/1e293b/aaa&text=⚽+match`);
-            return `
-                <div class="group bg-slate-800/60 rounded-xl overflow-hidden border border-slate-700 hover:border-green-700 transition-all hover:scale-[1.01] cursor-pointer" onclick="window.footyPlay('${encodeURIComponent(JSON.stringify(m))}')">
-                    <div class="aspect-video bg-slate-700 relative">
-                        <img src="${thumbnail}" alt="${m.name}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition" loading="lazy" onerror="this.onerror=null; this.src='https://dummyimage.com/300x180/1e293b/eee&text=⚽';">
-                        <div class="absolute top-2 right-2 bg-black/70 text-green-400 text-xs px-2 py-1 rounded-full border border-green-800">LIVE</div>
+    function SearchBar() {
+        return `
+            <section class="py-8 px-4 bg-slate-900/50">
+                <div class="max-w-4xl mx-auto">
+                    <div class="relative">
+                        <svg class="absolute left-4 top-4 w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input type="text" placeholder="Search ${state.channels.length} channels..." value="${state.searchQuery}" oninput="window.mariselSearch(this.value)" class="w-full pl-12 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-red-600 text-white placeholder-slate-500">
                     </div>
-                    <div class="p-3">
-                        <h3 class="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-green-400">${m.name}</h3>
-                        <p class="text-xs text-slate-400 mt-1">${m.group?.replace(/[⚽🏆🌍]/g,'') || 'football'}</p>
+                    <div class="mt-2 text-sm text-slate-400">
+                        ${state.searchQuery ? `Found ${state.filteredChannels.length} channels matching "${state.searchQuery}"` : `Showing ${state.filteredChannels.length} of ${state.channels.length} channels`}
+                    </div>
+                </div>
+            </section>
+        `;
+    }
+
+    function ChannelGrid() {
+        if (state.isLoading) {
+            return `<div class="flex justify-center py-20"><div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div></div>`;
+        }
+        const items = state.filteredChannels.map(ch => {
+            const thumbClass = channelThumbUrl(ch) ? '' : getPlaceholderStyle(ch.name);
+            const thumbStyle = channelThumbUrl(ch) ? `background-image:url('${ch.logo}'); background-size:cover;` : '';
+            return `
+                <div class="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden hover:bg-slate-800 transition-all duration-300 hover:scale-[1.02]" onclick="window.mariselPlayById('${ch.id}')">
+                    <div class="relative aspect-video overflow-hidden">
+                        <div class="w-full h-full ${thumbClass} flex items-center justify-center" style="${thumbStyle}">
+                            ${!channelThumbUrl(ch) ? `<span class="text-white font-bold text-lg line-clamp-2 p-4 text-center">${ch.name}</span>` : ''}
+                        </div>
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                        <div class="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">LIVE</div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-lg group-hover:text-red-600 transition line-clamp-2 mb-1">${ch.name}</h3>
+                                <div class="flex items-center gap-2 text-sm text-slate-400"><span>Live TV</span> <span>•</span> <span>Channel</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
         }).join('');
         return `
-            <div class="max-w-7xl mx-auto px-4 py-4">
-                <div class="mb-4">${LeagueFilter()}</div>
-                ${items.length === 0 ? '<div class="text-center py-16 text-slate-500">No football streams match — try another filter</div>' : `<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">${items}</div>`}
-            </div>
+            <section id="shows" class="py-20 px-4">
+                <div class="max-w-6xl mx-auto">
+                    <h2 class="text-4xl font-bold mb-12">${state.searchQuery ? `Search Results (${state.filteredChannels.length})` : `Live Channels (${state.channels.length.toLocaleString()})`}</h2>
+                    ${items.length === 0 ? '<div class="text-center py-12 text-slate-400">No channels found.</div>' : `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${items}</div>`}
+                </div>
+            </section>
         `;
     }
 
-    function VideoPlayer() {
-        if (!state.currentMatch) return '';
-        const m = state.currentMatch;
-        const played = (state.currentTime / (state.duration || 1)) * 100;
+    function VideoPlayerOverlay() {
+        if (state.selectedChannelIndex === -1) return '';
+        const ch = state.channels[state.selectedChannelIndex];
+        if (!ch) return '';
+        const volPercent = state.volume;
+        const playedPercent = (state.currentTime / (state.duration || 1)) * 100;
         return `
-            <div class="fixed inset-0 bg-black z-50 flex flex-col animate-fade">
-                <video id="footy-video" class="w-full h-full object-contain" autoplay playsinline></video>
-                ${state.buffering ? `
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/60">
-                        <div class="flex flex-col items-center gap-3"><div class="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div><p class="text-sm text-slate-300">loading stream ...</p></div>
+            <div class="fixed inset-0 bg-black z-[100] flex flex-col animate-fade-in">
+                <video id="marisel-video" class="w-full h-full object-contain" autoplay playsinline></video>
+                ${state.loadingStream ? `
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <div class="flex flex-col items-center gap-4"><div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div><p class="text-white">Loading stream...</p></div>
                     </div>` : ''}
                 ${state.streamError ? `
                     <div class="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-                        <div class="bg-slate-900 p-6 rounded-xl max-w-sm text-center border border-red-800">
-                            <span class="text-4xl mb-3">⚽❌</span>
-                            <h3 class="text-xl font-bold mb-2">Stream offline</h3>
-                            <p class="text-slate-400 text-sm mb-4">This football link may be geo-blocked or expired.</p>
-                            <button onclick="window.footyClose()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-full text-sm font-semibold">back to matches</button>
+                        <div class="flex flex-col items-center gap-4 text-center">
+                            <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1"/></svg>
+                            <div><h3 class="text-xl font-bold text-white mb-2">Stream Unavailable</h3><p class="text-slate-300 mb-4">This stream is blocked or broken.</p></div>
+                            <button onclick="window.mariselNext()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-full font-semibold text-white transition">Try Next Channel</button>
                         </div>
                     </div>` : ''}
                 ${state.showControls ? `
-                <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-4">
-                    <button onclick="window.footyClose()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
+                <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-4 flex items-center justify-between">
+                    <button onclick="window.mariselClosePlayer()" class="flex items-center gap-2 text-white hover:bg-white/10 p-2 rounded-full transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        <span class="font-medium">Back</span>
+                    </button>
+                    <span class="text-white font-medium truncate max-w-md px-2">${ch.name}</span>
+                    <button onclick="window.mariselToggleFullscreen()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/></svg>
                     </button>
                 </div>
                 <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent p-4">
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="text-sm font-medium truncate max-w-[60%]">${m.name}</span>
+                    <div class="relative h-1 mb-4 bg-white/30 rounded-full cursor-pointer group" onclick="window.mariselSeek(event)">
+                        <div class="absolute h-full bg-red-600 rounded-full" style="width:${playedPercent}%"></div>
+                        <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" style="left:${playedPercent}%"></div>
                     </div>
-                    <div class="relative h-1 bg-white/30 rounded-full mb-2 cursor-pointer" onclick="window.footySeek(event)">
-                        <div class="absolute h-full bg-green-600 rounded-full" style="width:${played}%"></div>
-                        <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-green-600 rounded-full opacity-0 group-hover:opacity-100 transition" style="left:${played}%"></div>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-3">
-                            <button onclick="window.footyTogglePlay()" class="text-white hover:bg-white/10 p-2 rounded-full">
-                                ${state.playing ? '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>' : '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <button onclick="window.mariselTogglePlay()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
+                                ${state.isPlaying ? '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>' : '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'}
                             </button>
-                            <button onclick="window.footyMute()" class="text-white hover:bg-white/10 p-2 rounded-full">
-                                ${state.muted || state.volume===0 ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M19 9a6 6 0 0 1 0 6"/></svg>'}
+                            <button onclick="window.mariselPrev()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 5v14l11-7z"/><rect x="17" y="5" width="2" height="14"/></svg>
                             </button>
-                            <input type="range" min="0" max="100" value="${state.muted ? 0 : state.volume}" oninput="window.footyVolume(this.value)" class="vol-slider accent-green-600">
-                            <span class="text-white/70 text-xs font-mono">${formatTime(state.currentTime)} / ${formatTime(state.duration)}</span>
+                            <button onclick="window.mariselNext()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><rect x="5" y="5" width="2" height="14"/><path d="M9 5v14l11-7z"/></svg>
+                            </button>
+                            <div class="flex items-center gap-2 group">
+                                <button onclick="window.mariselToggleMute()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
+                                    ${state.isMuted || state.volume === 0 ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M19 9a6 6 0 0 1 0 6"/></svg>'}
+                                </button>
+                                <input type="range" min="0" max="100" value="${state.isMuted ? 0 : state.volume}" oninput="window.mariselVolume(this.value)" class="w-24 h-1 bg-white/30 rounded-full appearance-none cursor-pointer accent-red-600">
+                            </div>
+                            <span class="text-white text-sm font-mono">${formatTime(state.currentTime)} / ${formatTime(state.duration)}</span>
                         </div>
-                        <button onclick="window.footyFullscreen()" class="text-white hover:bg-white/10 p-2 rounded-full">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/></svg>
-                        </button>
                     </div>
                 </div>` : ''}
             </div>
         `;
     }
 
+    function Features() {
+        return `
+            <section id="features" class="py-20 px-4 bg-slate-900/30">
+                <div class="max-w-6xl mx-auto">
+                    <h2 class="text-4xl font-bold mb-12 text-center">Why Choose Marisel TV?</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="text-center space-y-4"><div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto"><svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 class="text-xl font-bold">Lightning Fast</h3><p class="text-slate-400">Stream with minimal buffering</p></div>
+                        <div class="text-center space-y-4"><div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto"><svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 21L5 21 8 17 16 17 19 21"/></svg></div><h3 class="text-xl font-bold">Global Channels</h3><p class="text-slate-400">Access ${state.channels.length.toLocaleString()}+ channels worldwide</p></div>
+                        <div class="text-center space-y-4"><div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto"><svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h3 class="text-xl font-bold">100% Free</h3><p class="text-slate-400">No subscriptions or hidden fees</p></div>
+                    </div>
+                </div>
+            </section>
+        `;
+    }
+
     function Footer() {
         return `
-            <footer class="mt-auto border-t border-slate-800 bg-slate-950/50 py-6 px-4 text-center text-xs text-slate-600">
-                FootyLive · free football streams from public playlists · for educational purposes
+            <footer class="border-t border-slate-800 py-12 px-4 bg-slate-950">
+                <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
+                    <div><div class="flex items-center gap-2 mb-4"><span class="font-bold">Marisel TV</span></div><p class="text-slate-400 text-sm">Your gateway to unlimited entertainment</p></div>
+                    <div><h4 class="font-bold mb-4">Quick Links</h4><ul class="text-slate-400 text-sm space-y-2"><li>Home</li><li>Channels</li><li>Contact</li></ul></div>
+                    <div><h4 class="font-bold mb-4">Legal</h4><ul class="text-slate-400 text-sm space-y-2"><li>Privacy</li><li>Terms</li></ul></div>
+                </div>
+                <div class="border-t border-slate-800 pt-8 text-center text-slate-400 text-sm">© 2025 Marisel TV. All rights reserved. ${state.channels.length} channels available</div>
             </footer>
         `;
     }
 
-    // ----- render -----
-    function render() {
-        const app = document.getElementById('app');
-        if (!app) return;
-        app.innerHTML = `
+    // ----- render app (simple innerHTML) -----
+    function renderApp() {
+        const root = document.getElementById('root');
+        if (!root) return;
+        root.innerHTML = `
             ${Header()}
-            <main class="flex-1 pt-14">
-                ${!state.currentMatch ? MatchGrid() : ''}
-            </main>
-            ${!state.currentMatch ? Footer() : ''}
-            ${VideoPlayer()}
+            ${state.selectedChannelIndex === -1 ? `
+                ${Hero()}
+                ${SearchBar()}
+                ${ChannelGrid()}
+                ${Features()}
+                ${Footer()}
+            ` : ''}
+            ${VideoPlayerOverlay()}
         `;
-        // video event binding if player open
-        if (state.currentMatch) {
-            const v = document.getElementById('footy-video');
+        // attach video events if player open
+        if (state.selectedChannelIndex !== -1) {
+            const v = document.getElementById('marisel-video');
             if (v) {
                 videoElement = v;
-                const m = state.currentMatch;
-                if (m.url.includes('.m3u8')) {
-                    if (Hls.isSupported()) {
-                        if (hlsInstance) hlsInstance.destroy();
-                        hlsInstance = new Hls();
-                        hlsInstance.loadSource(m.url);
-                        hlsInstance.attachMedia(v);
-                    } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
-                        v.src = m.url;
+                const ch = state.channels[state.selectedChannelIndex];
+                if (ch) {
+                    // cleanup old hls
+                    if (hlsInstance) hlsInstance.destroy();
+                    // attach hls
+                    if (ch.url.includes('.m3u8')) {
+                        hlsInstance = attachHls(v, ch.url);
                     } else {
-                        setState({ streamError: true, buffering: false });
+                        v.src = ch.url;
                     }
-                } else {
-                    v.src = m.url;
+                    setState({ loadingStream: true, streamError: false });
+                    v.addEventListener('loadeddata', () => {
+                        setState({ loadingStream: false, duration: v.duration });
+                        v.play().catch(()=>{}).then(()=> setState({isPlaying: true}));
+                    });
+                    v.addEventListener('error', () => setState({ streamError: true, loadingStream: false }));
+                    v.addEventListener('timeupdate', () => setState({ currentTime: v.currentTime }));
+                    v.addEventListener('durationchange', () => setState({ duration: v.duration }));
+                    v.addEventListener('play', () => setState({ isPlaying: true }));
+                    v.addEventListener('pause', () => setState({ isPlaying: false }));
+                    v.addEventListener('volumechange', () => setState({ volume: v.volume*100, isMuted: v.muted }));
+                    v.volume = state.volume / 100;
+                    v.muted = state.isMuted;
                 }
-                v.volume = state.muted ? 0 : state.volume / 100;
-                v.muted = state.muted;
-
-                const onLoad = () => {
-                    setState({ buffering: false, duration: v.duration });
-                    v.play().catch(()=>{}).then(()=> setState({playing: true}));
-                };
-                v.addEventListener('loadeddata', onLoad, { once: true });
-                v.addEventListener('error', () => setState({ streamError: true, buffering: false }));
-                v.addEventListener('waiting', () => setState({ buffering: true }));
-                v.addEventListener('playing', () => setState({ buffering: false, playing: true }));
-                v.addEventListener('timeupdate', () => setState({ currentTime: v.currentTime }));
-                v.addEventListener('durationchange', () => setState({ duration: v.duration }));
-                v.addEventListener('pause', () => setState({ playing: false }));
-                v.addEventListener('play', () => setState({ playing: true }));
             }
+        } else {
+            if (videoElement) { videoElement.pause(); videoElement.src = ''; if (hlsInstance) hlsInstance.destroy(); videoElement = null; }
         }
     }
 
-    // global handlers
-    window.footyLeague = (l) => { setState({ selectedLeague: l }); filterMatches(); };
-    window.footySearch = (q) => { setState({ searchQuery: q }); filterMatches(); };
-    window.footyPlay = (str) => {
-        try {
-            const m = JSON.parse(decodeURIComponent(str));
-            playMatch(m);
-        } catch (e) { alert('Invalid match'); }
+    // expose global handlers
+    window.mariselSearch = (q) => {
+        setState({ searchQuery: q, filteredChannels: filterChannels(q) });
     };
-    window.footyClose = closePlayer;
-    window.footyTogglePlay = () => { if (videoElement) videoElement.paused ? videoElement.play() : videoElement.pause(); };
-    window.footyMute = () => { if (videoElement) videoElement.muted = !videoElement.muted; setState({ muted: videoElement.muted }); };
-    window.footyVolume = (val) => { 
-        if (videoElement) videoElement.volume = val/100; 
-        setState({ volume: parseInt(val,10), muted: val == 0 }); 
+    window.mariselPlayById = (id) => {
+        const idx = state.channels.findIndex(c => c.id === id);
+        if (idx !== -1) playChannel(idx);
     };
-    window.footySeek = (e) => {
+    window.mariselRandom = () => {
+        if (state.channels.length === 0) return;
+        const rand = Math.floor(Math.random() * state.channels.length);
+        playChannel(rand);
+    };
+    window.mariselClosePlayer = closePlayer;
+    window.mariselTogglePlay = () => {
+        if (!videoElement) return;
+        if (videoElement.paused) videoElement.play(); else videoElement.pause();
+    };
+    window.mariselPrev = () => {
+        let idx = state.selectedChannelIndex;
+        if (idx === -1) return;
+        idx = (idx - 1 + state.channels.length) % state.channels.length;
+        playChannel(idx);
+    };
+    window.mariselNext = () => {
+        let idx = state.selectedChannelIndex;
+        if (idx === -1) return;
+        idx = (idx + 1) % state.channels.length;
+        playChannel(idx);
+    };
+    window.mariselToggleMute = () => {
+        if (!videoElement) return;
+        videoElement.muted = !videoElement.muted;
+    };
+    window.mariselVolume = (val) => {
+        if (videoElement) videoElement.volume = val / 100;
+        setState({ volume: parseInt(val,10), isMuted: val == 0 });
+    };
+    window.mariselSeek = (e) => {
         if (!videoElement || !state.duration) return;
         const rect = e.currentTarget.getBoundingClientRect();
         const ratio = (e.clientX - rect.left) / rect.width;
         videoElement.currentTime = ratio * state.duration;
     };
-    window.footyFullscreen = toggleFullscreen;
-    window.addEventListener('fullscreenchange', () => setState({ fullscreen: !!document.fullscreenElement }));
+    window.mariselToggleFullscreen = toggleFullscreen;
+    window.addEventListener('fullscreenchange', () => setState({ isFullscreen: !!document.fullscreenElement }));
 
-    // mousemove show controls
+    // subscribe & initial load
+    subscribe(renderApp);
+    loadChannels();
+    // add mouse movement to show controls
+    document.addEventListener('mousemove', () => { if (state.selectedChannelIndex !== -1) setState({ showControls: true }); });
+    // hide after 2s idle – simple
     let hideTimer;
     document.addEventListener('mousemove', () => {
-        if (state.currentMatch) {
+        if (state.selectedChannelIndex !== -1) {
             setState({ showControls: true });
             clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => setState({ showControls: false }), 2500);
+            hideTimer = setTimeout(() => setState({ showControls: false }), 3000);
         }
     });
-
-    // init
-    subscribe(render);
-    loadFootballStreams();
 })();
 </script>
 </body>
