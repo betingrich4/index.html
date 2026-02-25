@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sevi · Field Ops</title>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -21,115 +21,138 @@
         }
 
         :root {
-            --bg-primary: #f1f5f9;
-            --bg-surface: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #334155;
-            --text-tertiary: #64748b;
-            --border-light: #e2e8f0;
-            --accent: #0a0a0a;
-            --accent-hover: #1e1e1e;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --info: #3b82f6;
-            --chart-1: #0a0a0a;
-            --chart-2: #64748b;
-            --chart-3: #94a3b8;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --bg-surface: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-tertiary: #94a3b8;
-            --border-light: #334155;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
+            --bg-primary: #0A0F1E;
+            --bg-surface: #151A2D;
+            --bg-card: #1E2439;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A8C0;
+            --text-tertiary: #6B7280;
+            --accent: #134e5e;
+            --accent-light: #1c6b80;
+            --accent-dark: #0d3a47;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --border: #2A3045;
+            --gradient-start: #134e5e;
+            --gradient-end: #1c6b80;
         }
 
         body {
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
         }
 
         #app {
             max-width: 480px;
             margin: 0 auto;
-            background: var(--bg-surface);
+            background: var(--bg-primary);
             min-height: 100vh;
             position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
         }
 
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .scale-in {
+            animation: scaleIn 0.3s ease-out;
+        }
+
         /* Header */
         .header {
-            padding: 24px 20px 16px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border-light);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            padding: 24px 20px 12px;
+            background: var(--bg-primary);
+            animation: fadeIn 0.5s ease-out;
         }
 
         .greeting-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .greeting {
             font-size: 28px;
-            font-weight: 800;
+            font-weight: 700;
+            color: var(--text-primary);
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .greeting span {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--info) 100%);
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .theme-toggle {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 10px 14px;
-            cursor: pointer;
-            font-size: 18px;
-            color: var(--text-secondary);
-        }
-
         .date-badge {
-            background: var(--bg-primary);
-            padding: 12px 18px;
+            background: var(--bg-card);
+            padding: 10px 18px;
             border-radius: 30px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             color: var(--text-secondary);
-            border: 1px solid var(--border-light);
+            border: 1px solid var(--border);
             display: inline-flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 16px;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .date-badge i {
+            color: var(--accent);
         }
 
         /* Goals Card */
         .goals-container {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-            border-radius: 24px;
+            background: var(--bg-card);
+            border-radius: 28px;
             padding: 20px;
-            color: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-top: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        .goals-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.5);
         }
 
         .goal-header {
@@ -141,17 +164,17 @@
 
         .goal-title {
             font-size: 18px;
-            font-weight: 700;
-            opacity: 0.9;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         .goal-rating {
-            background: rgba(255,255,255,0.2);
-            padding: 6px 14px;
+            background: var(--bg-surface);
+            padding: 6px 16px;
             border-radius: 30px;
             font-size: 13px;
             font-weight: 600;
-            backdrop-filter: blur(5px);
+            color: var(--accent);
         }
 
         .goal-progress-row {
@@ -164,30 +187,40 @@
             width: 80px;
             height: 80px;
             position: relative;
+            flex-shrink: 0;
         }
 
         .progress-ring {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: conic-gradient(white 0deg 0deg, rgba(255,255,255,0.2) 0deg 360deg);
+            background: conic-gradient(var(--accent) 0deg 0deg, var(--border) 0deg 360deg);
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.5s ease;
         }
 
         .progress-ring-inner {
-            width: 62px;
-            height: 62px;
-            background: var(--accent);
+            width: 64px;
+            height: 64px;
+            background: var(--bg-card);
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+        }
+
+        .progress-ring-inner span:first-child {
+            font-size: 20px;
             font-weight: 700;
-            color: white;
+            color: var(--text-primary);
+        }
+
+        .progress-ring-inner span:last-child {
+            font-size: 10px;
+            color: var(--text-secondary);
         }
 
         .progress-stats {
@@ -197,16 +230,19 @@
         .progress-stat-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 14px;
+            padding: 4px 0;
+            border-bottom: 1px dashed var(--border);
         }
 
         .progress-stat-label {
-            opacity: 0.8;
+            color: var(--text-secondary);
         }
 
         .progress-stat-value {
             font-weight: 700;
+            color: var(--text-primary);
         }
 
         /* Main Content */
@@ -220,6 +256,7 @@
         /* Tab Content */
         .tab-content {
             display: none;
+            animation: fadeIn 0.4s ease-out;
         }
 
         .tab-content.active {
@@ -229,16 +266,23 @@
         /* Cards */
         .card {
             background: var(--bg-surface);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.5);
+            border-color: var(--accent);
         }
 
         .card-title {
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
@@ -250,117 +294,161 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 16px;
         }
 
         .stat-item {
-            background: var(--bg-primary);
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 16px 8px;
             text-align: center;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .stat-item:hover {
+            border-color: var(--accent);
+            transform: scale(1.02);
         }
 
         .stat-label {
             font-size: 12px;
             color: var(--text-tertiary);
             margin-bottom: 6px;
-            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .stat-number {
             font-size: 28px;
-            font-weight: 800;
+            font-weight: 700;
             color: var(--text-primary);
-            line-height: 1;
+            line-height: 1.2;
             margin-bottom: 4px;
         }
 
         .stat-trend {
             font-size: 11px;
             font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
         }
 
-        .trend-up { color: var(--success); }
-        .trend-down { color: var(--error); }
+        .trend-up { 
+            color: var(--success);
+            background: rgba(16,185,129,0.1);
+        }
+        .trend-down { 
+            color: var(--error);
+            background: rgba(239,68,68,0.1);
+        }
+        .trend-neutral { 
+            color: var(--text-tertiary);
+            background: rgba(107,114,128,0.1);
+        }
 
         /* Tables */
         .table-container {
             overflow-x: auto;
+            border-radius: 20px;
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 14px;
         }
 
         .data-table th {
             text-align: left;
-            padding: 16px 8px 12px;
+            padding: 14px 8px 12px;
             font-size: 12px;
             font-weight: 600;
             color: var(--text-tertiary);
-            border-bottom: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .data-table td {
             padding: 14px 8px;
-            font-size: 14px;
-            border-bottom: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr {
+            transition: all 0.2s ease;
+        }
+
+        .data-table tr:hover {
+            background: var(--bg-card);
+            transform: scale(1.01);
+            border-radius: 12px;
         }
 
         .shop-info {
             font-weight: 600;
             color: var(--text-primary);
+            font-size: 14px;
         }
 
         .phone-info {
             font-size: 12px;
-            color: var(--text-tertiary);
+            color: var(--text-secondary);
+            font-family: monospace;
+            letter-spacing: 0.5px;
         }
 
         .type-badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
+            transition: all 0.2s ease;
         }
 
         .type-onboard {
-            background: #3b82f620;
-            color: #3b82f6;
+            background: rgba(19,78,94,0.15);
+            color: #1c6b80;
         }
 
         .type-trade {
-            background: #10b98120;
-            color: #10b981;
+            background: rgba(16,185,129,0.15);
+            color: #34D399;
         }
 
         .status-badge {
             display: inline-block;
             padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 12px;
+            border-radius: 20px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
             border: none;
             background: none;
+            transition: all 0.2s ease;
         }
 
-        .status-badge:active {
-            opacity: 0.7;
+        .status-badge:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
         }
 
         .status-traded {
-            background: #10b98120;
-            color: #10b981;
+            background: rgba(16,185,129,0.15);
+            color: #10B981;
         }
 
         .status-pending {
-            background: #f59e0b20;
-            color: #f59e0b;
+            background: rgba(245,158,11,0.15);
+            color: #F59E0B;
         }
 
         /* Calendar */
@@ -373,23 +461,26 @@
 
         .calendar-month {
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-primary);
         }
 
-        .calendar-nav {
-            display: flex;
-            gap: 12px;
-        }
-
         .calendar-nav button {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            padding: 8px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 8px 16px;
             cursor: pointer;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 13px;
+            margin-left: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
         }
 
         .calendar-weekdays {
@@ -419,32 +510,39 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: var(--bg-primary);
+            background: var(--bg-card);
             border-radius: 16px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             position: relative;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-day:hover:not(.disabled) {
+            transform: scale(1.05);
+            background: var(--accent);
+            color: white;
         }
 
         .calendar-day.has-data {
             background: var(--accent);
             color: white;
-            font-weight: 600;
+            animation: pulse 2s infinite;
         }
 
-        .calendar-day.has-data .day-indicator {
-            background: white;
+        .calendar-day.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            background: transparent;
         }
 
-        .calendar-day.selected {
-            outline: 3px solid var(--accent);
-            outline-offset: 2px;
+        .calendar-day.today {
+            border: 2px solid var(--accent);
         }
 
         .day-number {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
         }
 
@@ -452,7 +550,7 @@
             width: 4px;
             height: 4px;
             border-radius: 2px;
-            background: var(--accent);
+            background: white;
             margin-top: 2px;
         }
 
@@ -465,13 +563,12 @@
             max-width: 480px;
             margin: 0 auto;
             background: var(--bg-surface);
-            border-radius: 30px 30px 0 0;
+            border-radius: 32px 32px 0 0;
             padding: 24px;
             transform: translateY(100%);
-            transition: transform 0.3s ease-out;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
-            border-top: 1px solid var(--border-light);
-            box-shadow: 0 -5px 30px rgba(0,0,0,0.1);
+            border-top: 1px solid var(--border);
             max-height: 80vh;
             overflow-y: auto;
         }
@@ -488,23 +585,30 @@
         }
 
         .sheet-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--text-primary);
         }
 
         .close-sheet {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             color: var(--text-secondary);
             font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .close-sheet:hover {
+            background: var(--error);
+            color: white;
+            transform: rotate(90deg);
         }
 
         .sheet-stats {
@@ -512,59 +616,62 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-bottom: 24px;
-            background: var(--bg-primary);
-            border-radius: 20px;
-            padding: 16px;
         }
 
         .sheet-stat {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 16px 8px;
             text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .sheet-stat:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
         }
 
         .sheet-stat-value {
-            font-size: 24px;
-            font-weight: 800;
+            font-size: 26px;
+            font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 4px;
         }
 
         .sheet-stat-label {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* Floating Action Button */
-        .fab {
+        /* FAB - Robot */
+        .fab-robot {
             position: fixed;
             bottom: 100px;
             right: 20px;
             max-width: 480px;
             margin: 0 auto;
-            width: 60px;
-            height: 60px;
-            background: var(--accent);
-            border-radius: 30px;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            border-radius: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            font-size: 28px;
+            box-shadow: 0 10px 30px rgba(19,78,94,0.4);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
             z-index: 100;
             border: none;
-            animation: pulse 2s infinite;
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-            50% { box-shadow: 0 8px 30px rgba(0,0,0,0.5); transform: scale(1.05); }
-            100% { box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-        }
-
-        .fab:active {
-            transform: scale(0.95);
+        .fab-robot:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(19,78,94,0.6);
         }
 
         /* Bottom Navigation */
@@ -576,10 +683,11 @@
             max-width: 480px;
             margin: 0 auto;
             background: var(--bg-surface);
-            border-top: 1px solid var(--border-light);
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-around;
-            padding: 12px 8px 24px;
+            align-items: center;
+            padding: 12px 0 20px;
             z-index: 100;
             backdrop-filter: blur(10px);
         }
@@ -588,25 +696,69 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             color: var(--text-tertiary);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             cursor: pointer;
-            transition: color 0.2s;
             background: none;
             border: none;
-            padding: 8px 12px;
-            border-radius: 30px;
+            padding: 8px 0;
+            transition: all 0.2s ease;
+            position: relative;
         }
 
         .nav-item i {
-            font-size: 20px;
+            font-size: 22px;
+            transition: all 0.2s ease;
         }
 
         .nav-item.active {
             color: var(--accent);
-            background: var(--bg-primary);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--accent);
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .nav-plus {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-top: -24px;
+            box-shadow: 0 10px 25px rgba(19,78,94,0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .nav-plus:hover {
+            transform: scale(1.1) translateY(-5px);
+        }
+
+        .nav-plus.active {
+            color: white;
+        }
+
+        .nav-plus.active::after {
+            display: none;
         }
 
         /* Modal */
@@ -617,7 +769,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.8);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -626,50 +778,55 @@
 
         .modal.active {
             display: flex;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .modal-content {
             background: var(--bg-surface);
-            border-radius: 30px;
+            border-radius: 32px;
             padding: 28px;
             width: 90%;
             max-width: 400px;
             max-height: 80vh;
             overflow-y: auto;
+            animation: scaleIn 0.4s ease-out;
+            border: 1px solid var(--border);
         }
 
         .modal h3 {
             font-size: 24px;
-            font-weight: 800;
+            font-weight: 700;
             margin-bottom: 8px;
             color: var(--text-primary);
         }
 
         .modal p {
-            color: var(--text-tertiary);
+            color: var(--text-secondary);
             margin-bottom: 24px;
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .modal textarea {
             width: 100%;
-            min-height: 250px;
-            padding: 20px;
-            border: 2px solid var(--border-light);
+            min-height: 200px;
+            padding: 18px;
+            border: 1px solid var(--border);
             border-radius: 20px;
-            background: var(--bg-primary);
+            background: var(--bg-card);
             color: var(--text-primary);
             font-size: 14px;
-            line-height: 1.7;
+            line-height: 1.6;
             margin-bottom: 24px;
             resize: vertical;
             font-family: 'Inter', monospace;
+            transition: all 0.2s ease;
         }
 
         .modal textarea:focus {
             outline: none;
             border-color: var(--accent);
+            transform: scale(1.02);
         }
 
         .modal-actions {
@@ -682,31 +839,132 @@
             padding: 16px;
             border-radius: 30px;
             border: none;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 15px;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: all 0.2s ease;
         }
 
         .btn-primary {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: white;
         }
 
-        .btn-secondary {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-light);
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(19,78,94,0.3);
         }
 
-        .btn:active {
-            opacity: 0.8;
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            transform: translateY(-2px);
+        }
+
+        /* Notes Input */
+        .notes-input-group {
+            margin-bottom: 20px;
+        }
+
+        .notes-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .notes-field {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .notes-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .notes-radio-group {
+            display: flex;
+            gap: 24px;
+            margin: 20px 0;
+        }
+
+        .notes-radio {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .notes-radio input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .raw-notes-display {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* Variance Indicators */
+        .variance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .variance-positive {
+            background: rgba(16,185,129,0.15);
+            color: #10B981;
+        }
+
+        .variance-negative {
+            background: rgba(239,68,68,0.15);
+            color: #EF4444;
+        }
+
+        .variance-neutral {
+            background: var(--bg-card);
+            color: var(--text-tertiary);
         }
 
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px 16px;
             color: var(--text-tertiary);
         }
 
@@ -714,29 +972,16 @@
             font-size: 48px;
             margin-bottom: 16px;
             opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
         }
 
         /* Chart Containers */
         .chart-container {
-            height: 200px;
+            height: 180px;
             margin: 20px 0;
-            position: relative;
-        }
-
-        /* Loading */
-        .loader {
-            border: 3px solid var(--border-light);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 20px;
         }
 
         /* Toast */
@@ -747,42 +992,67 @@
             right: 20px;
             max-width: 440px;
             margin: 0 auto;
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: white;
-            padding: 16px 20px;
-            border-radius: 30px;
+            padding: 16px 24px;
+            border-radius: 40px;
             text-align: center;
             font-weight: 600;
+            font-size: 15px;
             z-index: 3000;
-            animation: slideUp 0.3s ease;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+            box-shadow: 0 10px 30px rgba(19,78,94,0.4);
         }
 
         @keyframes slideUp {
             from { transform: translateY(100px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            z-index: 3000;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div id="app">
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loadingSpinner"></div>
+
         <!-- Header -->
         <div class="header">
             <div class="greeting-row">
                 <div class="greeting">
                     Hello <span>Richard</span>
                 </div>
-                <div class="theme-toggle" onclick="window.toggleTheme()">
-                    <i class="fas fa-moon"></i>
-                </div>
             </div>
             <div class="date-badge">
                 <i class="far fa-calendar-alt"></i>
-                <span id="currentDate">25 Feb 2026</span>
+                <span id="currentDate">Loading...</span>
             </div>
             
             <!-- Goals Card -->
-            <div class="goals-container">
+            <div class="goals-container" id="goalsContainer">
                 <div class="goal-header">
                     <span class="goal-title">February Goals</span>
                     <span class="goal-rating" id="monthlyRating">Good</span>
@@ -792,6 +1062,7 @@
                         <div class="progress-ring" id="progressRing">
                             <div class="progress-ring-inner">
                                 <span id="progressPercent">0%</span>
+                                <span>done</span>
                             </div>
                         </div>
                     </div>
@@ -810,37 +1081,37 @@
         </div>
 
         <!-- Main Content -->
-        <div class="main-content">
+        <div class="main-content" id="mainContent">
             <!-- Home Tab -->
             <div id="home-tab" class="tab-content active">
                 <div class="card">
                     <div class="card-title">
-                        Today's Summary
-                        <i class="fas fa-chart-line" style="color: var(--text-tertiary);"></i>
+                        <span id="homeSummaryTitle">Yesterday's Summary</span>
+                        <span class="variance-badge variance-neutral" id="dailyVariance">vs previous</span>
                     </div>
                     <div class="stats-grid">
                         <div class="stat-item">
                             <div class="stat-label">Trades</div>
                             <div class="stat-number" id="todayTrades">0</div>
-                            <div class="stat-trend trend-up" id="tradeTrend">+0%</div>
+                            <div class="stat-trend trend-neutral" id="tradeTrend">0%</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Onboards</div>
                             <div class="stat-number" id="todayOnboards">0</div>
-                            <div class="stat-trend trend-up" id="onboardTrend">+0%</div>
+                            <div class="stat-trend trend-neutral" id="onboardTrend">0%</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Conversion</div>
                             <div class="stat-number" id="todayConversion">0%</div>
-                            <div class="stat-trend" id="conversionTrend">0%</div>
+                            <div class="stat-trend trend-neutral" id="conversionTrend">0%</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-title">
-                        Today's Activity
-                        <span onclick="window.refreshData()" style="cursor:pointer;">
+                        <span id="activityTitle">Yesterday's Activity</span>
+                        <span onclick="refreshData()" style="cursor:pointer;">
                             <i class="fas fa-sync-alt"></i>
                         </span>
                     </div>
@@ -855,7 +1126,7 @@
                                 </tr>
                             </thead>
                             <tbody id="todayActivityBody">
-                                <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+                                <tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -868,8 +1139,8 @@
                     <div class="calendar-header">
                         <div class="calendar-month" id="calendarMonth">February 2026</div>
                         <div class="calendar-nav">
-                            <button onclick="window.changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                            <button onclick="window.changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                            <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
                         </div>
                     </div>
                     
@@ -882,9 +1153,7 @@
                         <div class="weekday">S</div>
                         <div class="weekday">S</div>
                     </div>
-                    <div class="calendar-grid" id="calendarDays">
-                        <!-- Generated by JS -->
-                    </div>
+                    <div class="calendar-grid" id="calendarDays"></div>
                 </div>
             </div>
 
@@ -894,16 +1163,63 @@
                     <div class="card-title">
                         Daily Report
                         <div style="display:flex; gap:8px;">
-                            <button class="btn-secondary" style="padding:8px 16px;" onclick="window.copyReport()">
-                                <i class="far fa-copy"></i>
+                            <button class="btn-secondary" style="padding:8px 16px; font-size:13px;" onclick="copyReport()">
+                                <i class="far fa-copy"></i> Copy
                             </button>
-                            <button class="btn-secondary" style="padding:8px 16px;" onclick="window.shareToWhatsApp()">
-                                <i class="fab fa-whatsapp"></i>
+                            <button class="btn-primary" style="padding:8px 16px; font-size:13px;" onclick="shareToWhatsApp()">
+                                <i class="fab fa-whatsapp"></i> Share
                             </button>
                         </div>
                     </div>
-                    <div style="background: var(--bg-primary); padding:24px; border-radius:20px; font-family: 'Inter', monospace; white-space: pre-wrap; font-size:14px; line-height:2;" id="dailyReport">
+                    <div style="background: var(--bg-card); padding:24px; border-radius:20px; font-family: monospace; white-space: pre-wrap; font-size:14px; line-height:1.8; color: var(--text-secondary);" id="dailyReport">
                         Loading...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Tab -->
+            <div id="notes-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        Quick Notes
+                        <span onclick="clearNotes()" style="cursor:pointer;">
+                            <i class="fas fa-trash"></i>
+                        </span>
+                    </div>
+                    
+                    <div class="notes-input-group">
+                        <div class="notes-label">Shop Name</div>
+                        <input type="text" class="notes-field" id="noteShopName" placeholder="e.g., Kensafe Retail">
+                    </div>
+                    
+                    <div class="notes-input-group">
+                        <div class="notes-label">Phone Number</div>
+                        <input type="text" class="notes-field" id="notePhone" placeholder="072449218">
+                    </div>
+                    
+                    <div class="notes-radio-group">
+                        <label class="notes-radio">
+                            <input type="radio" name="noteType" value="onboarding" checked> Onboard
+                        </label>
+                        <label class="notes-radio">
+                            <input type="radio" name="noteType" value="newtrade"> New Trade
+                        </label>
+                    </div>
+                    
+                    <button class="btn btn-primary" style="width:100%; margin-bottom:20px;" onclick="addNote()">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                    
+                    <div class="notes-label">Today's Notes (<span id="noteCount">0</span>)</div>
+                    <div class="raw-notes-display" id="rawNotes">No notes yet</div>
+                    
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button class="btn btn-secondary" style="flex:1;" onclick="copyRawNotes()">
+                            <i class="far fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-primary" style="flex:1;" onclick="processNotes()">
+                            <i class="fas fa-magic"></i> Process
+                        </button>
                     </div>
                 </div>
             </div>
@@ -914,19 +1230,19 @@
                     <div class="card-title">Streak & Records</div>
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <div class="stat-label">Current Streak</div>
+                            <div class="stat-label">Streak</div>
                             <div class="stat-number" id="streakCount">0</div>
-                            <div class="stat-label">days</div>
+                            <div class="stat-trend trend-neutral">days</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Best Day</div>
                             <div class="stat-number" id="bestDayCount">0</div>
-                            <div class="stat-label" id="bestDayDate">-</div>
+                            <div class="stat-trend trend-neutral" id="bestDayDate">-</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-label">Total Shops</div>
+                            <div class="stat-label">Total</div>
                             <div class="stat-number" id="totalShops">0</div>
-                            <div class="stat-label">lifetime</div>
+                            <div class="stat-trend trend-neutral">shops</div>
                         </div>
                     </div>
                 </div>
@@ -963,53 +1279,48 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-title">Performance Stats</div>
+                    <div class="card-title">Stats</div>
                     <table class="data-table">
-                        <tr>
-                            <td>Total Trades</td>
-                            <td><strong id="totalTrades">0</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Total Onboards</td>
-                            <td><strong id="totalOnboards">0</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Conversion Rate</td>
-                            <td><strong id="totalConversion">0%</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Avg Daily Trades</td>
-                            <td><strong id="avgDaily">0</strong></td>
-                        </tr>
+                        <tr><td>Total Trades</td><td><strong id="totalTrades">0</strong></td></tr>
+                        <tr><td>Total Onboards</td><td><strong id="totalOnboards">0</strong></td></tr>
+                        <tr><td>Conversion Rate</td><td><strong id="totalConversion">0%</strong></td></tr>
+                        <tr><td>Avg Daily</td><td><strong id="avgDaily">0</strong></td></tr>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Floating Action Button -->
-        <button class="fab" onclick="window.openAIModal()">
-            <i class="fas fa-plus"></i>
+        <!-- Robot FAB -->
+        <button class="fab-robot" onclick="openAIModal()">
+            <i class="fas fa-robot"></i>
         </button>
 
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
-            <button class="nav-item active" onclick="window.switchTab('home')">
+            <button class="nav-item active" onclick="switchTab('home')">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </button>
-            <button class="nav-item" onclick="window.switchTab('calendar')">
+            <button class="nav-item" onclick="switchTab('calendar')">
                 <i class="fas fa-calendar-alt"></i>
                 <span>Calendar</span>
             </button>
-            <button class="nav-item" onclick="window.switchTab('reports')">
+            <button class="nav-item" onclick="switchTab('reports')">
                 <i class="fas fa-file-alt"></i>
                 <span>Reports</span>
             </button>
-            <button class="nav-item" onclick="window.switchTab('progress')">
+            <button class="nav-item nav-plus" onclick="openAIModal()">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="nav-item" onclick="switchTab('notes')">
+                <i class="fas fa-pen"></i>
+                <span>Notes</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('progress')">
                 <i class="fas fa-chart-line"></i>
                 <span>Progress</span>
             </button>
-            <button class="nav-item" onclick="window.switchTab('analytics')">
+            <button class="nav-item" onclick="switchTab('analytics')">
                 <i class="fas fa-chart-pie"></i>
                 <span>Analytics</span>
             </button>
@@ -1018,19 +1329,21 @@
         <!-- AI Input Modal -->
         <div class="modal" id="aiModal">
             <div class="modal-content">
-                <h3>Add Daily Notes</h3>
-                <p>Paste your raw field notes. The AI will automatically organize them into today's report and update historical data when shops trade later.</p>
-                <textarea id="aiInput" placeholder="Example:
-25 Feb
-*Onboarding*
+                <h3>Add Daily Data</h3>
+                <p>Paste your raw field notes. AI will organize them for the selected date.</p>
+                <div style="margin-bottom: 16px;">
+                    <label class="notes-label">Select Date</label>
+                    <input type="date" id="aiDate" class="notes-field" value="2026-02-26" min="2026-02-14" max="2026-02-26">
+                </div>
+                <textarea id="aiInput" placeholder="Onboarding
 1. Kensafe Retail 072449218
 2. Mama Hans 0721437447
 
-*New trade*
+New trade
 1. Come and see 0736468481"></textarea>
                 <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="window.closeAIModal()">Cancel</button>
-                    <button class="btn btn-primary" onclick="window.processAIData()">Process & Save</button>
+                    <button class="btn btn-secondary" onclick="closeAIModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="processAIData()">Process</button>
                 </div>
             </div>
         </div>
@@ -1039,7 +1352,7 @@
         <div class="bottom-sheet" id="dateSheet">
             <div class="sheet-header">
                 <div class="sheet-title" id="sheetDate">Loading...</div>
-                <button class="close-sheet" onclick="window.closeSheet()">✕</button>
+                <button class="close-sheet" onclick="closeSheet()">✕</button>
             </div>
             <div class="sheet-stats" id="sheetStats"></div>
             <div style="max-height: 300px; overflow-y: auto;">
@@ -1047,29 +1360,18 @@
                     <thead>
                         <tr>
                             <th>Shop</th>
+                            <th>Phone</th>
                             <th>Type</th>
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="sheetTable">
-                    </tbody>
+                    <tbody id="sheetTable"></tbody>
                 </table>
-            </div>
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button class="btn btn-secondary" style="flex:1;" onclick="window.editSelectedDate()">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-primary" style="flex:1;" onclick="window.addToSelectedDate()">
-                    <i class="fas fa-plus"></i> Add
-                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Make all functions globally available
-        window.supabase = supabase;
-
         // ==================== SUPABASE CONFIG ====================
         const SUPABASE_URL = 'https://vhvyrhztcpnczhuxvjkd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZodnlyaHp0Y3BuY3podXh2amtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NzIzNDAsImV4cCI6MjA1MTI0ODM0MH0.3gR3kPvE2sLrJg9nQmTkFb7cX8yVdRqLpZmNvWxYzUc';
@@ -1078,22 +1380,47 @@
 
         // ==================== GLOBAL STATE ====================
         let reports = [];
+        let notes = JSON.parse(localStorage.getItem('seviNotes')) || [];
         let charts = {};
-        let currentTheme = 'light';
         let selectedDate = null;
-        let currentMonth = 1; // February (0-indexed)
+        let currentMonth = 1; // February
         let currentYear = 2026;
+        let today = new Date();
+        let currentDate = formatDate(today);
 
         // Monthly Goals
         const MONTHLY_GOALS = {
-            1: { trades: 20, onboards: 30 }, // February
-            2: { trades: 25, onboards: 35 }, // March
-            3: { trades: 30, onboards: 40 }  // April
+            1: { trades: 20, onboards: 30 } // February
         };
+
+        // Helper function to format date as YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Get yesterday's date
+        function getYesterdayDate() {
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            return formatDate(yesterday);
+        }
+
+        // Check if date is editable (14th onwards and not future)
+        function isDateEditable(dateStr) {
+            const date = new Date(dateStr);
+            const minDate = new Date('2026-02-14');
+            const today_date = new Date(currentDate);
+            
+            return date >= minDate && date <= today_date;
+        }
 
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', async () => {
-            await loadData();
+            showLoading();
+            await initializeData();
             updateDateDisplay();
             renderHome();
             renderCalendar();
@@ -1101,53 +1428,46 @@
             updateProgress();
             updateAnalytics();
             initCharts();
-            checkTheme();
+            updateNotesDisplay();
+            hideLoading();
         });
 
-        // ==================== DATA LOADING ====================
-        async function loadData() {
-            try {
-                // Try Supabase first
-                const { data: supabaseData, error } = await supabaseClient
-                    .from('reports')
-                    .select('*')
-                    .order('date', { ascending: false });
-
-                if (error) throw error;
-
-                if (supabaseData && supabaseData.length > 0) {
-                    reports = supabaseData;
-                } else {
-                    // Start with today's data only (25 Feb)
-                    reports = getTodaysData();
-                    
-                    // Save to Supabase
-                    await syncToSupabase(reports);
-                }
-
-                // Always save to localStorage for offline
-                localStorage.setItem('seviReports', JSON.stringify(reports));
-                
-            } catch (error) {
-                console.error('Error loading data:', error);
-                // Fallback to localStorage or today's data
-                const localData = localStorage.getItem('seviReports');
-                reports = localData ? JSON.parse(localData) : getTodaysData();
-            }
+        function showLoading() {
+            document.getElementById('loadingSpinner').classList.add('active');
         }
 
-        function getTodaysData() {
-            return [
-                // 25 Feb 2026 - Today's data
-                { id: Date.now() + 1, date: "2026-02-25", shopName: "Kensafe Retail", phoneNumber: "072449218", type: "onboarding", status: "not-traded" },
-                { id: Date.now() + 2, date: "2026-02-25", shopName: "Mama Hans", phoneNumber: "0721437447", type: "onboarding", status: "not-traded" },
-                { id: Date.now() + 3, date: "2026-02-25", shopName: "Jackie Shop", phoneNumber: "0723357880", type: "onboarding", status: "not-traded" },
-                { id: Date.now() + 4, date: "2026-02-25", shopName: "Local Pub", phoneNumber: "0725975519", type: "onboarding", status: "not-traded" },
-                { id: Date.now() + 5, date: "2026-02-25", shopName: "Daddy Ocholla", phoneNumber: "0729673273", type: "onboarding", status: "not-traded" },
-                { id: Date.now() + 6, date: "2026-02-25", shopName: "Come and see", phoneNumber: "0736468481", type: "newtrade", status: "not-traded" },
-                { id: Date.now() + 7, date: "2026-02-25", shopName: "Opiyo Monic", phoneNumber: "0724645297", type: "newtrade", status: "not-traded" },
-                { id: Date.now() + 8, date: "2026-02-25", shopName: "Nbraview Autospare", phoneNumber: "0716324556", type: "newtrade", status: "not-traded" }
-            ];
+        function hideLoading() {
+            setTimeout(() => {
+                document.getElementById('loadingSpinner').classList.remove('active');
+            }, 500);
+        }
+
+        // ==================== INITIALIZE WITH DATA ====================
+        async function initializeData() {
+            // Load from localStorage or initialize with sample data for 14th-26th
+            const stored = localStorage.getItem('seviReports');
+            if (stored) {
+                reports = JSON.parse(stored);
+            } else {
+                // Add sample data for 14th Feb (first day)
+                reports = [
+                    // 14th February data
+                    { id: Date.now() + 1, date: "2026-02-14", shopName: "Alpha Store", phoneNumber: "0712345678", type: "onboarding", status: "not-traded" },
+                    { id: Date.now() + 2, date: "2026-02-14", shopName: "Beta Shop", phoneNumber: "0723456789", type: "newtrade", status: "traded" },
+                    
+                    // 25th February data (your original data)
+                    { id: Date.now() + 3, date: "2026-02-25", shopName: "Kensafe Retail", phoneNumber: "072449218", type: "onboarding", status: "not-traded" },
+                    { id: Date.now() + 4, date: "2026-02-25", shopName: "Mama Hans", phoneNumber: "0721437447", type: "onboarding", status: "not-traded" },
+                    { id: Date.now() + 5, date: "2026-02-25", shopName: "Jackie Shop", phoneNumber: "0723357880", type: "onboarding", status: "not-traded" },
+                    { id: Date.now() + 6, date: "2026-02-25", shopName: "Local Pub", phoneNumber: "0725975519", type: "onboarding", status: "not-traded" },
+                    { id: Date.now() + 7, date: "2026-02-25", shopName: "Daddy Ocholla", phoneNumber: "0729673273", type: "onboarding", status: "not-traded" },
+                    { id: Date.now() + 8, date: "2026-02-25", shopName: "Come and see", phoneNumber: "0736468481", type: "newtrade", status: "traded" },
+                    { id: Date.now() + 9, date: "2026-02-25", shopName: "Opiyo Monic", phoneNumber: "0724645297", type: "newtrade", status: "traded" },
+                    { id: Date.now() + 10, date: "2026-02-25", shopName: "Nbraview Autospare", phoneNumber: "0716324556", type: "newtrade", status: "traded" }
+                ];
+                localStorage.setItem('seviReports', JSON.stringify(reports));
+            }
+            await syncToSupabase(reports);
         }
 
         async function syncToSupabase(data) {
@@ -1155,7 +1475,6 @@
                 const { error } = await supabaseClient
                     .from('reports')
                     .upsert(data, { onConflict: 'id' });
-                
                 if (error) console.error('Sync error:', error);
             } catch (error) {
                 console.error('Sync error:', error);
@@ -1163,59 +1482,52 @@
         }
 
         // ==================== AI DATA PROCESSING ====================
-        window.processAIData = async function() {
+        function processAIData() {
+            showLoading();
             const rawText = document.getElementById('aiInput').value;
+            const selectedDate = document.getElementById('aiDate').value;
+            
+            // Check if date is editable
+            if (!isDateEditable(selectedDate)) {
+                showToast('Cannot add data for future dates or before 14th Feb');
+                hideLoading();
+                return;
+            }
+            
             const lines = rawText.split('\n');
             
-            let currentDate = null;
             let currentSection = null;
             let processed = [];
-            let today = new Date().toISOString().split('T')[0];
             
             for (let line of lines) {
                 line = line.trim();
                 if (!line) continue;
                 
-                // Check for date
-                if (line.match(/^\d{1,2}\s+[A-Za-z]{3}/)) {
-                    const [day, month] = line.split(' ');
-                    const months = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06',
-                                   'Jul':'07', 'Aug':'08', 'Sep':'09', 'Oct':'10', 'Nov':'11', 'Dec':'12'};
-                    if (months[month]) {
-                        currentDate = `2026-${months[month]}-${day.padStart(2,'0')}`;
-                    }
-                }
-                
                 // Check for sections
-                else if (line.includes('*Onboarding*') || line.includes('*onboarding*')) {
+                if (line.toLowerCase().includes('onboarding') || line.toLowerCase().includes('onboard')) {
                     currentSection = 'onboarding';
                 }
-                else if (line.includes('*New trade*') || line.includes('*new trade*')) {
+                else if (line.toLowerCase().includes('new trade') || line.toLowerCase().includes('trade')) {
                     currentSection = 'newtrade';
                 }
                 
                 // Extract shop data
                 else if (line.match(/^\d+\./)) {
-                    // Remove the number and dot
                     let text = line.replace(/^\d+\.\s*/, '');
-                    
-                    // Extract phone number (Kenyan format)
                     const phoneMatch = text.match(/0\d{9}|0\d{2}\s?\d{3}\s?\d{3}/);
+                    
                     if (phoneMatch) {
                         let phoneNumber = phoneMatch[0].replace(/\s/g, '');
-                        let shopName = text.replace(phoneMatch[0], '').trim();
-                        
-                        // Clean up shop name
-                        shopName = shopName.replace(/[.,]$/, '').trim();
+                        let shopName = text.replace(phoneMatch[0], '').trim().replace(/[.,]$/, '');
                         
                         if (shopName && phoneNumber) {
                             processed.push({
                                 id: Date.now() + Math.random(),
-                                date: currentDate || today,
+                                date: selectedDate,
                                 shopName: shopName,
                                 phoneNumber: phoneNumber,
                                 type: currentSection || 'onboarding',
-                                status: 'not-traded'
+                                status: currentSection === 'newtrade' ? 'traded' : 'not-traded'
                             });
                         }
                     }
@@ -1223,19 +1535,10 @@
             }
             
             if (processed.length > 0) {
-                showToast(`🔄 Processing ${processed.length} shops...`);
-                
-                // Check for existing phones to update statuses
-                await updateHistoricalStatuses(processed);
-                
-                // Add new reports
                 reports = [...reports, ...processed];
-                
-                // Save to Supabase and localStorage
-                await syncToSupabase(processed);
                 localStorage.setItem('seviReports', JSON.stringify(reports));
+                syncToSupabase(processed);
                 
-                // Refresh all views
                 renderHome();
                 renderCalendar();
                 updateReports();
@@ -1245,98 +1548,204 @@
                 initCharts();
                 
                 closeAIModal();
-                showToast(`✅ Successfully added ${processed.length} shops!`);
+                showToast(`✅ Added ${processed.length} shops for ${selectedDate}`);
                 document.getElementById('aiInput').value = '';
             } else {
-                showToast('❌ No valid data found. Check your format.');
+                showToast('❌ No valid data found');
             }
+            hideLoading();
         }
 
-        async function updateHistoricalStatuses(newEntries) {
-            // Group traded entries by phone
-            const tradedPhones = new Set();
-            newEntries.forEach(entry => {
-                if (entry.status === 'traded') {
-                    tradedPhones.add(entry.phoneNumber);
-                }
+        // ==================== NOTES SYSTEM ====================
+        function addNote() {
+            const shopName = document.getElementById('noteShopName').value.trim();
+            const phone = document.getElementById('notePhone').value.trim();
+            const type = document.querySelector('input[name="noteType"]:checked').value;
+            
+            if (!shopName || !phone) {
+                showToast('Please enter shop name and phone');
+                return;
+            }
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            
+            notes.push({
+                shopName,
+                phone,
+                type,
+                time: timeStr,
+                timestamp: now.getTime()
             });
             
-            if (tradedPhones.size === 0) return;
+            localStorage.setItem('seviNotes', JSON.stringify(notes));
             
-            // Find historical entries with same phone that are not traded
-            let updatesNeeded = [];
-            reports.forEach(report => {
-                if (tradedPhones.has(report.phoneNumber) && report.status !== 'traded') {
-                    report.status = 'traded';
-                    updatesNeeded.push(report);
-                }
+            document.getElementById('noteShopName').value = '';
+            document.getElementById('notePhone').value = '';
+            
+            updateNotesDisplay();
+            showToast('Note added');
+        }
+
+        function updateNotesDisplay() {
+            document.getElementById('noteCount').textContent = notes.length;
+            
+            if (notes.length === 0) {
+                document.getElementById('rawNotes').textContent = 'No notes yet';
+                return;
+            }
+            
+            let rawText = `${currentDate}\n\n`;
+            
+            const onboards = notes.filter(n => n.type === 'onboarding');
+            const trades = notes.filter(n => n.type === 'newtrade');
+            
+            if (onboards.length > 0) {
+                rawText += 'Onboarding\n';
+                onboards.forEach((n, i) => {
+                    rawText += `${i+1}. ${n.shopName} ${n.phone}\n`;
+                });
+                rawText += '\n';
+            }
+            
+            if (trades.length > 0) {
+                rawText += 'New trade\n';
+                trades.forEach((n, i) => {
+                    rawText += `${i+1}. ${n.shopName} ${n.phone}\n`;
+                });
+            }
+            
+            document.getElementById('rawNotes').textContent = rawText;
+        }
+
+        function copyRawNotes() {
+            const text = document.getElementById('rawNotes').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Notes copied');
+            });
+        }
+
+        function processNotes() {
+            if (notes.length === 0) {
+                showToast('No notes to process');
+                return;
+            }
+            
+            showLoading();
+            let processed = [];
+            
+            notes.forEach(note => {
+                processed.push({
+                    id: Date.now() + Math.random(),
+                    date: currentDate,
+                    shopName: note.shopName,
+                    phoneNumber: note.phone,
+                    type: note.type,
+                    status: note.type === 'newtrade' ? 'traded' : 'not-traded'
+                });
             });
             
-            // Update in Supabase
-            if (updatesNeeded.length > 0) {
-                await syncToSupabase(updatesNeeded);
-                showToast(`🔄 Updated ${updatesNeeded.length} historical entries`);
+            reports = [...reports, ...processed];
+            syncToSupabase(processed);
+            localStorage.setItem('seviReports', JSON.stringify(reports));
+            
+            // Clear notes
+            notes = [];
+            localStorage.setItem('seviNotes', JSON.stringify(notes));
+            
+            renderHome();
+            renderCalendar();
+            updateReports();
+            updateProgress();
+            updateAnalytics();
+            destroyCharts();
+            initCharts();
+            updateNotesDisplay();
+            
+            showToast(`✅ Processed ${processed.length} notes for today`);
+            hideLoading();
+        }
+
+        function clearNotes() {
+            if (confirm('Clear all notes?')) {
+                notes = [];
+                localStorage.setItem('seviNotes', JSON.stringify(notes));
+                updateNotesDisplay();
+                showToast('Notes cleared');
             }
         }
 
         // ==================== UI RENDERING ====================
         function renderHome() {
-            const today = new Date().toISOString().split('T')[0];
-            const todayReports = reports.filter(r => r.date === today);
+            // Show yesterday's data by default, unless we're adding today's data
+            const yesterday = getYesterdayDate();
+            const displayDate = yesterday;
             
-            const todayTrades = todayReports.filter(r => r.status === 'traded').length;
-            const todayOnboards = todayReports.filter(r => r.type === 'onboarding').length;
+            const dayReports = reports.filter(r => r.date === displayDate);
             
-            // Update stats
+            // Update title to show yesterday
+            const formattedDate = new Date(displayDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            document.getElementById('homeSummaryTitle').textContent = `${formattedDate}'s Summary`;
+            document.getElementById('activityTitle').textContent = `${formattedDate}'s Activity`;
+            
+            const todayTrades = dayReports.filter(r => r.status === 'traded').length;
+            const todayOnboards = dayReports.filter(r => r.type === 'onboarding').length;
+            
             document.getElementById('todayTrades').textContent = todayTrades;
             document.getElementById('todayOnboards').textContent = todayOnboards;
             
-            const conversion = todayReports.length ? 
-                Math.round((todayTrades / todayReports.length) * 100) : 0;
+            const conversion = dayReports.length ? Math.round((todayTrades / dayReports.length) * 100) : 0;
             document.getElementById('todayConversion').textContent = conversion + '%';
             
-            // Trends (compare with yesterday)
-            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-            const yesterdayTrades = reports.filter(r => r.date === yesterday && r.status === 'traded').length;
+            // Calculate trends vs previous day
+            const prevDate = new Date(displayDate);
+            prevDate.setDate(prevDate.getDate() - 1);
+            const prevDateStr = formatDate(prevDate);
+            const prevReports = reports.filter(r => r.date === prevDateStr);
+            const prevTrades = prevReports.filter(r => r.status === 'traded').length;
+            const prevOnboards = prevReports.filter(r => r.type === 'onboarding').length;
             
-            const tradeTrend = yesterdayTrades ? 
-                ((todayTrades - yesterdayTrades) / yesterdayTrades * 100).toFixed(0) : 0;
-            document.getElementById('tradeTrend').textContent = 
-                (tradeTrend > 0 ? '+' : '') + tradeTrend + '%';
+            const tradeTrend = prevTrades ? Math.round(((todayTrades - prevTrades) / prevTrades) * 100) : 0;
+            const onboardTrend = prevOnboards ? Math.round(((todayOnboards - prevOnboards) / prevOnboards) * 100) : 0;
+            
+            document.getElementById('tradeTrend').textContent = (tradeTrend > 0 ? '+' : '') + tradeTrend + '%';
+            document.getElementById('tradeTrend').className = `stat-trend ${tradeTrend > 0 ? 'trend-up' : tradeTrend < 0 ? 'trend-down' : 'trend-neutral'}`;
+            
+            document.getElementById('onboardTrend').textContent = (onboardTrend > 0 ? '+' : '') + onboardTrend + '%';
+            document.getElementById('onboardTrend').className = `stat-trend ${onboardTrend > 0 ? 'trend-up' : onboardTrend < 0 ? 'trend-down' : 'trend-neutral'}`;
+            
+            document.getElementById('conversionTrend').textContent = '0%';
+            document.getElementById('conversionTrend').className = 'stat-trend trend-neutral';
+            
+            document.getElementById('dailyVariance').textContent = 'vs previous day';
             
             // Today's activity table
             let html = '';
-            todayReports.forEach(r => {
+            dayReports.forEach(r => {
+                const typeText = r.type === 'onboarding' ? 'Onboard' : 'Verified';
+                const typeClass = r.type === 'onboarding' ? 'type-onboard' : 'type-trade';
+                const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
+                const statusClass = r.status === 'traded' ? 'status-traded' : 'status-pending';
+                
                 html += `<tr>
-                    <td>
-                        <div class="shop-info">${r.shopName}</div>
-                        <div class="phone-info">${r.phoneNumber}</div>
-                    </td>
-                    <td><span class="type-badge ${r.type === 'onboarding' ? 'type-onboard' : 'type-trade'}">${r.type === 'onboarding' ? 'Onboard' : 'Trade'}</span></td>
-                    <td><button class="status-badge ${r.status === 'traded' ? 'status-traded' : 'status-pending'}" onclick="window.toggleStatus(${r.id})">
-                        ${r.status === 'traded' ? '✓ Traded' : '○ Pending'}
-                    </button></td>
+                    <td><div class="shop-info">${r.shopName}</div></td>
+                    <td><div class="phone-info">${r.phoneNumber}</div></td>
+                    <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                    <td><button class="status-badge ${statusClass}" onclick="toggleStatus(${r.id})">${statusText}</button></td>
                 </tr>`;
             });
             
             document.getElementById('todayActivityBody').innerHTML = html || 
-                '<tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity today</td></tr>';
+                '<tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity for this day</td></tr>';
             
-            // Update goals
             updateGoals();
         }
 
         function updateGoals() {
-            const currentMonth = new Date().getMonth();
-            const goals = MONTHLY_GOALS[currentMonth] || { trades: 20, onboards: 30 };
+            const goals = MONTHLY_GOALS[1];
             
-            const monthReports = reports.filter(r => {
-                const d = new Date(r.date);
-                return d.getMonth() === currentMonth;
-            });
-            
-            const monthTrades = monthReports.filter(r => r.status === 'traded').length;
-            const monthOnboards = monthReports.filter(r => r.type === 'onboarding').length;
+            const monthTrades = reports.filter(r => r.status === 'traded').length;
+            const monthOnboards = reports.filter(r => r.type === 'onboarding').length;
             
             document.getElementById('tradesProgress').textContent = `${monthTrades}/${goals.trades}`;
             document.getElementById('onboardsProgress').textContent = `${monthOnboards}/${goals.onboards}`;
@@ -1345,12 +1754,10 @@
             const percent = Math.min(100, Math.round(totalProgress));
             document.getElementById('progressPercent').textContent = percent + '%';
             
-            // Update progress ring
             const degrees = (percent / 100) * 360;
             document.getElementById('progressRing').style.background = 
-                `conic-gradient(white 0deg ${degrees}deg, rgba(255,255,255,0.2) ${degrees}deg 360deg)`;
+                `conic-gradient(var(--accent) 0deg ${degrees}deg, var(--border) ${degrees}deg 360deg)`;
             
-            // Rating
             let rating = 'Poor';
             if (percent >= 90) rating = 'Excellent';
             else if (percent >= 70) rating = 'Good';
@@ -1368,7 +1775,7 @@
             
             // Previous month padding
             for (let i = 0; i < startOffset; i++) {
-                html += '<div class="calendar-day"></div>';
+                html += '<div class="calendar-day disabled"></div>';
             }
             
             // Current month days
@@ -1377,102 +1784,85 @@
                 const dayReports = reports.filter(r => r.date === dateStr);
                 const hasData = dayReports.length > 0;
                 
-                html += `<div class="calendar-day ${hasData ? 'has-data' : ''}" onclick="window.selectDate('${dateStr}')">
+                // Check if date is editable (14th onwards and not future)
+                const editable = isDateEditable(dateStr);
+                const isToday = dateStr === currentDate;
+                
+                let classes = 'calendar-day';
+                if (hasData) classes += ' has-data';
+                if (!editable) classes += ' disabled';
+                if (isToday) classes += ' today';
+                
+                html += `<div class="${classes}" onclick="selectDate('${dateStr}')">
                     <span class="day-number">${d}</span>
                     ${hasData ? '<span class="day-indicator"></span>' : ''}
                 </div>`;
             }
             
             document.getElementById('calendarDays').innerHTML = html;
-            document.getElementById('calendarMonth').textContent = 
-                new Date(currentYear, currentMonth).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+            document.getElementById('calendarMonth').textContent = 'February 2026';
         }
 
-        window.changeMonth = function(delta) {
-            currentMonth += delta;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            } else if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
+        function selectDate(dateStr) {
+            if (!isDateEditable(dateStr)) {
+                showToast('Cannot view/edit dates before 14th Feb or future dates');
+                return;
             }
-            renderCalendar();
-        }
-
-        window.selectDate = function(dateStr) {
+            
             selectedDate = dateStr;
             const dayReports = reports.filter(r => r.date === dateStr);
             
-            document.getElementById('sheetDate').textContent = 
-                new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            const dateObj = new Date(dateStr);
+            const formattedDate = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('sheetDate').textContent = formattedDate;
             
             const trades = dayReports.filter(r => r.status === 'traded').length;
             const onboards = dayReports.filter(r => r.type === 'onboarding').length;
             
             document.getElementById('sheetStats').innerHTML = `
                 <div class="sheet-stat">
-                    <div class="sheet-stat-value">${dayReports.length}</div>
+                    <div class="sheet-stat-value" style="color: var(--accent);">${dayReports.length}</div>
                     <div class="sheet-stat-label">Total</div>
                 </div>
                 <div class="sheet-stat">
-                    <div class="sheet-stat-value" style="color:#10b981;">${trades}</div>
+                    <div class="sheet-stat-value" style="color: #10B981;">${trades}</div>
                     <div class="sheet-stat-label">Trades</div>
                 </div>
                 <div class="sheet-stat">
-                    <div class="sheet-stat-value" style="color:#3b82f6;">${onboards}</div>
+                    <div class="sheet-stat-value" style="color: #1c6b80;">${onboards}</div>
                     <div class="sheet-stat-label">Onboards</div>
                 </div>
             `;
             
             let tableHtml = '';
             dayReports.forEach(r => {
+                const typeText = r.type === 'onboarding' ? 'Onboard' : 'Verified';
+                const typeClass = r.type === 'onboarding' ? 'type-onboard' : 'type-trade';
+                const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
+                const statusClass = r.status === 'traded' ? 'status-traded' : 'status-pending';
+                
                 tableHtml += `<tr>
-                    <td>
-                        <div class="shop-info">${r.shopName}</div>
-                        <div class="phone-info">${r.phoneNumber}</div>
-                    </td>
-                    <td><span class="type-badge ${r.type === 'onboarding' ? 'type-onboard' : 'type-trade'}">${r.type === 'onboarding' ? 'Onboard' : 'Trade'}</span></td>
-                    <td><button class="status-badge ${r.status === 'traded' ? 'status-traded' : 'status-pending'}" onclick="window.toggleStatus(${r.id})">
-                        ${r.status === 'traded' ? '✓ Traded' : '○ Pending'}
-                    </button></td>
+                    <td><div class="shop-info">${r.shopName}</div></td>
+                    <td><div class="phone-info">${r.phoneNumber}</div></td>
+                    <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                    <td><button class="status-badge ${statusClass}" onclick="toggleStatus(${r.id})">${statusText}</button></td>
                 </tr>`;
             });
             
             document.getElementById('sheetTable').innerHTML = tableHtml || 
-                '<tr><td colspan="3" class="empty-state"><i class="fas fa-store"></i><br>No entries for this day</td></tr>';
-            
+                '<tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity for this date</td></tr>';
+                
             document.getElementById('dateSheet').classList.add('open');
         }
 
-        window.closeSheet = function() {
-            document.getElementById('dateSheet').classList.remove('open');
-        }
-
-        window.editSelectedDate = function() {
-            closeSheet();
-            openAIModal();
-        }
-
-        window.addToSelectedDate = function() {
-            closeSheet();
-            openAIModal();
-        }
-
-        window.toggleStatus = async function(id) {
+        function toggleStatus(id) {
             const report = reports.find(r => r.id === id);
             if (report) {
                 report.status = report.status === 'traded' ? 'not-traded' : 'traded';
                 
-                // Update in Supabase
-                await supabaseClient
-                    .from('reports')
-                    .update({ status: report.status })
-                    .eq('id', id);
-                
                 localStorage.setItem('seviReports', JSON.stringify(reports));
+                syncToSupabase([report]);
                 
-                // Refresh views
                 renderHome();
                 if (selectedDate) selectDate(selectedDate);
                 updateReports();
@@ -1481,90 +1871,83 @@
                 destroyCharts();
                 initCharts();
                 
-                showToast(`✅ Status updated to ${report.status}`);
+                showToast(`Status updated to ${report.status === 'traded' ? 'Traded' : 'Pending'}`);
             }
         }
 
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar();
+        }
+
         function updateReports() {
-            const today = new Date().toISOString().split('T')[0];
-            const todayReports = reports.filter(r => r.date === today);
+            // Show report for today
+            const dayReports = reports.filter(r => r.date === currentDate);
             
-            const onboards = todayReports.filter(r => r.type === 'onboarding');
-            const newTrades = todayReports.filter(r => r.type === 'newtrade');
+            const onboards = dayReports.filter(r => r.type === 'onboarding');
+            const newTrades = dayReports.filter(r => r.type === 'newtrade');
             
-            const todayDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            let report = `${currentDate}\n\n`;
+            report += 'Onboarding\n';
+            onboards.forEach((r, i) => { report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`; });
+            report += '\nNew trade\n';
+            newTrades.forEach((r, i) => { report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`; });
             
-            let report = todayDate + '\n\n';
-            report += '*Onboarding*\n';
-            onboards.forEach((r, i) => {
-                report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`;
-            });
-            
-            report += '\n*New trade*\n';
-            newTrades.forEach((r, i) => {
-                report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`;
-            });
-            
-            document.getElementById('dailyReport').textContent = report;
+            document.getElementById('dailyReport').textContent = report || 'No data for today';
         }
 
-        window.copyReport = function() {
+        function copyReport() {
             const report = document.getElementById('dailyReport').textContent;
-            navigator.clipboard.writeText(report).then(() => {
-                showToast('✅ Report copied to clipboard!');
-            });
+            navigator.clipboard.writeText(report).then(() => showToast('Report copied'));
         }
 
-        window.shareToWhatsApp = function() {
+        function shareToWhatsApp() {
             const report = document.getElementById('dailyReport').textContent;
-            const url = `https://wa.me/?text=${encodeURIComponent(report)}`;
-            window.open(url, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent(report)}`, '_blank');
         }
 
         function updateProgress() {
-            // Streak calculation
+            // Calculate streak (consecutive days with traded items)
             let streak = 0;
-            let checkDate = new Date();
+            let checkDate = new Date(currentDate);
             while (true) {
-                const dateStr = checkDate.toISOString().split('T')[0];
-                const hasTrades = reports.some(r => r.date === dateStr && r.status === 'traded');
-                if (hasTrades) {
+                const dateStr = formatDate(checkDate);
+                const hasTraded = reports.some(r => r.date === dateStr && r.status === 'traded');
+                if (hasTraded) {
                     streak++;
                     checkDate.setDate(checkDate.getDate() - 1);
                 } else {
                     break;
                 }
             }
+            
             document.getElementById('streakCount').textContent = streak;
             
-            // Best day
-            const dayCounts = {};
+            // Find best day
+            const dailyCounts = {};
             reports.forEach(r => {
                 if (r.status === 'traded') {
-                    dayCounts[r.date] = (dayCounts[r.date] || 0) + 1;
+                    dailyCounts[r.date] = (dailyCounts[r.date] || 0) + 1;
                 }
             });
             
-            let bestCount = 0;
-            let bestDate = '';
-            Object.entries(dayCounts).forEach(([date, count]) => {
-                if (count > bestCount) {
-                    bestCount = count;
-                    bestDate = date;
+            let bestDay = { date: '', count: 0 };
+            Object.entries(dailyCounts).forEach(([date, count]) => {
+                if (count > bestDay.count) {
+                    bestDay = { date, count };
                 }
             });
             
-            document.getElementById('bestDayCount').textContent = bestCount;
-            document.getElementById('bestDayDate').textContent = bestDate ? 
-                new Date(bestDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-';
-            
+            document.getElementById('bestDayCount').textContent = bestDay.count;
+            document.getElementById('bestDayDate').textContent = bestDay.date ? new Date(bestDay.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-';
             document.getElementById('totalShops').textContent = reports.length;
         }
 
         function updateAnalytics() {
             const totalTrades = reports.filter(r => r.status === 'traded').length;
             const totalOnboards = reports.filter(r => r.type === 'onboarding').length;
-            const totalNewTrades = reports.filter(r => r.type === 'newtrade').length;
             
             document.getElementById('totalTrades').textContent = totalTrades;
             document.getElementById('totalOnboards').textContent = totalOnboards;
@@ -1572,211 +1955,209 @@
             const conversion = reports.length ? Math.round((totalTrades / reports.length) * 100) : 0;
             document.getElementById('totalConversion').textContent = conversion + '%';
             
-            // Average daily
-            const dates = [...new Set(reports.map(r => r.date))];
-            const avg = dates.length ? Math.round(totalTrades / dates.length) : 0;
-            document.getElementById('avgDaily').textContent = avg;
+            // Average daily (last 7 days)
+            const last7Days = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(currentDate);
+                date.setDate(date.getDate() - i);
+                last7Days.push(formatDate(date));
+            }
+            
+            const tradesLast7Days = reports.filter(r => last7Days.includes(r.date) && r.status === 'traded').length;
+            document.getElementById('avgDaily').textContent = Math.round(tradesLast7Days / 7);
         }
 
         // ==================== CHARTS ====================
         function initCharts() {
-            // Weekly Chart
+            // Weekly chart - last 7 days
+            const last7Days = [];
+            const labels = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(currentDate);
+                date.setDate(date.getDate() - i);
+                last7Days.push(formatDate(date));
+                labels.push(date.toLocaleDateString('en-GB', { weekday: 'short' }));
+            }
+            
+            const weeklyData = last7Days.map(date => 
+                reports.filter(r => r.date === date && r.status === 'traded').length
+            );
+            
             const ctx1 = document.getElementById('weeklyChart').getContext('2d');
             charts.weekly = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: labels,
                     datasets: [{
-                        label: 'Trades',
-                        data: getWeeklyData(),
-                        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a0a0a',
+                        data: weeklyData,
+                        backgroundColor: '#134e5e',
                         borderRadius: 8,
-                        barPercentage: 0.7
+                        barPercentage: 0.6
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, grid: { display: false } },
-                        x: { grid: { display: false } }
+                        y: { 
+                            grid: { color: '#2A3045' }, 
+                            ticks: { color: '#6B7280', stepSize: 1 },
+                            beginAtZero: true
+                        },
+                        x: { grid: { display: false }, ticks: { color: '#6B7280' } }
                     }
                 }
             });
             
-            // Monthly Chart
+            // Monthly chart - weeks
             const ctx2 = document.getElementById('monthlyChart').getContext('2d');
             charts.monthly = new Chart(ctx2, {
                 type: 'line',
                 data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    labels: ['W1', 'W2', 'W3', 'W4'],
                     datasets: [{
-                        label: 'Performance',
-                        data: getMonthlyData(),
-                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a0a0a',
-                        backgroundColor: 'transparent',
+                        data: [
+                            reports.filter(r => r.date >= '2026-02-01' && r.date <= '2026-02-07' && r.status === 'traded').length,
+                            reports.filter(r => r.date >= '2026-02-08' && r.date <= '2026-02-14' && r.status === 'traded').length,
+                            reports.filter(r => r.date >= '2026-02-15' && r.date <= '2026-02-21' && r.status === 'traded').length,
+                            reports.filter(r => r.date >= '2026-02-22' && r.date <= '2026-02-28' && r.status === 'traded').length
+                        ],
+                        borderColor: '#134e5e',
+                        backgroundColor: 'rgba(19,78,94,0.1)',
                         tension: 0.4,
-                        pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a0a0a',
-                        pointBorderColor: 'white',
-                        pointBorderWidth: 2,
-                        pointRadius: 5
+                        fill: true,
+                        pointBackgroundColor: '#134e5e',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, grid: { display: false } },
-                        x: { grid: { display: false } }
+                        y: { 
+                            grid: { color: '#2A3045' }, 
+                            ticks: { color: '#6B7280', stepSize: 1 },
+                            beginAtZero: true
+                        },
+                        x: { grid: { display: false }, ticks: { color: '#6B7280' } }
                     }
                 }
             });
             
-            // Conversion Chart
+            // Conversion trend
             const ctx3 = document.getElementById('conversionChart').getContext('2d');
+            const weeklyConversion = last7Days.map(date => {
+                const dayReports = reports.filter(r => r.date === date);
+                const dayTrades = dayReports.filter(r => r.status === 'traded').length;
+                return dayReports.length ? Math.round((dayTrades / dayReports.length) * 100) : 0;
+            });
+            
             charts.conversion = new Chart(ctx3, {
                 type: 'line',
                 data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    labels: labels,
                     datasets: [{
-                        label: 'Conversion %',
-                        data: getConversionData(),
-                        borderColor: '#10b981',
-                        backgroundColor: '#10b98120',
+                        data: weeklyConversion,
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16,185,129,0.1)',
                         fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        pointBackgroundColor: '#10B981',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, max: 100, grid: { display: false } },
-                        x: { grid: { display: false } }
+                        y: { 
+                            grid: { color: '#2A3045' }, 
+                            ticks: { color: '#6B7280', callback: value => value + '%' },
+                            beginAtZero: true,
+                            max: 100
+                        },
+                        x: { grid: { display: false }, ticks: { color: '#6B7280' } }
                     }
                 }
             });
             
-            // Distribution Chart
+            // Distribution chart
             const ctx4 = document.getElementById('distributionChart').getContext('2d');
             charts.distribution = new Chart(ctx4, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Onboards', 'New Trades'],
+                    labels: ['Onboards', 'Trades'],
                     datasets: [{
                         data: [
                             reports.filter(r => r.type === 'onboarding').length,
                             reports.filter(r => r.type === 'newtrade').length
                         ],
-                        backgroundColor: [
-                            getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a0a0a',
-                            getComputedStyle(document.documentElement).getPropertyValue('--chart-2').trim() || '#64748b'
-                        ],
+                        backgroundColor: ['#134e5e', '#1c6b80'],
                         borderWidth: 0,
-                        borderRadius: 10
+                        hoverOffset: 10
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                    cutout: '70%'
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: { color: '#A0A8C0', font: { size: 12 } }
+                        } 
+                    }, 
+                    cutout: '70%',
+                    animation: { animateScale: true, animateRotate: true }
                 }
             });
         }
 
         function destroyCharts() {
-            Object.values(charts).forEach(chart => {
-                if (chart) chart.destroy();
-            });
+            Object.values(charts).forEach(chart => chart?.destroy());
             charts = {};
         }
 
-        function getWeeklyData() {
-            const days = [];
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                const dateStr = date.toISOString().split('T')[0];
-                days.push(reports.filter(r => r.date === dateStr && r.status === 'traded').length);
-            }
-            return days;
-        }
-
-        function getMonthlyData() {
-            const weeks = [0, 0, 0, 0];
-            const now = new Date();
-            reports.forEach(r => {
-                const d = new Date(r.date);
-                if (d.getMonth() === now.getMonth() && r.status === 'traded') {
-                    const week = Math.floor((d.getDate() - 1) / 7);
-                    if (week < 4) weeks[week]++;
-                }
-            });
-            return weeks;
-        }
-
-        function getConversionData() {
-            const weeks = [0, 0, 0, 0];
-            const now = new Date();
-            for (let i = 0; i < 4; i++) {
-                const weekReports = reports.filter(r => {
-                    const d = new Date(r.date);
-                    const week = Math.floor((d.getDate() - 1) / 7);
-                    return d.getMonth() === now.getMonth() && week === i;
-                });
-                const traded = weekReports.filter(r => r.status === 'traded').length;
-                weeks[i] = weekReports.length ? Math.round((traded / weekReports.length) * 100) : 0;
-            }
-            return weeks;
-        }
-
         // ==================== UTILITIES ====================
-        window.switchTab = function(tab) {
+        function switchTab(tab) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.currentTarget.classList.add('active');
             
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tab + '-tab').classList.add('active');
+            
+            // Show goals only on home tab
+            document.getElementById('goalsContainer').style.display = tab === 'home' ? 'block' : 'none';
         }
 
-        window.openAIModal = function() {
+        function openAIModal() {
+            // Set max date to today, min date to 14th Feb
+            const dateInput = document.getElementById('aiDate');
+            dateInput.max = currentDate;
+            dateInput.min = '2026-02-14';
+            dateInput.value = currentDate; // Default to today
+            
             document.getElementById('aiModal').classList.add('active');
         }
 
-        window.closeAIModal = function() {
+        function closeAIModal() {
             document.getElementById('aiModal').classList.remove('active');
         }
 
-        window.toggleTheme = function() {
-            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', currentTheme);
-            localStorage.setItem('theme', currentTheme);
-            
-            const icon = document.querySelector('.theme-toggle i');
-            icon.className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-            
-            destroyCharts();
-            initCharts();
-        }
-
-        function checkTheme() {
-            const saved = localStorage.getItem('theme');
-            if (saved) {
-                currentTheme = saved;
-                document.documentElement.setAttribute('data-theme', saved);
-                const icon = document.querySelector('.theme-toggle i');
-                icon.className = saved === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-            }
+        function closeSheet() {
+            document.getElementById('dateSheet').classList.remove('open');
         }
 
         function updateDateDisplay() {
-            const today = new Date();
-            document.getElementById('currentDate').textContent = 
-                today.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            const dateObj = new Date(currentDate);
+            const formatted = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            document.getElementById('currentDate').textContent = formatted;
         }
 
         function showToast(message) {
@@ -1784,24 +2165,14 @@
             toast.className = 'toast';
             toast.textContent = message;
             document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        window.refreshData = function() {
+        function refreshData() {
+            showLoading();
             renderHome();
+            hideLoading();
             showToast('Data refreshed');
-        }
-
-        // ==================== SERVICE WORKER FOR PWA ====================
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => 
-                    console.log('ServiceWorker registration failed: ', err)
-                );
-            });
         }
     </script>
 </body>
