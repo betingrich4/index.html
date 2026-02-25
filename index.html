@@ -2,502 +2,1805 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marisel TV · Live Stream</title>
-    <!-- Tailwind via CDN (v4) – lightweight utility classes -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- simple HLS.js for m3u8 streams -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sevi · Field Ops</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* custom fade / spinner extras */
-        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { 0%{opacity:0;} 100%{opacity:1;} }
-        .seek-hover-thumb::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: #ef4444; border-radius: 9999px; cursor: pointer; }
-        .seek-hover-thumb::-moz-range-thumb { width: 14px; height: 14px; background: #ef4444; border-radius: 9999px; cursor: pointer; border: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-primary: #f1f5f9;
+            --bg-surface: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-tertiary: #64748b;
+            --border-light: #e2e8f0;
+            --accent: #0a0a0a;
+            --accent-hover: #1e1e1e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --chart-1: #0a0a0a;
+            --chart-2: #64748b;
+            --chart-3: #94a3b8;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-surface: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-light: #334155;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            padding: 24px 20px 16px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .greeting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .greeting {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .greeting span {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--info) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        .date-badge {
+            background: var(--bg-primary);
+            padding: 12px 18px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        /* Goals Card */
+        .goals-container {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            border-radius: 24px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .goal-title {
+            font-size: 18px;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .goal-rating {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+
+        .goal-progress-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .progress-circle {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .progress-ring {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(white 0deg 0deg, rgba(255,255,255,0.2) 0deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-ring-inner {
+            width: 62px;
+            height: 62px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .progress-stats {
+            flex: 1;
+        }
+
+        .progress-stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .progress-stat-label {
+            opacity: 0.8;
+        }
+
+        .progress-stat-value {
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            padding-bottom: 100px;
+            overflow-y: auto;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-primary);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 16px 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-trend {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--error); }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 16px 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .data-table td {
+            padding: 14px 8px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .shop-info {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .phone-info {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .type-onboard {
+            background: #3b82f620;
+            color: #3b82f6;
+        }
+
+        .type-trade {
+            background: #10b98120;
+            color: #10b981;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            border: none;
+            background: none;
+        }
+
+        .status-badge:active {
+            opacity: 0.7;
+        }
+
+        .status-traded {
+            background: #10b98120;
+            color: #10b981;
+        }
+
+        .status-pending {
+            background: #f59e0b20;
+            color: #f59e0b;
+        }
+
+        /* Calendar */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-month {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 12px;
+        }
+
+        .calendar-nav button {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 8px 14px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            padding: 8px 0;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .calendar-day.has-data {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.has-data .day-indicator {
+            background: white;
+        }
+
+        .calendar-day.selected {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .day-number {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .day-indicator {
+            width: 4px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--accent);
+            margin-top: 2px;
+        }
+
+        /* Bottom Sheet */
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            border-radius: 30px 30px 0 0;
+            padding: 24px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+            border-top: 1px solid var(--border-light);
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .bottom-sheet.open {
+            transform: translateY(0);
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .sheet-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-sheet {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .sheet-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 16px;
+        }
+
+        .sheet-stat {
+            text-align: center;
+        }
+
+        .sheet-stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .sheet-stat-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 100;
+            border: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+            50% { box-shadow: 0 8px 30px rgba(0,0,0,0.5); transform: scale(1.05); }
+            100% { box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 8px 24px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-tertiary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 30px;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            background: var(--bg-primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-surface);
+            border-radius: 30px;
+            padding: 28px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .modal p {
+            color: var(--text-tertiary);
+            margin-bottom: 24px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .modal textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 20px;
+            border: 2px solid var(--border-light);
+            border-radius: 20px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 24px;
+            resize: vertical;
+            font-family: 'Inter', monospace;
+        }
+
+        .modal textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            height: 200px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        /* Loading */
+        .loader {
+            border: 3px solid var(--border-light);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 140px;
+            left: 20px;
+            right: 20px;
+            max-width: 440px;
+            margin: 0 auto;
+            background: var(--accent);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 30px;
+            text-align: center;
+            font-weight: 600;
+            z-index: 3000;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
-<body class="bg-black text-white font-sans antialiased overflow-x-hidden">
-
-<div id="root" class="min-h-screen"></div>
-
-<script>
-(function() {
-    // ----- Minimal React & ReactDOM (for self‑contained single file) -----
-    // using a simplified direct approach – we build the UI with vanilla JS
-    // but mimic a component structure. No JSX, no build step.
-    
-    // ----- HLS fallback helper -----
-    function attachHls(videoEl, url) {
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(videoEl);
-            return hls;
-        } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-            videoEl.src = url; // native Safari
-        }
-        return null;
-    }
-
-    // ----- Main state (observable pattern) -----
-    let state = {
-        channels: [],
-        filteredChannels: [],
-        searchQuery: '',
-        selectedChannelIndex: -1,          // -1 means no player open
-        isLoading: true,
-        isPlaying: false,
-        isMuted: false,
-        volume: 80,
-        currentTime: 0,
-        duration: 0,
-        isFullscreen: false,
-        showControls: true,
-        loadingStream: false,
-        streamError: false,
-        // for placeholder generation
-        brokenThumbIds: new Set()
-    };
-
-    // micro event bus for UI updates
-    let listeners = [];
-    function setState(newPart) {
-        state = { ...state, ...newPart };
-        listeners.forEach(fn => fn());
-    }
-    function subscribe(fn) { listeners.push(fn); return () => { listeners = listeners.filter(l => l !== fn); }; }
-
-    // ----- helpers -----
-    function formatTime(sec) {
-        if (!isFinite(sec)) return '0:00';
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = Math.floor(sec % 60);
-        if (h > 0) return `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        return `${m}:${s.toString().padStart(2,'0')}`;
-    }
-
-    // placeholder colour based on channel name
-    function getPlaceholderStyle(name) {
-        const lname = name.toLowerCase();
-        if (lname.includes('sport') || lname.includes('football') || lname.includes('tenis')) return 'bg-gradient-to-br from-red-700 to-orange-700';
-        if (lname.includes('news') || lname.includes('bbc') || lname.includes('cnn')) return 'bg-gradient-to-br from-blue-800 to-sky-800';
-        if (lname.includes('movie') || lname.includes('film')) return 'bg-gradient-to-br from-purple-800 to-pink-800';
-        if (lname.includes('music') || lname.includes('mtv')) return 'bg-gradient-to-br from-fuchsia-700 to-pink-700';
-        if (lname.includes('kid') || lname.includes('cartoon')) return 'bg-gradient-to-br from-green-600 to-teal-600';
-        return 'bg-gradient-to-br from-slate-700 to-slate-900';
-    }
-
-    // generate thumbnail / logo
-    function channelThumbUrl(ch) {
-        if (ch.logo && !state.brokenThumbIds.has(ch.id)) return ch.logo;
-        // fallback colour placeholder (represented as CSS class)
-        return null;
-    }
-
-    // ----- fetch & parse channels (marisel playlist – use a public IPTV list) -----
-    async function loadChannels() {
-        setState({ isLoading: true, streamError: false });
-        try {
-            // using the same iptv-org collection as original but we rename it "marisel"
-            const response = await fetch('https://iptv-org.github.io/iptv/index.m3u');
-            const text = await response.text();
-            const lines = text.split('\n');
-            const parsed = [];
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('#EXTINF')) {
-                    let name = lines[i].split(',').pop()?.trim() || 'unknown';
-                    const urlLine = lines[i+1]?.replace(/\r/g, '').trim();
-                    if (urlLine && (urlLine.startsWith('http') || urlLine.startsWith('https'))) {
-                        // try to extract tvg-logo
-                        const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
-                        const logo = logoMatch ? logoMatch[1] : null;
-                        parsed.push({
-                            id: `marisel-${i}-${name}`,
-                            name: name,
-                            url: urlLine,
-                            logo: logo,
-                        });
-                    }
-                    i++; // skip next line
-                }
-            }
-            // fallback if empty (demo channels)
-            let finalChannels = parsed.length > 0 ? parsed : getDemoChannels();
-            setState({ 
-                channels: finalChannels, 
-                filteredChannels: finalChannels.slice(0, 100),
-                isLoading: false,
-                selectedChannelIndex: -1
-            });
-        } catch (e) {
-            console.warn('Fetch failed, using demo channels', e);
-            const demo = getDemoChannels();
-            setState({ channels: demo, filteredChannels: demo.slice(0,100), isLoading: false });
-        }
-    }
-
-    function getDemoChannels() {
-        return [
-            { id: 'd1', name: 'Marisel Sport HD', url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', logo: 'https://dummyimage.com/300x200/ef4444/fff&text=Sports' },
-            { id: 'd2', name: 'News 24/7', url: 'https://live-par-2-abr-cdn.livepush.com/live_live_news_720/load/?token=2025', logo: null },
-            { id: 'd3', name: 'Marisel Cinema', url: 'https://moctobpltc-i.akamaihd.net/hls/live/571329/eight/playlist.m3u8', logo: null },
-            { id: 'd4', name: 'Kids Cartoon', url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8', logo: null },
-            { id: 'd5', name: 'Music Box', url: 'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8', logo: null },
-        ];
-    }
-
-    // search filter
-    function filterChannels(query) {
-        const q = query.toLowerCase().trim();
-        if (!q) return state.channels.slice(0, 100);
-        return state.channels.filter(c => c.name.toLowerCase().includes(q)).slice(0, 100);
-    }
-
-    // DOM element references
-    let videoElement = null;
-    let hlsInstance = null;
-
-    // player logic: when selected channel changes
-    function playChannel(index) {
-        if (index < 0 || index >= state.channels.length) return;
-        setState({ 
-            selectedChannelIndex: index, 
-            loadingStream: true, 
-            streamError: false,
-            isPlaying: false,
-            currentTime: 0,
-            duration: 0
-        });
-        // actual video handling will be done inside component after render
-    }
-
-    function closePlayer() {
-        if (videoElement) {
-            videoElement.pause();
-            videoElement.src = '';
-            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-        }
-        setState({ selectedChannelIndex: -1, isPlaying: false });
-    }
-
-    // fullscreen
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            document.exitFullscreen();
-        }
-    }
-
-    // ----- UI Components (plain functions that return html strings or elements) -----
-    function Header() {
-        return `
-            <nav class="fixed w-full top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <div class="flex items-center gap-2 text-2xl font-bold">
-                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10l8-5-8-5zM16 7v10l8-5-8-5z" transform="scale(0.75) translate(4,4)"/></svg>
-                        <span class="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">Marisel TV</span>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <div class="header">
+            <div class="greeting-row">
+                <div class="greeting">
+                    Hello <span>Richard</span>
+                </div>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+            <div class="date-badge">
+                <i class="far fa-calendar-alt"></i>
+                <span id="currentDate">25 Feb 2026</span>
+            </div>
+            
+            <!-- Goals Card -->
+            <div class="goals-container">
+                <div class="goal-header">
+                    <span class="goal-title">February Goals</span>
+                    <span class="goal-rating" id="monthlyRating">Good</span>
+                </div>
+                <div class="goal-progress-row">
+                    <div class="progress-circle">
+                        <div class="progress-ring" id="progressRing">
+                            <div class="progress-ring-inner">
+                                <span id="progressPercent">0%</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="hidden md:flex gap-8 items-center">
-                        <a href="#" class="hover:text-red-600 transition">Home</a>
-                        <a href="#shows" class="hover:text-red-600 transition">Channels</a>
-                        <a href="#features" class="hover:text-red-600 transition">Features</a>
+                    <div class="progress-stats">
+                        <div class="progress-stat-item">
+                            <span class="progress-stat-label">New Trades</span>
+                            <span class="progress-stat-value" id="tradesProgress">0/20</span>
+                        </div>
+                        <div class="progress-stat-item">
+                            <span class="progress-stat-label">Onboards</span>
+                            <span class="progress-stat-value" id="onboardsProgress">0/30</span>
+                        </div>
                     </div>
                 </div>
-            </nav>
-        `;
-    }
+            </div>
+        </div>
 
-    function Hero() {
-        const total = state.channels.length;
-        return `
-            <section id="home" class="pt-32 pb-20 px-4 relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-r from-red-600/10 to-pink-600/10 blur-3xl -z-10"></div>
-                <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-                    <div class="space-y-6">
-                        <h1 class="text-5xl md:text-6xl font-bold leading-tight">Watch <span class="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">Live TV</span> Free</h1>
-                        <p class="text-xl text-slate-400">Stream ${total.toLocaleString()} live TV channels from around the world. No subscriptions, no hidden fees. Pure entertainment.</p>
-                        <div class="flex gap-4 pt-4">
-                            <button onclick="window.mariselRandom()" class="bg-red-600 hover:bg-red-700 px-8 py-3 rounded-full font-bold flex items-center gap-2 transition transform hover:scale-105 group relative">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                Start Watching
-                                <span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap">Play random channel</span>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Home Tab -->
+            <div id="home-tab" class="tab-content active">
+                <div class="card">
+                    <div class="card-title">
+                        Today's Summary
+                        <i class="fas fa-chart-line" style="color: var(--text-tertiary);"></i>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Trades</div>
+                            <div class="stat-number" id="todayTrades">0</div>
+                            <div class="stat-trend trend-up" id="tradeTrend">+0%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Onboards</div>
+                            <div class="stat-number" id="todayOnboards">0</div>
+                            <div class="stat-trend trend-up" id="onboardTrend">+0%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Conversion</div>
+                            <div class="stat-number" id="todayConversion">0%</div>
+                            <div class="stat-trend" id="conversionTrend">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Today's Activity
+                        <span onclick="refreshData()" style="cursor:pointer;">
+                            <i class="fas fa-sync-alt"></i>
+                        </span>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Shop</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="todayActivityBody">
+                                <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Tab -->
+            <div id="calendar-tab" class="tab-content">
+                <div class="card">
+                    <div class="calendar-header">
+                        <div class="calendar-month" id="calendarMonth">February 2026</div>
+                        <div class="calendar-nav">
+                            <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-weekdays">
+                        <div class="weekday">M</div>
+                        <div class="weekday">T</div>
+                        <div class="weekday">W</div>
+                        <div class="weekday">T</div>
+                        <div class="weekday">F</div>
+                        <div class="weekday">S</div>
+                        <div class="weekday">S</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarDays">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        Daily Report
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-secondary" style="padding:8px 16px;" onclick="copyReport()">
+                                <i class="far fa-copy"></i>
+                            </button>
+                            <button class="btn-secondary" style="padding:8px 16px;" onclick="shareToWhatsApp()">
+                                <i class="fab fa-whatsapp"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="relative cursor-pointer group" onclick="window.mariselRandom()">
-                        <div class="bg-gradient-to-br from-red-600 to-pink-600 rounded-2xl p-1 hover:scale-[1.02] transition-transform overflow-hidden">
-                            <div class="bg-slate-900 rounded-xl p-8 flex items-center justify-center aspect-video relative overflow-hidden">
-                                <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center animate-pulse group-hover:scale-110 transition-transform">
-                                    <svg class="w-10 h-10 ml-1 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                                ${state.channels.length > 0 ? `<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-xs px-3 py-1 rounded-full">${state.channels.length} channels</div>` : ''}
-                            </div>
+                    <div style="background: var(--bg-primary); padding:24px; border-radius:20px; font-family: 'Inter', monospace; white-space: pre-wrap; font-size:14px; line-height:2;" id="dailyReport">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Tab -->
+            <div id="progress-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-title">Streak & Records</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Current Streak</div>
+                            <div class="stat-number" id="streakCount">0</div>
+                            <div class="stat-label">days</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Best Day</div>
+                            <div class="stat-number" id="bestDayCount">0</div>
+                            <div class="stat-label" id="bestDayDate">-</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Total Shops</div>
+                            <div class="stat-number" id="totalShops">0</div>
+                            <div class="stat-label">lifetime</div>
                         </div>
                     </div>
                 </div>
-            </section>
-        `;
-    }
 
-    function SearchBar() {
-        return `
-            <section class="py-8 px-4 bg-slate-900/50">
-                <div class="max-w-4xl mx-auto">
-                    <div class="relative">
-                        <svg class="absolute left-4 top-4 w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        <input type="text" placeholder="Search ${state.channels.length} channels..." value="${state.searchQuery}" oninput="window.mariselSearch(this.value)" class="w-full pl-12 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-red-600 text-white placeholder-slate-500">
-                    </div>
-                    <div class="mt-2 text-sm text-slate-400">
-                        ${state.searchQuery ? `Found ${state.filteredChannels.length} channels matching "${state.searchQuery}"` : `Showing ${state.filteredChannels.length} of ${state.channels.length} channels`}
+                <div class="card">
+                    <div class="card-title">Weekly Performance</div>
+                    <div class="chart-container">
+                        <canvas id="weeklyChart"></canvas>
                     </div>
                 </div>
-            </section>
-        `;
-    }
 
-    function ChannelGrid() {
-        if (state.isLoading) {
-            return `<div class="flex justify-center py-20"><div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div></div>`;
+                <div class="card">
+                    <div class="card-title">Monthly Progress</div>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-title">Conversion Trend</div>
+                    <div class="chart-container">
+                        <canvas id="conversionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Type Distribution</div>
+                    <div class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Performance Stats</div>
+                    <table class="data-table">
+                        <tr>
+                            <td>Total Trades</td>
+                            <td><strong id="totalTrades">0</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Total Onboards</td>
+                            <td><strong id="totalOnboards">0</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Conversion Rate</td>
+                            <td><strong id="totalConversion">0%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Avg Daily Trades</td>
+                            <td><strong id="avgDaily">0</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab" onclick="openAIModal()">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('home')">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('calendar')">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Calendar</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('reports')">
+                <i class="fas fa-file-alt"></i>
+                <span>Reports</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('progress')">
+                <i class="fas fa-chart-line"></i>
+                <span>Progress</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('analytics')">
+                <i class="fas fa-chart-pie"></i>
+                <span>Analytics</span>
+            </button>
+        </div>
+
+        <!-- AI Input Modal -->
+        <div class="modal" id="aiModal">
+            <div class="modal-content">
+                <h3>Add Daily Notes</h3>
+                <p>Paste your raw field notes. The AI will automatically organize them into today's report and update historical data when shops trade later.</p>
+                <textarea id="aiInput" placeholder="Example:
+25 Feb
+*Onboarding*
+1. Kensafe Retail 072449218
+2. Mama Hans 0721437447
+
+*New trade*
+1. Come and see 0736468481"></textarea>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeAIModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="processAIData()">Process & Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Sheet for Date Details -->
+        <div class="bottom-sheet" id="dateSheet">
+            <div class="sheet-header">
+                <div class="sheet-title" id="sheetDate">Loading...</div>
+                <button class="close-sheet" onclick="closeSheet()">✕</button>
+            </div>
+            <div class="sheet-stats" id="sheetStats"></div>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Shop</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sheetTable">
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="btn btn-secondary" style="flex:1;" onclick="editSelectedDate()">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn btn-primary" style="flex:1;" onclick="addToSelectedDate()">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SUPABASE CONFIG ====================
+        const SUPABASE_URL = 'https://vhvyrhztcpnczhuxvjkd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZodnlyaHp0Y3BuY3podXh2amtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NzIzNDAsImV4cCI6MjA1MTI0ODM0MH0.3gR3kPvE2sLrJg9nQmTkFb7cX8yVdRqLpZmNvWxYzUc';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ==================== GLOBAL STATE ====================
+        let reports = [];
+        let charts = {};
+        let currentTheme = 'light';
+        let selectedDate = null;
+        let currentMonth = 1; // February (0-indexed)
+        let currentYear = 2026;
+
+        // Monthly Goals
+        const MONTHLY_GOALS = {
+            1: { trades: 20, onboards: 30 }, // February
+            2: { trades: 25, onboards: 35 }, // March
+            3: { trades: 30, onboards: 40 }  // April
+        };
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadData();
+            updateDateDisplay();
+            renderHome();
+            renderCalendar();
+            updateReports();
+            updateProgress();
+            updateAnalytics();
+            initCharts();
+            checkTheme();
+        });
+
+        // ==================== DATA LOADING ====================
+        async function loadData() {
+            try {
+                // Try Supabase first
+                const { data: supabaseData, error } = await supabase
+                    .from('reports')
+                    .select('*')
+                    .order('date', { ascending: false });
+
+                if (error) throw error;
+
+                if (supabaseData && supabaseData.length > 0) {
+                    reports = supabaseData;
+                } else {
+                    // Start with today's data only (25 Feb)
+                    reports = getTodaysData();
+                    
+                    // Save to Supabase
+                    await syncToSupabase(reports);
+                }
+
+                // Always save to localStorage for offline
+                localStorage.setItem('seviReports', JSON.stringify(reports));
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Fallback to localStorage or today's data
+                const localData = localStorage.getItem('seviReports');
+                reports = localData ? JSON.parse(localData) : getTodaysData();
+            }
         }
-        const items = state.filteredChannels.map(ch => {
-            const thumbClass = channelThumbUrl(ch) ? '' : getPlaceholderStyle(ch.name);
-            const thumbStyle = channelThumbUrl(ch) ? `background-image:url('${ch.logo}'); background-size:cover;` : '';
-            return `
-                <div class="group cursor-pointer bg-slate-800/50 rounded-lg overflow-hidden hover:bg-slate-800 transition-all duration-300 hover:scale-[1.02]" onclick="window.mariselPlayById('${ch.id}')">
-                    <div class="relative aspect-video overflow-hidden">
-                        <div class="w-full h-full ${thumbClass} flex items-center justify-center" style="${thumbStyle}">
-                            ${!channelThumbUrl(ch) ? `<span class="text-white font-bold text-lg line-clamp-2 p-4 text-center">${ch.name}</span>` : ''}
-                        </div>
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                        <div class="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">LIVE</div>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex items-start gap-3">
-                            <div class="flex-1">
-                                <h3 class="font-bold text-lg group-hover:text-red-600 transition line-clamp-2 mb-1">${ch.name}</h3>
-                                <div class="flex items-center gap-2 text-sm text-slate-400"><span>Live TV</span> <span>•</span> <span>Channel</span></div>
-                            </div>
-                        </div>
-                    </div>
+
+        function getTodaysData() {
+            return [
+                // 25 Feb 2026 - Today's data
+                { id: Date.now() + 1, date: "2026-02-25", shopName: "Kensafe Retail", phoneNumber: "072449218", type: "onboarding", status: "not-traded" },
+                { id: Date.now() + 2, date: "2026-02-25", shopName: "Mama Hans", phoneNumber: "0721437447", type: "onboarding", status: "not-traded" },
+                { id: Date.now() + 3, date: "2026-02-25", shopName: "Jackie Shop", phoneNumber: "0723357880", type: "onboarding", status: "not-traded" },
+                { id: Date.now() + 4, date: "2026-02-25", shopName: "Local Pub", phoneNumber: "0725975519", type: "onboarding", status: "not-traded" },
+                { id: Date.now() + 5, date: "2026-02-25", shopName: "Daddy Ocholla", phoneNumber: "0729673273", type: "onboarding", status: "not-traded" },
+                { id: Date.now() + 6, date: "2026-02-25", shopName: "Come and see", phoneNumber: "0736468481", type: "newtrade", status: "not-traded" },
+                { id: Date.now() + 7, date: "2026-02-25", shopName: "Opiyo Monic", phoneNumber: "0724645297", type: "newtrade", status: "not-traded" },
+                { id: Date.now() + 8, date: "2026-02-25", shopName: "Nbraview Autospare", phoneNumber: "0716324556", type: "newtrade", status: "not-traded" }
+            ];
+        }
+
+        async function syncToSupabase(data) {
+            try {
+                const { error } = await supabase
+                    .from('reports')
+                    .upsert(data, { onConflict: 'id' });
+                
+                if (error) console.error('Sync error:', error);
+            } catch (error) {
+                console.error('Sync error:', error);
+            }
+        }
+
+        // ==================== AI DATA PROCESSING ====================
+        async function processAIData() {
+            const rawText = document.getElementById('aiInput').value;
+            const lines = rawText.split('\n');
+            
+            let currentDate = null;
+            let currentSection = null;
+            let processed = [];
+            let today = new Date().toISOString().split('T')[0];
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+                
+                // Check for date
+                if (line.match(/^\d{1,2}\s+[A-Za-z]{3}/)) {
+                    const [day, month] = line.split(' ');
+                    const months = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06',
+                                   'Jul':'07', 'Aug':'08', 'Sep':'09', 'Oct':'10', 'Nov':'11', 'Dec':'12'};
+                    if (months[month]) {
+                        currentDate = `2026-${months[month]}-${day.padStart(2,'0')}`;
+                    }
+                }
+                
+                // Check for sections
+                else if (line.includes('*Onboarding*') || line.includes('*onboarding*')) {
+                    currentSection = 'onboarding';
+                }
+                else if (line.includes('*New trade*') || line.includes('*new trade*')) {
+                    currentSection = 'newtrade';
+                }
+                
+                // Extract shop data
+                else if (line.match(/^\d+\./)) {
+                    // Remove the number and dot
+                    let text = line.replace(/^\d+\.\s*/, '');
+                    
+                    // Extract phone number (Kenyan format)
+                    const phoneMatch = text.match(/0\d{9}|0\d{2}\s?\d{3}\s?\d{3}/);
+                    if (phoneMatch) {
+                        let phoneNumber = phoneMatch[0].replace(/\s/g, '');
+                        let shopName = text.replace(phoneMatch[0], '').trim();
+                        
+                        // Clean up shop name
+                        shopName = shopName.replace(/[.,]$/, '').trim();
+                        
+                        if (shopName && phoneNumber) {
+                            processed.push({
+                                id: Date.now() + Math.random(),
+                                date: currentDate || today,
+                                shopName: shopName,
+                                phoneNumber: phoneNumber,
+                                type: currentSection || 'onboarding',
+                                status: 'not-traded'
+                            });
+                        }
+                    }
+                }
+            }
+            
+            if (processed.length > 0) {
+                // Show loading toast
+                showToast(`🔄 Processing ${processed.length} shops...`);
+                
+                // Check for existing phones to update statuses
+                await updateHistoricalStatuses(processed);
+                
+                // Add new reports
+                reports = [...reports, ...processed];
+                
+                // Save to Supabase and localStorage
+                await syncToSupabase(processed);
+                localStorage.setItem('seviReports', JSON.stringify(reports));
+                
+                // Refresh all views
+                renderHome();
+                renderCalendar();
+                updateReports();
+                updateProgress();
+                updateAnalytics();
+                destroyCharts();
+                initCharts();
+                
+                closeAIModal();
+                showToast(`✅ Successfully added ${processed.length} shops!`);
+                document.getElementById('aiInput').value = '';
+            } else {
+                showToast('❌ No valid data found. Check your format.');
+            }
+        }
+
+        async function updateHistoricalStatuses(newEntries) {
+            // Group traded entries by phone
+            const tradedPhones = new Set();
+            newEntries.forEach(entry => {
+                if (entry.status === 'traded') {
+                    tradedPhones.add(entry.phoneNumber);
+                }
+            });
+            
+            if (tradedPhones.size === 0) return;
+            
+            // Find historical entries with same phone that are not traded
+            let updatesNeeded = [];
+            reports.forEach(report => {
+                if (tradedPhones.has(report.phoneNumber) && report.status !== 'traded') {
+                    report.status = 'traded';
+                    updatesNeeded.push(report);
+                }
+            });
+            
+            // Update in Supabase
+            if (updatesNeeded.length > 0) {
+                await syncToSupabase(updatesNeeded);
+                showToast(`🔄 Updated ${updatesNeeded.length} historical entries`);
+            }
+        }
+
+        // ==================== UI RENDERING ====================
+        function renderHome() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayReports = reports.filter(r => r.date === today);
+            
+            const todayTrades = todayReports.filter(r => r.status === 'traded').length;
+            const todayOnboards = todayReports.filter(r => r.type === 'onboarding').length;
+            
+            // Update stats
+            document.getElementById('todayTrades').textContent = todayTrades;
+            document.getElementById('todayOnboards').textContent = todayOnboards;
+            
+            const conversion = todayReports.length ? 
+                Math.round((todayTrades / todayReports.length) * 100) : 0;
+            document.getElementById('todayConversion').textContent = conversion + '%';
+            
+            // Trends (compare with yesterday)
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            const yesterdayTrades = reports.filter(r => r.date === yesterday && r.status === 'traded').length;
+            
+            const tradeTrend = yesterdayTrades ? 
+                ((todayTrades - yesterdayTrades) / yesterdayTrades * 100).toFixed(0) : 0;
+            document.getElementById('tradeTrend').textContent = 
+                (tradeTrend > 0 ? '+' : '') + tradeTrend + '%';
+            
+            // Today's activity table
+            let html = '';
+            todayReports.forEach(r => {
+                html += `<tr>
+                    <td>
+                        <div class="shop-info">${r.shopName}</div>
+                        <div class="phone-info">${r.phoneNumber}</div>
+                    </td>
+                    <td><span class="type-badge ${r.type === 'onboarding' ? 'type-onboard' : 'type-trade'}">${r.type === 'onboarding' ? 'Onboard' : 'Trade'}</span></td>
+                    <td><button class="status-badge ${r.status === 'traded' ? 'status-traded' : 'status-pending'}" onclick="toggleStatus(${r.id})">
+                        ${r.status === 'traded' ? '✓ Traded' : '○ Pending'}
+                    </button></td>
+                </tr>`;
+            });
+            
+            document.getElementById('todayActivityBody').innerHTML = html || 
+                '<tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity today</td></tr>';
+            
+            // Update goals
+            updateGoals();
+        }
+
+        function updateGoals() {
+            const currentMonth = new Date().getMonth();
+            const goals = MONTHLY_GOALS[currentMonth] || { trades: 20, onboards: 30 };
+            
+            const monthReports = reports.filter(r => {
+                const d = new Date(r.date);
+                return d.getMonth() === currentMonth;
+            });
+            
+            const monthTrades = monthReports.filter(r => r.status === 'traded').length;
+            const monthOnboards = monthReports.filter(r => r.type === 'onboarding').length;
+            
+            document.getElementById('tradesProgress').textContent = `${monthTrades}/${goals.trades}`;
+            document.getElementById('onboardsProgress').textContent = `${monthOnboards}/${goals.onboards}`;
+            
+            const totalProgress = ((monthTrades + monthOnboards) / (goals.trades + goals.onboards)) * 100;
+            const percent = Math.min(100, Math.round(totalProgress));
+            document.getElementById('progressPercent').textContent = percent + '%';
+            
+            // Update progress ring
+            const degrees = (percent / 100) * 360;
+            document.getElementById('progressRing').style.background = 
+                `conic-gradient(white 0deg ${degrees}deg, rgba(255,255,255,0.2) ${degrees}deg 360deg)`;
+            
+            // Rating
+            let rating = 'Poor';
+            if (percent >= 90) rating = 'Excellent';
+            else if (percent >= 70) rating = 'Good';
+            else if (percent >= 50) rating = 'Average';
+            
+            document.getElementById('monthlyRating').textContent = rating;
+        }
+
+        function renderCalendar() {
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+            
+            let html = '';
+            
+            // Previous month padding
+            for (let i = 0; i < startOffset; i++) {
+                html += '<div class="calendar-day"></div>';
+            }
+            
+            // Current month days
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const dayReports = reports.filter(r => r.date === dateStr);
+                const hasData = dayReports.length > 0;
+                
+                html += `<div class="calendar-day ${hasData ? 'has-data' : ''}" onclick="selectDate('${dateStr}')">
+                    <span class="day-number">${d}</span>
+                    ${hasData ? '<span class="day-indicator"></span>' : ''}
+                </div>`;
+            }
+            
+            document.getElementById('calendarDays').innerHTML = html;
+            document.getElementById('calendarMonth').textContent = 
+                new Date(currentYear, currentMonth).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        function selectDate(dateStr) {
+            selectedDate = dateStr;
+            const dayReports = reports.filter(r => r.date === dateStr);
+            
+            document.getElementById('sheetDate').textContent = 
+                new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            const trades = dayReports.filter(r => r.status === 'traded').length;
+            const onboards = dayReports.filter(r => r.type === 'onboarding').length;
+            
+            document.getElementById('sheetStats').innerHTML = `
+                <div class="sheet-stat">
+                    <div class="sheet-stat-value">${dayReports.length}</div>
+                    <div class="sheet-stat-label">Total</div>
+                </div>
+                <div class="sheet-stat">
+                    <div class="sheet-stat-value" style="color:#10b981;">${trades}</div>
+                    <div class="sheet-stat-label">Trades</div>
+                </div>
+                <div class="sheet-stat">
+                    <div class="sheet-stat-value" style="color:#3b82f6;">${onboards}</div>
+                    <div class="sheet-stat-label">Onboards</div>
                 </div>
             `;
-        }).join('');
-        return `
-            <section id="shows" class="py-20 px-4">
-                <div class="max-w-6xl mx-auto">
-                    <h2 class="text-4xl font-bold mb-12">${state.searchQuery ? `Search Results (${state.filteredChannels.length})` : `Live Channels (${state.channels.length.toLocaleString()})`}</h2>
-                    ${items.length === 0 ? '<div class="text-center py-12 text-slate-400">No channels found.</div>' : `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${items}</div>`}
-                </div>
-            </section>
-        `;
-    }
+            
+            let tableHtml = '';
+            dayReports.forEach(r => {
+                tableHtml += `<tr>
+                    <td>
+                        <div class="shop-info">${r.shopName}</div>
+                        <div class="phone-info">${r.phoneNumber}</div>
+                    </td>
+                    <td><span class="type-badge ${r.type === 'onboarding' ? 'type-onboard' : 'type-trade'}">${r.type === 'onboarding' ? 'Onboard' : 'Trade'}</span></td>
+                    <td><button class="status-badge ${r.status === 'traded' ? 'status-traded' : 'status-pending'}" onclick="toggleStatus(${r.id})">
+                        ${r.status === 'traded' ? '✓ Traded' : '○ Pending'}
+                    </button></td>
+                </tr>`;
+            });
+            
+            document.getElementById('sheetTable').innerHTML = tableHtml || 
+                '<tr><td colspan="3" class="empty-state"><i class="fas fa-store"></i><br>No entries for this day</td></tr>';
+            
+            document.getElementById('dateSheet').classList.add('open');
+        }
 
-    function VideoPlayerOverlay() {
-        if (state.selectedChannelIndex === -1) return '';
-        const ch = state.channels[state.selectedChannelIndex];
-        if (!ch) return '';
-        const volPercent = state.volume;
-        const playedPercent = (state.currentTime / (state.duration || 1)) * 100;
-        return `
-            <div class="fixed inset-0 bg-black z-[100] flex flex-col animate-fade-in">
-                <video id="marisel-video" class="w-full h-full object-contain" autoplay playsinline></video>
-                ${state.loadingStream ? `
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <div class="flex flex-col items-center gap-4"><div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div><p class="text-white">Loading stream...</p></div>
-                    </div>` : ''}
-                ${state.streamError ? `
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-                        <div class="flex flex-col items-center gap-4 text-center">
-                            <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1"/></svg>
-                            <div><h3 class="text-xl font-bold text-white mb-2">Stream Unavailable</h3><p class="text-slate-300 mb-4">This stream is blocked or broken.</p></div>
-                            <button onclick="window.mariselNext()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-full font-semibold text-white transition">Try Next Channel</button>
-                        </div>
-                    </div>` : ''}
-                ${state.showControls ? `
-                <div class="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-4 flex items-center justify-between">
-                    <button onclick="window.mariselClosePlayer()" class="flex items-center gap-2 text-white hover:bg-white/10 p-2 rounded-full transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                        <span class="font-medium">Back</span>
-                    </button>
-                    <span class="text-white font-medium truncate max-w-md px-2">${ch.name}</span>
-                    <button onclick="window.mariselToggleFullscreen()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/></svg>
-                    </button>
-                </div>
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent p-4">
-                    <div class="relative h-1 mb-4 bg-white/30 rounded-full cursor-pointer group" onclick="window.mariselSeek(event)">
-                        <div class="absolute h-full bg-red-600 rounded-full" style="width:${playedPercent}%"></div>
-                        <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" style="left:${playedPercent}%"></div>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <button onclick="window.mariselTogglePlay()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
-                                ${state.isPlaying ? '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>' : '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'}
-                            </button>
-                            <button onclick="window.mariselPrev()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 5v14l11-7z"/><rect x="17" y="5" width="2" height="14"/></svg>
-                            </button>
-                            <button onclick="window.mariselNext()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><rect x="5" y="5" width="2" height="14"/><path d="M9 5v14l11-7z"/></svg>
-                            </button>
-                            <div class="flex items-center gap-2 group">
-                                <button onclick="window.mariselToggleMute()" class="text-white hover:bg-white/10 p-2 rounded-full transition">
-                                    ${state.isMuted || state.volume === 0 ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M19 9a6 6 0 0 1 0 6"/></svg>'}
-                                </button>
-                                <input type="range" min="0" max="100" value="${state.isMuted ? 0 : state.volume}" oninput="window.mariselVolume(this.value)" class="w-24 h-1 bg-white/30 rounded-full appearance-none cursor-pointer accent-red-600">
-                            </div>
-                            <span class="text-white text-sm font-mono">${formatTime(state.currentTime)} / ${formatTime(state.duration)}</span>
-                        </div>
-                    </div>
-                </div>` : ''}
-            </div>
-        `;
-    }
+        function closeSheet() {
+            document.getElementById('dateSheet').classList.remove('open');
+        }
 
-    function Features() {
-        return `
-            <section id="features" class="py-20 px-4 bg-slate-900/30">
-                <div class="max-w-6xl mx-auto">
-                    <h2 class="text-4xl font-bold mb-12 text-center">Why Choose Marisel TV?</h2>
-                    <div class="grid md:grid-cols-3 gap-8">
-                        <div class="text-center space-y-4"><div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto"><svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3 class="text-xl font-bold">Lightning Fast</h3><p class="text-slate-400">Stream with minimal buffering</p></div>
-                        <div class="text-center space-y-4"><div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto"><svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 21L5 21 8 17 16 17 19 21"/></svg></div><h3 class="text-xl font-bold">Global Channels</h3><p class="text-slate-400">Access ${state.channels.length.toLocaleString()}+ channels worldwide</p></div>
-                        <div class="text-center space-y-4"><div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto"><svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h3 class="text-xl font-bold">100% Free</h3><p class="text-slate-400">No subscriptions or hidden fees</p></div>
-                    </div>
-                </div>
-            </section>
-        `;
-    }
+        function editSelectedDate() {
+            closeSheet();
+            openAIModal();
+        }
 
-    function Footer() {
-        return `
-            <footer class="border-t border-slate-800 py-12 px-4 bg-slate-950">
-                <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-                    <div><div class="flex items-center gap-2 mb-4"><span class="font-bold">Marisel TV</span></div><p class="text-slate-400 text-sm">Your gateway to unlimited entertainment</p></div>
-                    <div><h4 class="font-bold mb-4">Quick Links</h4><ul class="text-slate-400 text-sm space-y-2"><li>Home</li><li>Channels</li><li>Contact</li></ul></div>
-                    <div><h4 class="font-bold mb-4">Legal</h4><ul class="text-slate-400 text-sm space-y-2"><li>Privacy</li><li>Terms</li></ul></div>
-                </div>
-                <div class="border-t border-slate-800 pt-8 text-center text-slate-400 text-sm">© 2025 Marisel TV. All rights reserved. ${state.channels.length} channels available</div>
-            </footer>
-        `;
-    }
+        function addToSelectedDate() {
+            closeSheet();
+            openAIModal();
+        }
 
-    // ----- render app (simple innerHTML) -----
-    function renderApp() {
-        const root = document.getElementById('root');
-        if (!root) return;
-        root.innerHTML = `
-            ${Header()}
-            ${state.selectedChannelIndex === -1 ? `
-                ${Hero()}
-                ${SearchBar()}
-                ${ChannelGrid()}
-                ${Features()}
-                ${Footer()}
-            ` : ''}
-            ${VideoPlayerOverlay()}
-        `;
-        // attach video events if player open
-        if (state.selectedChannelIndex !== -1) {
-            const v = document.getElementById('marisel-video');
-            if (v) {
-                videoElement = v;
-                const ch = state.channels[state.selectedChannelIndex];
-                if (ch) {
-                    // cleanup old hls
-                    if (hlsInstance) hlsInstance.destroy();
-                    // attach hls
-                    if (ch.url.includes('.m3u8')) {
-                        hlsInstance = attachHls(v, ch.url);
-                    } else {
-                        v.src = ch.url;
-                    }
-                    setState({ loadingStream: true, streamError: false });
-                    v.addEventListener('loadeddata', () => {
-                        setState({ loadingStream: false, duration: v.duration });
-                        v.play().catch(()=>{}).then(()=> setState({isPlaying: true}));
-                    });
-                    v.addEventListener('error', () => setState({ streamError: true, loadingStream: false }));
-                    v.addEventListener('timeupdate', () => setState({ currentTime: v.currentTime }));
-                    v.addEventListener('durationchange', () => setState({ duration: v.duration }));
-                    v.addEventListener('play', () => setState({ isPlaying: true }));
-                    v.addEventListener('pause', () => setState({ isPlaying: false }));
-                    v.addEventListener('volumechange', () => setState({ volume: v.volume*100, isMuted: v.muted }));
-                    v.volume = state.volume / 100;
-                    v.muted = state.isMuted;
+        async function toggleStatus(id) {
+            const report = reports.find(r => r.id === id);
+            if (report) {
+                report.status = report.status === 'traded' ? 'not-traded' : 'traded';
+                
+                // Update in Supabase
+                await supabase
+                    .from('reports')
+                    .update({ status: report.status })
+                    .eq('id', id);
+                
+                localStorage.setItem('seviReports', JSON.stringify(reports));
+                
+                // Refresh views
+                renderHome();
+                if (selectedDate) selectDate(selectedDate);
+                updateReports();
+                updateProgress();
+                updateAnalytics();
+                destroyCharts();
+                initCharts();
+                
+                showToast(`✅ Status updated to ${report.status}`);
+            }
+        }
+
+        function updateReports() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayReports = reports.filter(r => r.date === today);
+            
+            const onboards = todayReports.filter(r => r.type === 'onboarding');
+            const newTrades = todayReports.filter(r => r.type === 'newtrade');
+            
+            const todayDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            
+            let report = todayDate + '\n\n';
+            report += '*Onboarding*\n';
+            onboards.forEach((r, i) => {
+                report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`;
+            });
+            
+            report += '\n*New trade*\n';
+            newTrades.forEach((r, i) => {
+                report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`;
+            });
+            
+            document.getElementById('dailyReport').textContent = report;
+        }
+
+        function copyReport() {
+            const report = document.getElementById('dailyReport').textContent;
+            navigator.clipboard.writeText(report).then(() => {
+                showToast('✅ Report copied to clipboard!');
+            });
+        }
+
+        function shareToWhatsApp() {
+            const report = document.getElementById('dailyReport').textContent;
+            const url = `https://wa.me/?text=${encodeURIComponent(report)}`;
+            window.open(url, '_blank');
+        }
+
+        function updateProgress() {
+            // Streak calculation
+            let streak = 0;
+            let checkDate = new Date();
+            while (true) {
+                const dateStr = checkDate.toISOString().split('T')[0];
+                const hasTrades = reports.some(r => r.date === dateStr && r.status === 'traded');
+                if (hasTrades) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
                 }
             }
-        } else {
-            if (videoElement) { videoElement.pause(); videoElement.src = ''; if (hlsInstance) hlsInstance.destroy(); videoElement = null; }
+            document.getElementById('streakCount').textContent = streak;
+            
+            // Best day
+            const dayCounts = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    dayCounts[r.date] = (dayCounts[r.date] || 0) + 1;
+                }
+            });
+            
+            let bestCount = 0;
+            let bestDate = '';
+            Object.entries(dayCounts).forEach(([date, count]) => {
+                if (count > bestCount) {
+                    bestCount = count;
+                    bestDate = date;
+                }
+            });
+            
+            document.getElementById('bestDayCount').textContent = bestCount;
+            document.getElementById('bestDayDate').textContent = bestDate ? 
+                new Date(bestDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-';
+            
+            document.getElementById('totalShops').textContent = reports.length;
         }
-    }
 
-    // expose global handlers
-    window.mariselSearch = (q) => {
-        setState({ searchQuery: q, filteredChannels: filterChannels(q) });
-    };
-    window.mariselPlayById = (id) => {
-        const idx = state.channels.findIndex(c => c.id === id);
-        if (idx !== -1) playChannel(idx);
-    };
-    window.mariselRandom = () => {
-        if (state.channels.length === 0) return;
-        const rand = Math.floor(Math.random() * state.channels.length);
-        playChannel(rand);
-    };
-    window.mariselClosePlayer = closePlayer;
-    window.mariselTogglePlay = () => {
-        if (!videoElement) return;
-        if (videoElement.paused) videoElement.play(); else videoElement.pause();
-    };
-    window.mariselPrev = () => {
-        let idx = state.selectedChannelIndex;
-        if (idx === -1) return;
-        idx = (idx - 1 + state.channels.length) % state.channels.length;
-        playChannel(idx);
-    };
-    window.mariselNext = () => {
-        let idx = state.selectedChannelIndex;
-        if (idx === -1) return;
-        idx = (idx + 1) % state.channels.length;
-        playChannel(idx);
-    };
-    window.mariselToggleMute = () => {
-        if (!videoElement) return;
-        videoElement.muted = !videoElement.muted;
-    };
-    window.mariselVolume = (val) => {
-        if (videoElement) videoElement.volume = val / 100;
-        setState({ volume: parseInt(val,10), isMuted: val == 0 });
-    };
-    window.mariselSeek = (e) => {
-        if (!videoElement || !state.duration) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const ratio = (e.clientX - rect.left) / rect.width;
-        videoElement.currentTime = ratio * state.duration;
-    };
-    window.mariselToggleFullscreen = toggleFullscreen;
-    window.addEventListener('fullscreenchange', () => setState({ isFullscreen: !!document.fullscreenElement }));
-
-    // subscribe & initial load
-    subscribe(renderApp);
-    loadChannels();
-    // add mouse movement to show controls
-    document.addEventListener('mousemove', () => { if (state.selectedChannelIndex !== -1) setState({ showControls: true }); });
-    // hide after 2s idle – simple
-    let hideTimer;
-    document.addEventListener('mousemove', () => {
-        if (state.selectedChannelIndex !== -1) {
-            setState({ showControls: true });
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(() => setState({ showControls: false }), 3000);
+        function updateAnalytics() {
+            const totalTrades = reports.filter(r => r.status === 'traded').length;
+            const totalOnboards = reports.filter(r => r.type === 'onboarding').length;
+            const totalNewTrades = reports.filter(r => r.type === 'newtrade').length;
+            
+            document.getElementById('totalTrades').textContent = totalTrades;
+            document.getElementById('totalOnboards').textContent = totalOnboards;
+            
+            const conversion = reports.length ? Math.round((totalTrades / reports.length) * 100) : 0;
+            document.getElementById('totalConversion').textContent = conversion + '%';
+            
+            // Average daily
+            const dates = [...new Set(reports.map(r => r.date))];
+            const avg = dates.length ? Math.round(totalTrades / dates.length) : 0;
+            document.getElementById('avgDaily').textContent = avg;
         }
-    });
-})();
-</script>
+
+        // ==================== CHARTS ====================
+        function initCharts() {
+            // Weekly Chart
+            const ctx1 = document.getElementById('weeklyChart').getContext('2d');
+            charts.weekly = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Trades',
+                        data: getWeeklyData(),
+                        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a0a0a',
+                        borderRadius: 8,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+            
+            // Monthly Chart
+            const ctx2 = document.getElementById('monthlyChart').getContext('2d');
+            charts.monthly = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Performance',
+                        data: getMonthlyData(),
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a0a0a',
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a0a0a',
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+            
+            // Conversion Chart
+            const ctx3 = document.getElementById('conversionChart').getContext('2d');
+            charts.conversion = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Conversion %',
+                        data: getConversionData(),
+                        borderColor: '#10b981',
+                        backgroundColor: '#10b98120',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+            
+            // Distribution Chart
+            const ctx4 = document.getElementById('distributionChart').getContext('2d');
+            charts.distribution = new Chart(ctx4, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Onboards', 'New Trades'],
+                    datasets: [{
+                        data: [
+                            reports.filter(r => r.type === 'onboarding').length,
+                            reports.filter(r => r.type === 'newtrade').length
+                        ],
+                        backgroundColor: [
+                            getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0a0a0a',
+                            getComputedStyle(document.documentElement).getPropertyValue('--chart-2').trim() || '#64748b'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function destroyCharts() {
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            charts = {};
+        }
+
+        function getWeeklyData() {
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                days.push(reports.filter(r => r.date === dateStr && r.status === 'traded').length);
+            }
+            return days;
+        }
+
+        function getMonthlyData() {
+            const weeks = [0, 0, 0, 0];
+            const now = new Date();
+            reports.forEach(r => {
+                const d = new Date(r.date);
+                if (d.getMonth() === now.getMonth() && r.status === 'traded') {
+                    const week = Math.floor((d.getDate() - 1) / 7);
+                    if (week < 4) weeks[week]++;
+                }
+            });
+            return weeks;
+        }
+
+        function getConversionData() {
+            const weeks = [0, 0, 0, 0];
+            const now = new Date();
+            for (let i = 0; i < 4; i++) {
+                const weekReports = reports.filter(r => {
+                    const d = new Date(r.date);
+                    const week = Math.floor((d.getDate() - 1) / 7);
+                    return d.getMonth() === now.getMonth() && week === i;
+                });
+                const traded = weekReports.filter(r => r.status === 'traded').length;
+                weeks[i] = weekReports.length ? Math.round((traded / weekReports.length) * 100) : 0;
+            }
+            return weeks;
+        }
+
+        // ==================== UTILITIES ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+
+        function openAIModal() {
+            document.getElementById('aiModal').classList.add('active');
+        }
+
+        function closeAIModal() {
+            document.getElementById('aiModal').classList.remove('active');
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            
+            destroyCharts();
+            initCharts();
+        }
+
+        function checkTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                currentTheme = saved;
+                document.documentElement.setAttribute('data-theme', saved);
+                const icon = document.querySelector('.theme-toggle i');
+                icon.className = saved === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            }
+        }
+
+        function updateDateDisplay() {
+            const today = new Date();
+            document.getElementById('currentDate').textContent = 
+                today.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function refreshData() {
+            renderHome();
+            showToast('Data refreshed');
+        }
+
+        // ==================== SERVICE WORKER FOR PWA ====================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => 
+                    console.log('ServiceWorker registration failed: ', err)
+                );
+            });
+        }
+    </script>
 </body>
 </html>
