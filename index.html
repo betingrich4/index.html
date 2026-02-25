@@ -772,7 +772,7 @@
                 <div class="greeting">
                     Hello <span>Richard</span>
                 </div>
-                <div class="theme-toggle" onclick="toggleTheme()">
+                <div class="theme-toggle" onclick="window.toggleTheme()">
                     <i class="fas fa-moon"></i>
                 </div>
             </div>
@@ -840,7 +840,7 @@
                 <div class="card">
                     <div class="card-title">
                         Today's Activity
-                        <span onclick="refreshData()" style="cursor:pointer;">
+                        <span onclick="window.refreshData()" style="cursor:pointer;">
                             <i class="fas fa-sync-alt"></i>
                         </span>
                     </div>
@@ -868,8 +868,8 @@
                     <div class="calendar-header">
                         <div class="calendar-month" id="calendarMonth">February 2026</div>
                         <div class="calendar-nav">
-                            <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                            <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                            <button onclick="window.changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <button onclick="window.changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
                         </div>
                     </div>
                     
@@ -894,10 +894,10 @@
                     <div class="card-title">
                         Daily Report
                         <div style="display:flex; gap:8px;">
-                            <button class="btn-secondary" style="padding:8px 16px;" onclick="copyReport()">
+                            <button class="btn-secondary" style="padding:8px 16px;" onclick="window.copyReport()">
                                 <i class="far fa-copy"></i>
                             </button>
-                            <button class="btn-secondary" style="padding:8px 16px;" onclick="shareToWhatsApp()">
+                            <button class="btn-secondary" style="padding:8px 16px;" onclick="window.shareToWhatsApp()">
                                 <i class="fab fa-whatsapp"></i>
                             </button>
                         </div>
@@ -987,29 +987,29 @@
         </div>
 
         <!-- Floating Action Button -->
-        <button class="fab" onclick="openAIModal()">
+        <button class="fab" onclick="window.openAIModal()">
             <i class="fas fa-plus"></i>
         </button>
 
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
-            <button class="nav-item active" onclick="switchTab('home')">
+            <button class="nav-item active" onclick="window.switchTab('home')">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </button>
-            <button class="nav-item" onclick="switchTab('calendar')">
+            <button class="nav-item" onclick="window.switchTab('calendar')">
                 <i class="fas fa-calendar-alt"></i>
                 <span>Calendar</span>
             </button>
-            <button class="nav-item" onclick="switchTab('reports')">
+            <button class="nav-item" onclick="window.switchTab('reports')">
                 <i class="fas fa-file-alt"></i>
                 <span>Reports</span>
             </button>
-            <button class="nav-item" onclick="switchTab('progress')">
+            <button class="nav-item" onclick="window.switchTab('progress')">
                 <i class="fas fa-chart-line"></i>
                 <span>Progress</span>
             </button>
-            <button class="nav-item" onclick="switchTab('analytics')">
+            <button class="nav-item" onclick="window.switchTab('analytics')">
                 <i class="fas fa-chart-pie"></i>
                 <span>Analytics</span>
             </button>
@@ -1029,8 +1029,8 @@
 *New trade*
 1. Come and see 0736468481"></textarea>
                 <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="closeAIModal()">Cancel</button>
-                    <button class="btn btn-primary" onclick="processAIData()">Process & Save</button>
+                    <button class="btn btn-secondary" onclick="window.closeAIModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="window.processAIData()">Process & Save</button>
                 </div>
             </div>
         </div>
@@ -1039,7 +1039,7 @@
         <div class="bottom-sheet" id="dateSheet">
             <div class="sheet-header">
                 <div class="sheet-title" id="sheetDate">Loading...</div>
-                <button class="close-sheet" onclick="closeSheet()">✕</button>
+                <button class="close-sheet" onclick="window.closeSheet()">✕</button>
             </div>
             <div class="sheet-stats" id="sheetStats"></div>
             <div style="max-height: 300px; overflow-y: auto;">
@@ -1056,10 +1056,10 @@
                 </table>
             </div>
             <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button class="btn btn-secondary" style="flex:1;" onclick="editSelectedDate()">
+                <button class="btn btn-secondary" style="flex:1;" onclick="window.editSelectedDate()">
                     <i class="fas fa-edit"></i> Edit
                 </button>
-                <button class="btn btn-primary" style="flex:1;" onclick="addToSelectedDate()">
+                <button class="btn btn-primary" style="flex:1;" onclick="window.addToSelectedDate()">
                     <i class="fas fa-plus"></i> Add
                 </button>
             </div>
@@ -1067,11 +1067,14 @@
     </div>
 
     <script>
+        // Make all functions globally available
+        window.supabase = supabase;
+
         // ==================== SUPABASE CONFIG ====================
         const SUPABASE_URL = 'https://vhvyrhztcpnczhuxvjkd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZodnlyaHp0Y3BuY3podXh2amtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NzIzNDAsImV4cCI6MjA1MTI0ODM0MH0.3gR3kPvE2sLrJg9nQmTkFb7cX8yVdRqLpZmNvWxYzUc';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ==================== GLOBAL STATE ====================
         let reports = [];
@@ -1105,7 +1108,7 @@
         async function loadData() {
             try {
                 // Try Supabase first
-                const { data: supabaseData, error } = await supabase
+                const { data: supabaseData, error } = await supabaseClient
                     .from('reports')
                     .select('*')
                     .order('date', { ascending: false });
@@ -1149,7 +1152,7 @@
 
         async function syncToSupabase(data) {
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('reports')
                     .upsert(data, { onConflict: 'id' });
                 
@@ -1160,7 +1163,7 @@
         }
 
         // ==================== AI DATA PROCESSING ====================
-        async function processAIData() {
+        window.processAIData = async function() {
             const rawText = document.getElementById('aiInput').value;
             const lines = rawText.split('\n');
             
@@ -1220,7 +1223,6 @@
             }
             
             if (processed.length > 0) {
-                // Show loading toast
                 showToast(`🔄 Processing ${processed.length} shops...`);
                 
                 // Check for existing phones to update statuses
@@ -1311,7 +1313,7 @@
                         <div class="phone-info">${r.phoneNumber}</div>
                     </td>
                     <td><span class="type-badge ${r.type === 'onboarding' ? 'type-onboard' : 'type-trade'}">${r.type === 'onboarding' ? 'Onboard' : 'Trade'}</span></td>
-                    <td><button class="status-badge ${r.status === 'traded' ? 'status-traded' : 'status-pending'}" onclick="toggleStatus(${r.id})">
+                    <td><button class="status-badge ${r.status === 'traded' ? 'status-traded' : 'status-pending'}" onclick="window.toggleStatus(${r.id})">
                         ${r.status === 'traded' ? '✓ Traded' : '○ Pending'}
                     </button></td>
                 </tr>`;
@@ -1375,7 +1377,7 @@
                 const dayReports = reports.filter(r => r.date === dateStr);
                 const hasData = dayReports.length > 0;
                 
-                html += `<div class="calendar-day ${hasData ? 'has-data' : ''}" onclick="selectDate('${dateStr}')">
+                html += `<div class="calendar-day ${hasData ? 'has-data' : ''}" onclick="window.selectDate('${dateStr}')">
                     <span class="day-number">${d}</span>
                     ${hasData ? '<span class="day-indicator"></span>' : ''}
                 </div>`;
@@ -1386,7 +1388,7 @@
                 new Date(currentYear, currentMonth).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
         }
 
-        function changeMonth(delta) {
+        window.changeMonth = function(delta) {
             currentMonth += delta;
             if (currentMonth < 0) {
                 currentMonth = 11;
@@ -1398,7 +1400,7 @@
             renderCalendar();
         }
 
-        function selectDate(dateStr) {
+        window.selectDate = function(dateStr) {
             selectedDate = dateStr;
             const dayReports = reports.filter(r => r.date === dateStr);
             
@@ -1431,7 +1433,7 @@
                         <div class="phone-info">${r.phoneNumber}</div>
                     </td>
                     <td><span class="type-badge ${r.type === 'onboarding' ? 'type-onboard' : 'type-trade'}">${r.type === 'onboarding' ? 'Onboard' : 'Trade'}</span></td>
-                    <td><button class="status-badge ${r.status === 'traded' ? 'status-traded' : 'status-pending'}" onclick="toggleStatus(${r.id})">
+                    <td><button class="status-badge ${r.status === 'traded' ? 'status-traded' : 'status-pending'}" onclick="window.toggleStatus(${r.id})">
                         ${r.status === 'traded' ? '✓ Traded' : '○ Pending'}
                     </button></td>
                 </tr>`;
@@ -1443,27 +1445,27 @@
             document.getElementById('dateSheet').classList.add('open');
         }
 
-        function closeSheet() {
+        window.closeSheet = function() {
             document.getElementById('dateSheet').classList.remove('open');
         }
 
-        function editSelectedDate() {
+        window.editSelectedDate = function() {
             closeSheet();
             openAIModal();
         }
 
-        function addToSelectedDate() {
+        window.addToSelectedDate = function() {
             closeSheet();
             openAIModal();
         }
 
-        async function toggleStatus(id) {
+        window.toggleStatus = async function(id) {
             const report = reports.find(r => r.id === id);
             if (report) {
                 report.status = report.status === 'traded' ? 'not-traded' : 'traded';
                 
                 // Update in Supabase
-                await supabase
+                await supabaseClient
                     .from('reports')
                     .update({ status: report.status })
                     .eq('id', id);
@@ -1506,14 +1508,14 @@
             document.getElementById('dailyReport').textContent = report;
         }
 
-        function copyReport() {
+        window.copyReport = function() {
             const report = document.getElementById('dailyReport').textContent;
             navigator.clipboard.writeText(report).then(() => {
                 showToast('✅ Report copied to clipboard!');
             });
         }
 
-        function shareToWhatsApp() {
+        window.shareToWhatsApp = function() {
             const report = document.getElementById('dailyReport').textContent;
             const url = `https://wa.me/?text=${encodeURIComponent(report)}`;
             window.open(url, '_blank');
@@ -1733,7 +1735,7 @@
         }
 
         // ==================== UTILITIES ====================
-        function switchTab(tab) {
+        window.switchTab = function(tab) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             event.currentTarget.classList.add('active');
             
@@ -1741,15 +1743,15 @@
             document.getElementById(tab + '-tab').classList.add('active');
         }
 
-        function openAIModal() {
+        window.openAIModal = function() {
             document.getElementById('aiModal').classList.add('active');
         }
 
-        function closeAIModal() {
+        window.closeAIModal = function() {
             document.getElementById('aiModal').classList.remove('active');
         }
 
-        function toggleTheme() {
+        window.toggleTheme = function() {
             currentTheme = currentTheme === 'light' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', currentTheme);
             localStorage.setItem('theme', currentTheme);
@@ -1788,7 +1790,7 @@
             }, 3000);
         }
 
-        function refreshData() {
+        window.refreshData = function() {
             renderHome();
             showToast('Data refreshed');
         }
