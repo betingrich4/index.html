@@ -1,0 +1,2835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sevi · Field Ops</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-primary: #f0f7fa;
+            --bg-surface: #ffffff;
+            --text-primary: #013f4a;
+            --text-secondary: #26658c;
+            --text-tertiary: #5f7d95;
+            --border-light: #d9e6f0;
+            --accent: #013f4a;
+            --accent-hover: #26658c;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #26658c;
+            --checkmark: #10b981;
+            --view-only: #94a3b8;
+            --strength: #10b981;
+            --weakness: #f59e0b;
+            --search-highlight: #fff3bf;
+            --search-highlight-dark: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a1a24;
+            --bg-surface: #013f4a;
+            --text-primary: #ffffff;
+            --text-secondary: #d9e6f0;
+            --text-tertiary: #a0c0d0;
+            --border-light: #26658c;
+            --accent: #26658c;
+            --accent-hover: #3a7ca5;
+            --search-highlight: #f59e0b;
+            --search-highlight-dark: #fff3bf;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(1,63,74,0.1);
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 16px 12px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .greeting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .greeting {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .greeting span {
+            color: var(--accent-hover);
+        }
+
+        .theme-toggle {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            border: 2px solid var(--border-light);
+            border-radius: 40px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-hover);
+            box-shadow: 0 0 0 3px rgba(38,101,140,0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            margin-top: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: var(--bg-primary);
+        }
+
+        .search-result-item.highlight {
+            background: var(--search-highlight);
+            border-left: 4px solid var(--search-highlight-dark);
+        }
+
+        .search-result-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .search-result-phone {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .search-result-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .search-result-traded {
+            background: #10b98120;
+            color: #10b981;
+        }
+
+        .search-result-pending {
+            background: #f59e0b20;
+            color: #f59e0b;
+        }
+
+        .date-badge {
+            background: var(--bg-primary);
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        /* Goals Card */
+        .goals-container {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 8px;
+            color: white;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .goal-title {
+            font-size: 16px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .goal-rating {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .goal-progress-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .progress-circle {
+            width: 70px;
+            height: 70px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .progress-ring {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(white 0deg 0deg, rgba(255,255,255,0.2) 0deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-ring-inner {
+            width: 54px;
+            height: 54px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .progress-stats {
+            flex: 1;
+        }
+
+        .progress-stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .progress-stat-label {
+            opacity: 0.8;
+        }
+
+        .progress-stat-value {
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            padding-bottom: 80px;
+            overflow-y: auto;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(1,63,74,0.05);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-primary);
+        }
+
+        /* Poll / Performance Summary */
+        .poll-container {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .poll-header {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+
+        .poll-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .poll-item {
+            text-align: center;
+        }
+
+        .poll-value {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .poll-label {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .poll-strength {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .strength-day {
+            flex: 1;
+            padding: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .strength-day span {
+            font-weight: 700;
+            display: block;
+            font-size: 13px;
+        }
+
+        .weakness-day {
+            flex: 1;
+            padding: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .weakness-day span {
+            font-weight: 700;
+            display: block;
+            font-size: 13px;
+            color: #fef9c3;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-item {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 12px 4px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .stat-number {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+
+        .stat-trend {
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--error); }
+        .trend-neutral { color: var(--text-tertiary); }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 6px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .data-table td {
+            padding: 10px 6px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .shop-info {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .phone-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .type-onboard {
+            background: #26658c20;
+            color: #26658c;
+        }
+
+        .type-trade {
+            background: #10b98120;
+            color: #10b981;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            border: none;
+            background: none;
+        }
+
+        .status-badge.clickable {
+            cursor: pointer;
+        }
+
+        .status-badge.clickable:active {
+            opacity: 0.7;
+        }
+
+        .status-traded {
+            background: #10b98120;
+            color: #10b981;
+        }
+
+        .status-pending {
+            background: #f59e0b20;
+            color: #f59e0b;
+        }
+
+        .status-view {
+            background: var(--bg-primary);
+            color: var(--text-tertiary);
+            cursor: default;
+        }
+
+        .checkmark-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #10b98120;
+            color: #10b981;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .checkmark-badge i {
+            font-size: 10px;
+        }
+
+        .search-highlight-row {
+            background: var(--search-highlight) !important;
+            border-left: 4px solid var(--search-highlight-dark);
+        }
+
+        /* Calendar */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .calendar-month {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .calendar-nav button {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 4px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            padding: 6px 0;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .calendar-day.has-data {
+            background: var(--accent);
+            color: white;
+        }
+
+        .calendar-day.has-checkmark {
+            background: var(--success);
+            color: white;
+        }
+
+        .calendar-day.strength-day {
+            background: var(--strength);
+            color: white;
+        }
+
+        .calendar-day.weakness-day {
+            background: var(--weakness);
+            color: white;
+        }
+
+        .calendar-day.training-period {
+            opacity: 0.5;
+            background: var(--bg-primary);
+            border: 1px dashed var(--error);
+            cursor: not-allowed;
+        }
+
+        .calendar-day.future-date {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .calendar-day.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .day-number {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .day-indicator {
+            width: 3px;
+            height: 3px;
+            border-radius: 1.5px;
+            background: white;
+            margin-top: 1px;
+        }
+
+        /* Bottom Sheet */
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+            border-top: 1px solid var(--border-light);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .bottom-sheet.open {
+            transform: translateY(0);
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .sheet-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-sheet {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .sheet-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 12px;
+        }
+
+        .sheet-stat {
+            text-align: center;
+        }
+
+        .sheet-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .sheet-stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        /* Assistant Modal */
+        .assistant-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .assistant-modal.active {
+            display: flex;
+        }
+
+        .assistant-content {
+            background: var(--bg-surface);
+            border-radius: 24px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .assistant-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .assistant-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .assistant-subtitle {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .assistant-input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+
+        .assistant-response {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .response-highlight {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .response-lowlight {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        /* FABs */
+        .fab-robot {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 56px;
+            height: 56px;
+            background: var(--accent-hover);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(1,63,74,0.3);
+            cursor: pointer;
+            z-index: 100;
+            border: none;
+        }
+
+        .fab-plus {
+            position: fixed;
+            bottom: 80px;
+            right: 90px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(1,63,74,0.3);
+            cursor: pointer;
+            z-index: 100;
+            border: none;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0 12px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-tertiary);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px 0;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+        }
+
+        /* AI Input Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-surface);
+            border-radius: 24px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .modal p {
+            color: var(--text-tertiary);
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .modal textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            resize: vertical;
+            font-family: 'Inter', monospace;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        /* Notes Input */
+        .notes-input-group {
+            margin-bottom: 16px;
+        }
+
+        .notes-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .notes-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .notes-radio-group {
+            display: flex;
+            gap: 20px;
+            margin: 12px 0;
+        }
+
+        .notes-radio {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .raw-notes-display {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Variance Indicators */
+        .variance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .variance-positive {
+            background: #10b98120;
+            color: #10b981;
+        }
+
+        .variance-negative {
+            background: #ef444420;
+            color: #ef4444;
+        }
+
+        .variance-neutral {
+            background: var(--bg-surface);
+            color: var(--text-tertiary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 30px 16px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        /* Chart Containers */
+        .chart-container {
+            height: 160px;
+            margin: 16px 0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 140px;
+            left: 20px;
+            right: 20px;
+            max-width: 440px;
+            margin: 0 auto;
+            background: var(--accent);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 30px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            z-index: 3000;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Weekly Report */
+        .weekly-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .week-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .week-card .week-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+        }
+
+        .week-card .week-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .week-strength {
+            border-left: 4px solid var(--strength);
+        }
+
+        .week-weakness {
+            border-left: 4px solid var(--weakness);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <div class="header">
+            <div class="greeting-row">
+                <div class="greeting" id="greeting">
+                    Good morning, <span>Richard</span>
+                </div>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by shop name or phone number..." oninput="handleSearch()">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div class="date-badge">
+                <i class="far fa-calendar-alt"></i>
+                <span id="currentDate">26 Feb 2026</span>
+            </div>
+            
+            <!-- Goals Card -->
+            <div class="goals-container" id="goalsContainer">
+                <div class="goal-header">
+                    <span class="goal-title">February Goals</span>
+                    <span class="goal-rating" id="monthlyRating">Excellent</span>
+                </div>
+                <div class="goal-progress-row">
+                    <div class="progress-circle">
+                        <div class="progress-ring" id="progressRing">
+                            <div class="progress-ring-inner">
+                                <span id="progressPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-stat-item">
+                            <span class="progress-stat-label">New Trades</span>
+                            <span class="progress-stat-value" id="tradesProgress">0/20</span>
+                        </div>
+                        <div class="progress-stat-item">
+                            <span class="progress-stat-label">Onboards</span>
+                            <span class="progress-stat-value" id="onboardsProgress">0/30</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Home Tab -->
+            <div id="home-tab" class="tab-content active">
+                <!-- Poll / Performance Summary -->
+                <div class="poll-container">
+                    <div class="poll-header">Your Performance Overview</div>
+                    <div class="poll-grid">
+                        <div class="poll-item">
+                            <div class="poll-value" id="bestDayValue">0</div>
+                            <div class="poll-label">Best Day</div>
+                            <div style="font-size:10px; opacity:0.8;" id="bestDayName">-</div>
+                        </div>
+                        <div class="poll-item">
+                            <div class="poll-value" id="avgTrades">0</div>
+                            <div class="poll-label">Avg Trades</div>
+                            <div style="font-size:10px; opacity:0.8;">per day</div>
+                        </div>
+                        <div class="poll-item">
+                            <div class="poll-value" id="totalShopsPoll">0</div>
+                            <div class="poll-label">Total Shops</div>
+                            <div style="font-size:10px; opacity:0.8;" id="totalTradesPoll">0 trades</div>
+                        </div>
+                    </div>
+                    <div class="poll-strength">
+                        <div class="strength-day" id="strengthDay">
+                            <span>0</span>
+                            trades
+                        </div>
+                        <div class="weakness-day" id="weaknessDay">
+                            <span>0</span>
+                            trades
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Today's Summary (26 Feb)
+                        <span class="variance-badge variance-neutral" id="dailyVariance">vs yesterday</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Trades</div>
+                            <div class="stat-number" id="todayTrades">0</div>
+                            <div class="stat-trend" id="tradeTrend">+0%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Onboards</div>
+                            <div class="stat-number" id="todayOnboards">0</div>
+                            <div class="stat-trend" id="onboardTrend">+0%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Conversion</div>
+                            <div class="stat-number" id="todayConversion">0%</div>
+                            <div class="stat-trend" id="conversionTrend">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Today's Activity
+                        <span onclick="refreshData()" style="cursor:pointer;">
+                            <i class="fas fa-sync-alt"></i>
+                        </span>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Shop</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="todayActivityBody">
+                                <tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity today. Add data using the + button.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Tab -->
+            <div id="calendar-tab" class="tab-content">
+                <div class="card">
+                    <div class="calendar-header">
+                        <div class="calendar-month" id="calendarMonth">February 2026</div>
+                        <div class="calendar-nav">
+                            <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-weekdays">
+                        <div class="weekday">M</div>
+                        <div class="weekday">T</div>
+                        <div class="weekday">W</div>
+                        <div class="weekday">T</div>
+                        <div class="weekday">F</div>
+                        <div class="weekday">S</div>
+                        <div class="weekday">S</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarDays"></div>
+                    <div style="margin-top: 12px; font-size: 11px; color: var(--text-tertiary);">
+                        <p><span style="color: var(--error);">⬤</span> Training period - View only</p>
+                        <p><span style="color: var(--accent);">⬤</span> Past dates with data - View only</p>
+                        <p><span style="color: var(--success);">⬤</span> Today - Can add/edit</p>
+                        <p><span style="color: var(--strength);">⬤</span> Strength day</p>
+                        <p><span style="color: var(--weakness);">⬤</span> Weakness day</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        Daily Report
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="copyReport()">
+                                <i class="far fa-copy"></i>
+                            </button>
+                            <button class="btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="shareToWhatsApp()">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-primary); padding:20px; border-radius:16px; font-family: monospace; white-space: pre-wrap; font-size:13px; line-height:1.8;" id="dailyReport">
+                        No data for today. Add data using the + button.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Weekly Report</div>
+                    <div class="weekly-summary" id="weeklySummary">
+                        <!-- Generated by JS -->
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Week</th>
+                                    <th>Trades</th>
+                                    <th>Onboards</th>
+                                    <th>Conversion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weeklyTable">
+                                <!-- Generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Tab -->
+            <div id="notes-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        Quick Notes
+                        <span onclick="clearNotes()" style="cursor:pointer;">
+                            <i class="fas fa-trash"></i>
+                        </span>
+                    </div>
+                    
+                    <div class="notes-input-group">
+                        <div class="notes-label">Shop Name</div>
+                        <input type="text" class="notes-field" id="noteShopName" placeholder="e.g., Kensafe Retail">
+                    </div>
+                    
+                    <div class="notes-input-group">
+                        <div class="notes-label">Phone Number</div>
+                        <input type="text" class="notes-field" id="notePhone" placeholder="072449218">
+                    </div>
+                    
+                    <div class="notes-radio-group">
+                        <label class="notes-radio">
+                            <input type="radio" name="noteType" value="onboarding" checked> Onboard
+                        </label>
+                        <label class="notes-radio">
+                            <input type="radio" name="noteType" value="newtrade"> New Trade
+                        </label>
+                    </div>
+                    
+                    <button class="btn btn-primary" style="width:100%; margin-bottom:16px;" onclick="addNote()">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                    
+                    <div id="noteDuplicateWarning" class="duplicate-warning" style="display:none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="duplicateMessage"></span>
+                    </div>
+                    
+                    <div class="notes-label">Today's Notes (<span id="noteCount">0</span>)</div>
+                    <div class="raw-notes-display" id="rawNotes">No notes yet</div>
+                    
+                    <div style="display:flex; gap:8px; margin-top:16px;">
+                        <button class="btn btn-secondary" style="flex:1;" onclick="copyRawNotes()">
+                            <i class="far fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn-primary" style="flex:1;" onclick="processNotes()">
+                            <i class="fas fa-magic"></i> Process
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Tab -->
+            <div id="progress-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-title">Streak & Records</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Streak</div>
+                            <div class="stat-number" id="streakCount">0</div>
+                            <div class="stat-label">days</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Best Day</div>
+                            <div class="stat-number" id="bestDayCount">0</div>
+                            <div class="stat-label" id="bestDayDate">-</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Total</div>
+                            <div class="stat-number" id="totalShops">0</div>
+                            <div class="stat-label">shops</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Weekly Performance</div>
+                    <div class="chart-container">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Monthly Progress</div>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-title">Conversion Trend</div>
+                    <div class="chart-container">
+                        <canvas id="conversionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Type Distribution</div>
+                    <div class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Stats</div>
+                    <table class="data-table">
+                        <tr><td>Total Trades (Verified)</td><td><strong id="totalTrades">0</strong></td></tr>
+                        <tr><td>Total Onboards</td><td><strong id="totalOnboards">0</strong></td></tr>
+                        <tr><td>Shops with Checkmark</td><td><strong id="totalCheckmarked">0</strong></td></tr>
+                        <tr><td>Conversion Rate</td><td><strong id="totalConversion">0%</strong></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- FABs -->
+        <button class="fab-robot" onclick="openAssistant()">
+            <i class="fas fa-robot"></i>
+        </button>
+        <button class="fab-plus" onclick="openAIModal()">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('home')">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('calendar')">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Calendar</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('reports')">
+                <i class="fas fa-file-alt"></i>
+                <span>Reports</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('notes')">
+                <i class="fas fa-pen"></i>
+                <span>Notes</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('progress')">
+                <i class="fas fa-chart-line"></i>
+                <span>Progress</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('analytics')">
+                <i class="fas fa-chart-pie"></i>
+                <span>Analytics</span>
+            </button>
+        </div>
+
+        <!-- AI Input Modal (for + button) -->
+        <div class="modal" id="aiModal">
+            <div class="modal-content">
+                <h3>Add Daily Data</h3>
+                <p>Paste your raw field notes. The system will organize them.</p>
+                <div id="aiDuplicateWarning" class="duplicate-warning" style="display:none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="aiDuplicateMessage"></span>
+                </div>
+                <textarea id="aiInput" placeholder="Example:
+26 Feb
+Onboarding
+1. Kensafe Retail 072449218
+2. Mama Hans 0721437447
+
+New trade
+1. Come and see 0736468481"></textarea>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeAIModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="processAIData()">Process</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assistant Modal (Robot Assistant) -->
+        <div class="assistant-modal" id="assistantModal">
+            <div class="assistant-content">
+                <div class="assistant-header">
+                    <div class="assistant-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="assistant-title">Your Assistant</div>
+                        <div class="assistant-subtitle">Ask me about your performance</div>
+                    </div>
+                </div>
+                
+                <textarea class="assistant-input" id="assistantQuestion" placeholder="e.g., Which day did I perform best? What's my weakness? Show weekly summary" rows="3"></textarea>
+                
+                <div class="assistant-response" id="assistantResponse">
+                    Ask me a question to get insights about your performance.
+                </div>
+                
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-secondary" style="flex:1;" onclick="closeAssistant()">Close</button>
+                    <button class="btn btn-primary" style="flex:1;" onclick="askAssistant()">Ask</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Sheet for Date Details -->
+        <div class="bottom-sheet" id="dateSheet">
+            <div class="sheet-header">
+                <div class="sheet-title" id="sheetDate">Loading...</div>
+                <button class="close-sheet" onclick="closeSheet()">✕</button>
+            </div>
+            <div class="sheet-stats" id="sheetStats"></div>
+            <div id="sheetMode" style="margin-bottom: 12px;"></div>
+            <div style="max-height: 250px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Shop</th>
+                            <th>Phone</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sheetTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SUPABASE CONFIG ====================
+        const SUPABASE_URL = 'https://vhvyrhztcpnczhuxvjkd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZodnlyaHp0Y3BuY3podXh2amtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NzIzNDAsImV4cCI6MjA1MTI0ODM0MH0.3gR3kPvE2sLrJg9nQmTkFb7cX8yVdRqLpZmNvWxYzUc';
+        
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ==================== GLOBAL STATE ====================
+        let reports = [];
+        let notes = JSON.parse(localStorage.getItem('seviNotes')) || [];
+        let charts = {};
+        let selectedDate = null;
+        let currentMonth = 1; // February
+        let currentYear = 2026;
+        let currentTheme = 'light';
+        let searchTimeout = null;
+
+        // Monthly Goals
+        const MONTHLY_GOALS = {
+            1: { trades: 20, onboards: 30 } // February
+        };
+
+        // Training period end date (no editing before this)
+        const TRAINING_END_DATE = '2026-02-13';
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', async () => {
+            updateGreeting();
+            await initializeData();
+            updateDateDisplay();
+            renderHome();
+            renderCalendar();
+            updateReports();
+            updateProgress();
+            updateAnalytics();
+            initCharts();
+            updateNotesDisplay();
+            checkTheme();
+        });
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = "Good evening";
+            if (hour < 12) greeting = "Good morning";
+            else if (hour < 17) greeting = "Good afternoon";
+            document.getElementById('greeting').innerHTML = `${greeting}, <span>Richard</span>`;
+        }
+
+        // ==================== INITIALIZE WITH CORRECTED DATA ====================
+        async function initializeData() {
+            reports = [
+                // 25 FEB
+                { id: 2501, date: "2026-02-25", shopName: "Kensafe Retail", phoneNumber: "072449218", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2502, date: "2026-02-25", shopName: "Mama Hans", phoneNumber: "0721437447", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2503, date: "2026-02-25", shopName: "Jackie Shop", phoneNumber: "0723357880", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2504, date: "2026-02-25", shopName: "Local Pub", phoneNumber: "0725975519", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2505, date: "2026-02-25", shopName: "Daddy Ocholla", phoneNumber: "0729673273", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2506, date: "2026-02-25", shopName: "Come and see", phoneNumber: "0736468481", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2507, date: "2026-02-25", shopName: "Opiyo Monic", phoneNumber: "0724645297", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2508, date: "2026-02-25", shopName: "Nbraview Autospare", phoneNumber: "0716324556", type: "newtrade", status: "traded", checkmark: false },
+
+                // 24 FEB
+                { id: 2401, date: "2026-02-24", shopName: "Mama Wilma", phoneNumber: "0723305464", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2402, date: "2026-02-24", shopName: "Vincent Ouma", phoneNumber: "0746179554", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2403, date: "2026-02-24", shopName: "Nyar pap ndege", phoneNumber: "0701694355", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2404, date: "2026-02-24", shopName: "Mary Shop", phoneNumber: "0743097806", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2405, date: "2026-02-24", shopName: "RNB kinyozi", phoneNumber: "0714951052", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2406, date: "2026-02-24", shopName: "Favour Beauty Shop", phoneNumber: "0797867354", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2407, date: "2026-02-24", shopName: "Sarah Hotel", phoneNumber: "0719590159", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2408, date: "2026-02-24", shopName: "Liquid Bar", phoneNumber: "0729322177", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2409, date: "2026-02-24", shopName: "Awuor Kennedy", phoneNumber: "0746256022", type: "newtrade", status: "not-traded", checkmark: false },
+
+                // 23 FEB
+                { id: 2301, date: "2026-02-23", shopName: "Mama Ivy", phoneNumber: "0707196303", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2302, date: "2026-02-23", shopName: "Japolo Wuon Akuru", phoneNumber: "0729531031", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2303, date: "2026-02-23", shopName: "JM Traders", phoneNumber: "0701267266", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2304, date: "2026-02-23", shopName: "Ken Bakers", phoneNumber: "0746256022", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 2305, date: "2026-02-23", shopName: "Enchipai Chemist", phoneNumber: "0724221382", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2306, date: "2026-02-23", shopName: "Tausi Shop", phoneNumber: "0110701039", type: "newtrade", status: "traded", checkmark: false },
+
+                // 21 FEB
+                { id: 2101, date: "2026-02-21", shopName: "Sarah Hotel", phoneNumber: "0719590159", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 2102, date: "2026-02-21", shopName: "Nyaseme Shop", phoneNumber: "0727243181", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2103, date: "2026-02-21", shopName: "Favour Beauty Shop", phoneNumber: "0797867354", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 2104, date: "2026-02-21", shopName: "Nya ugenya shop", phoneNumber: "0707379204", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2105, date: "2026-02-21", shopName: "Ayah Cyprian Haya", phoneNumber: "0720951322", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2106, date: "2026-02-21", shopName: "Paul bites", phoneNumber: "0745696667", type: "newtrade", status: "traded", checkmark: false },
+
+                // 20 FEB
+                { id: 2001, date: "2026-02-20", shopName: "Becky's shop", phoneNumber: "0714147476", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2002, date: "2026-02-20", shopName: "Tausi Shop", phoneNumber: "0110701039", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 2003, date: "2026-02-20", shopName: "Evelyn Ochieng", phoneNumber: "0794762672", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2004, date: "2026-02-20", shopName: "Lama Huraan mini shop", phoneNumber: "0724645279", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2005, date: "2026-02-20", shopName: "Nya ugenya AutoSpare", phoneNumber: "0701828015", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2006, date: "2026-02-20", shopName: "Mamake Shop", phoneNumber: "0768096912", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2007, date: "2026-02-20", shopName: "Jokraft Enterprise", phoneNumber: "0791805619", type: "newtrade", status: "traded", checkmark: false },
+
+                // 19 FEB
+                { id: 1901, date: "2026-02-19", shopName: "Irene shop", phoneNumber: "0716148745", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1902, date: "2026-02-19", shopName: "Come and see", phoneNumber: "0736468481", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1903, date: "2026-02-19", shopName: "Zabibu Shop", phoneNumber: "0745253685", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1904, date: "2026-02-19", shopName: "Simeo Baba", phoneNumber: "0713632055", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1905, date: "2026-02-19", shopName: "Nya ugenya shop", phoneNumber: "0707379204", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1906, date: "2026-02-19", shopName: "Liquid Bar and Restaurant", phoneNumber: "0729322177", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1907, date: "2026-02-19", shopName: "Lengo Shop", phoneNumber: "07955826481", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1908, date: "2026-02-19", shopName: "Sacco Bakers", phoneNumber: "0727305155", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1909, date: "2026-02-19", shopName: "Irene shop", phoneNumber: "0114879600", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1910, date: "2026-02-19", shopName: "Njeri Shop", phoneNumber: "0723723939", type: "newtrade", status: "traded", checkmark: false },
+
+                // 18 FEB
+                { id: 1801, date: "2026-02-18", shopName: "Jokraft", phoneNumber: "0791805619", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1802, date: "2026-02-18", shopName: "Scobet", phoneNumber: "0769081170", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1803, date: "2026-02-18", shopName: "Nubraview", phoneNumber: "0716324556", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1804, date: "2026-02-18", shopName: "Hubco engineering", phoneNumber: "0741640120", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1805, date: "2026-02-18", shopName: "Njeri Shop", phoneNumber: "0723723939", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1806, date: "2026-02-18", shopName: "Twins Hotel", phoneNumber: "0721874818", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1807, date: "2026-02-18", shopName: "Millicent", phoneNumber: "0714429282", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1808, date: "2026-02-18", shopName: "Josephine", phoneNumber: "0723247448", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1809, date: "2026-02-18", shopName: "Odero Millicent", phoneNumber: "0700265269", type: "newtrade", status: "traded", checkmark: false },
+
+                // 17 FEB
+                { id: 1701, date: "2026-02-17", shopName: "Juvian Shop & Hotel", phoneNumber: "0729410818", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1702, date: "2026-02-17", shopName: "Fast Food", phoneNumber: "0726119358", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1703, date: "2026-02-17", shopName: "Twins Hotel", phoneNumber: "0721874818", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1704, date: "2026-02-17", shopName: "Lilian Onyango", phoneNumber: "0792644676", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1705, date: "2026-02-17", shopName: "Babu Shop", phoneNumber: "0754041523", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1706, date: "2026-02-17", shopName: "Vivian Cynthia Shop", phoneNumber: "0114883502", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1707, date: "2026-02-17", shopName: "Ochieng Evalyne Atieno", phoneNumber: "0732361677", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1708, date: "2026-02-17", shopName: "Mali Mali shop", phoneNumber: "0757743710", type: "newtrade", status: "traded", checkmark: false },
+
+                // 16 FEB
+                { id: 1601, date: "2026-02-16", shopName: "Paul bites", phoneNumber: "0745696667", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1602, date: "2026-02-16", shopName: "Alibaba Shop", phoneNumber: "0741271112", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1603, date: "2026-02-16", shopName: "Ebenezer Salon", phoneNumber: "0723247448", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1604, date: "2026-02-16", shopName: "All season shop", phoneNumber: "0714429282", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1605, date: "2026-02-16", shopName: "Mercy Hotel", phoneNumber: "0748675398", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1606, date: "2026-02-16", shopName: "Abok sellah Aoko", phoneNumber: "0728559605", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1607, date: "2026-02-16", shopName: "Wich e dhano", phoneNumber: "0769898366", type: "newtrade", status: "traded", checkmark: false },
+
+                // 14 FEB
+                { id: 1401, date: "2026-02-14", shopName: "Mali Mali shop", phoneNumber: "0757743710", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1402, date: "2026-02-14", shopName: "Pinky Autospares", phoneNumber: "0700265296", type: "onboarding", status: "traded", checkmark: false },
+                { id: 1403, date: "2026-02-14", shopName: "Aperi Cosmetics", phoneNumber: "0729385440", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1404, date: "2026-02-14", shopName: "Sacco Bakers", phoneNumber: "0727305155", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1405, date: "2026-02-14", shopName: "Quick Snack Pack Caffe", phoneNumber: "0720951322", type: "onboarding", status: "not-traded", checkmark: true }
+            ];
+            
+            // Save to localStorage and Supabase
+            localStorage.setItem('seviReports', JSON.stringify(reports));
+            await syncToSupabase(reports);
+        }
+
+        async function syncToSupabase(data) {
+            try {
+                const { error } = await supabaseClient
+                    .from('reports')
+                    .upsert(data, { onConflict: 'id' });
+                if (error) console.error('Sync error:', error);
+            } catch (error) {
+                console.error('Sync error:', error);
+            }
+        }
+
+        // ==================== SEARCH FUNCTIONALITY ====================
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (searchTimeout) clearTimeout(searchTimeout);
+            
+            searchTimeout = setTimeout(() => {
+                if (query.length < 2) {
+                    resultsContainer.classList.remove('active');
+                    return;
+                }
+                
+                const results = reports.filter(r => 
+                    r.shopName.toLowerCase().includes(query) || 
+                    r.phoneNumber.includes(query)
+                ).slice(0, 10);
+                
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<div class="search-result-item">No shops found</div>';
+                    resultsContainer.classList.add('active');
+                    return;
+                }
+                
+                let html = '';
+                results.forEach(r => {
+                    const statusClass = r.status === 'traded' ? 'search-result-traded' : 'search-result-pending';
+                    const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
+                    
+                    html += `
+                        <div class="search-result-item" onclick="highlightShop('${r.phoneNumber}')">
+                            <div>
+                                <div class="search-result-name">${r.shopName}</div>
+                                <div class="search-result-phone">${r.phoneNumber} | ${r.date}</div>
+                            </div>
+                            <div>
+                                <span class="search-result-badge ${statusClass}">${statusText}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = html;
+                resultsContainer.classList.add('active');
+            }, 300);
+        }
+
+        function highlightShop(phoneNumber) {
+            document.getElementById('searchResults').classList.remove('active');
+            document.getElementById('searchInput').value = '';
+            
+            document.querySelectorAll('.search-highlight-row').forEach(el => {
+                el.classList.remove('search-highlight-row');
+            });
+            
+            const tables = ['todayActivityBody', 'sheetTable'];
+            tables.forEach(tableId => {
+                const table = document.getElementById(tableId);
+                if (table) {
+                    const rows = table.getElementsByTagName('tr');
+                    for (let row of rows) {
+                        if (row.innerHTML.includes(phoneNumber)) {
+                            row.classList.add('search-highlight-row');
+                            if (tableId === 'todayActivityBody') {
+                                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }
+                    }
+                }
+            });
+            
+            showToast(`Found shop with phone ${phoneNumber}`);
+        }
+
+        // ==================== DATE VALIDATION ====================
+        function canEditDate(dateStr) {
+            const today = new Date().toISOString().split('T')[0];
+            const date = new Date(dateStr);
+            const trainingEnd = new Date(TRAINING_END_DATE);
+            
+            if (date < trainingEnd) {
+                return { canEdit: false, reason: 'training' };
+            }
+            
+            if (dateStr > today) {
+                return { canEdit: false, reason: 'future' };
+            }
+            
+            if (dateStr === today) {
+                return { canEdit: true, reason: 'today' };
+            }
+            
+            return { canEdit: false, reason: 'past' };
+        }
+
+        // ==================== DUPLICATE CHECK ====================
+        function checkDuplicateOnboard(phoneNumber) {
+            const existingOnboard = reports.find(r => 
+                r.phoneNumber === phoneNumber && 
+                r.type === 'onboarding'
+            );
+            
+            if (existingOnboard) {
+                return {
+                    isDuplicate: true,
+                    existingEntry: existingOnboard
+                };
+            }
+            return { isDuplicate: false };
+        }
+
+        // ==================== ASSISTANT FUNCTION ====================
+        function openAssistant() {
+            document.getElementById('assistantModal').classList.add('active');
+            document.getElementById('assistantResponse').innerHTML = 'Ask me a question to get insights about your performance.';
+            document.getElementById('assistantQuestion').value = '';
+        }
+
+        function closeAssistant() {
+            document.getElementById('assistantModal').classList.remove('active');
+        }
+
+        function askAssistant() {
+            const question = document.getElementById('assistantQuestion').value.toLowerCase();
+            let response = '';
+            
+            const dayPerformance = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    dayPerformance[r.date] = (dayPerformance[r.date] || 0) + 1;
+                }
+            });
+            
+            let bestDay = { date: '', count: 0 };
+            let worstDay = { date: '', count: Infinity };
+            
+            Object.entries(dayPerformance).forEach(([date, count]) => {
+                if (count > bestDay.count) {
+                    bestDay = { date, count };
+                }
+                if (count < worstDay.count && count > 0) {
+                    worstDay = { date, count };
+                }
+            });
+            
+            const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dayAverages = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    const dayName = weekDays[d.getDay() === 0 ? 6 : d.getDay() - 1];
+                    dayAverages[dayName] = (dayAverages[dayName] || 0) + 1;
+                }
+            });
+            
+            let strengthDay = { day: '', count: 0 };
+            let weaknessDay = { day: '', count: Infinity };
+            
+            Object.entries(dayAverages).forEach(([day, count]) => {
+                if (count > strengthDay.count) {
+                    strengthDay = { day, count };
+                }
+                if (count < weaknessDay.count) {
+                    weaknessDay = { day, count };
+                }
+            });
+            
+            const totalTrades = reports.filter(r => r.status === 'traded').length;
+            const totalOnboards = reports.filter(r => r.type === 'onboarding').length;
+            const checkmarks = reports.filter(r => r.checkmark === true).length;
+            
+            if (question.includes('best day') || question.includes('perform well')) {
+                if (bestDay.date) {
+                    const date = new Date(bestDay.date);
+                    const dayName = weekDays[date.getDay() === 0 ? 6 : date.getDay() - 1];
+                    response = `Your best performance was on ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })} (${dayName}) with ${bestDay.count} trades.`;
+                } else {
+                    response = 'No performance data available yet.';
+                }
+            }
+            else if (question.includes('weakness') || question.includes('worst')) {
+                if (worstDay.date && worstDay.count !== Infinity) {
+                    const date = new Date(worstDay.date);
+                    const dayName = weekDays[date.getDay() === 0 ? 6 : date.getDay() - 1];
+                    response = `Your weakest day was on ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })} (${dayName}) with ${worstDay.count} trades.`;
+                } else {
+                    response = 'No performance data available yet.';
+                }
+            }
+            else if (question.includes('strength') || question.includes('strong')) {
+                if (strengthDay.day) {
+                    response = `Your strongest day is ${strengthDay.day} with an average of ${(strengthDay.count/4).toFixed(1)} trades.`;
+                } else {
+                    response = 'No performance data available yet.';
+                }
+            }
+            else if (question.includes('summary') || question.includes('overall')) {
+                response = `Overall Performance:\nTotal Trades: ${totalTrades}\nTotal Onboards: ${totalOnboards}\nShops with Checkmarks: ${checkmarks}\nConversion Rate: ${Math.round((totalTrades/reports.length)*100)}%`;
+            }
+            else {
+                response = 'I can help you with:\n- "Which day did I perform best?"\n- "What is my weakness?"\n- "Show my strength day"\n- "Overall summary"';
+            }
+            
+            document.getElementById('assistantResponse').innerHTML = response.replace(/\n/g, '<br>');
+        }
+
+        // ==================== AI DATA PROCESSING ====================
+        function processAIData() {
+            const rawText = document.getElementById('aiInput').value;
+            const lines = rawText.split('\n');
+            
+            let currentDate = null;
+            let currentSection = null;
+            let processed = [];
+            let duplicates = [];
+            let today = new Date().toISOString().split('T')[0];
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+                
+                if (line.match(/^\d{1,2}\s+[A-Za-z]{3}/)) {
+                    const [day, month] = line.split(' ');
+                    const months = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06',
+                                   'Jul':'07', 'Aug':'08', 'Sep':'09', 'Oct':'10', 'Nov':'11', 'Dec':'12'};
+                    if (months[month]) {
+                        currentDate = `2026-${months[month]}-${day.padStart(2,'0')}`;
+                        
+                        const editCheck = canEditDate(currentDate);
+                        if (!editCheck.canEdit) {
+                            if (editCheck.reason === 'training') {
+                                showToast('Cannot add data for training period (before 14 Feb)');
+                            } else if (editCheck.reason === 'future') {
+                                showToast('Cannot add data for future dates');
+                            } else if (editCheck.reason === 'past') {
+                                showToast('Past dates cannot be edited - only viewed');
+                            }
+                            return;
+                        }
+                    }
+                }
+                
+                else if (line.toLowerCase().includes('onboarding') || line.toLowerCase().includes('onboard')) {
+                    currentSection = 'onboarding';
+                }
+                else if (line.toLowerCase().includes('new trade') || line.toLowerCase().includes('trade')) {
+                    currentSection = 'newtrade';
+                }
+                
+                else if (line.match(/^\d+\./)) {
+                    let text = line.replace(/^\d+\.\s*/, '');
+                    const phoneMatch = text.match(/0\d{9}|0\d{2}\s?\d{3}\s?\d{3}|01\d{8}/);
+                    
+                    if (phoneMatch) {
+                        let phoneNumber = phoneMatch[0].replace(/\s/g, '');
+                        let shopName = text.replace(phoneMatch[0], '').trim().replace(/[.,]$/, '');
+                        
+                        if (shopName && phoneNumber && currentDate) {
+                            if (currentSection === 'onboarding') {
+                                const duplicateCheck = checkDuplicateOnboard(phoneNumber);
+                                if (duplicateCheck.isDuplicate) {
+                                    duplicates.push({
+                                        shopName,
+                                        phoneNumber,
+                                        existing: duplicateCheck.existingEntry
+                                    });
+                                    continue;
+                                }
+                            }
+                            
+                            if (currentSection === 'newtrade') {
+                                const existingOnboard = reports.find(r => 
+                                    r.phoneNumber === phoneNumber && 
+                                    r.type === 'onboarding'
+                                );
+                                
+                                if (existingOnboard) {
+                                    existingOnboard.checkmark = true;
+                                    localStorage.setItem('seviReports', JSON.stringify(reports));
+                                    syncToSupabase([existingOnboard]);
+                                }
+                            }
+                            
+                            processed.push({
+                                id: Date.now() + Math.random(),
+                                date: currentDate,
+                                shopName: shopName,
+                                phoneNumber: phoneNumber,
+                                type: currentSection || 'onboarding',
+                                status: currentSection === 'newtrade' ? 'traded' : 'not-traded',
+                                checkmark: false
+                            });
+                        }
+                    }
+                }
+            }
+            
+            if (duplicates.length > 0) {
+                let message = 'Duplicate onboardings skipped:\n';
+                duplicates.forEach(d => {
+                    message += `\n• ${d.shopName} (${d.phoneNumber}) already onboarded on ${d.existing.date}`;
+                });
+                document.getElementById('aiDuplicateMessage').textContent = message;
+                document.getElementById('aiDuplicateWarning').style.display = 'flex';
+            } else {
+                document.getElementById('aiDuplicateWarning').style.display = 'none';
+            }
+            
+            if (processed.length > 0) {
+                reports = [...reports, ...processed];
+                localStorage.setItem('seviReports', JSON.stringify(reports));
+                syncToSupabase(processed);
+                
+                renderHome();
+                renderCalendar();
+                updateReports();
+                updateProgress();
+                updateAnalytics();
+                destroyCharts();
+                initCharts();
+                
+                closeAIModal();
+                showToast(`Added ${processed.length} shops`);
+                document.getElementById('aiInput').value = '';
+            } else if (duplicates.length === 0) {
+                showToast('No valid data found');
+            }
+        }
+
+        // ==================== NOTES SYSTEM ====================
+        function addNote() {
+            const shopName = document.getElementById('noteShopName').value.trim();
+            const phone = document.getElementById('notePhone').value.trim();
+            const type = document.querySelector('input[name="noteType"]:checked').value;
+            
+            if (!shopName || !phone) {
+                showToast('Please enter shop name and phone');
+                return;
+            }
+            
+            if (type === 'onboarding') {
+                const duplicateCheck = checkDuplicateOnboard(phone);
+                if (duplicateCheck.isDuplicate) {
+                    document.getElementById('duplicateMessage').innerHTML = 
+                        `${shopName} (${phone}) already onboarded on ${duplicateCheck.existingEntry.date}`;
+                    document.getElementById('noteDuplicateWarning').style.display = 'flex';
+                    return;
+                }
+            }
+            
+            document.getElementById('noteDuplicateWarning').style.display = 'none';
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            
+            notes.push({
+                shopName,
+                phone,
+                type,
+                time: timeStr,
+                timestamp: now.getTime()
+            });
+            
+            localStorage.setItem('seviNotes', JSON.stringify(notes));
+            
+            document.getElementById('noteShopName').value = '';
+            document.getElementById('notePhone').value = '';
+            
+            updateNotesDisplay();
+            showToast('Note added');
+        }
+
+        function updateNotesDisplay() {
+            document.getElementById('noteCount').textContent = notes.length;
+            
+            if (notes.length === 0) {
+                document.getElementById('rawNotes').textContent = 'No notes yet';
+                return;
+            }
+            
+            const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            let rawText = today + '\n\n';
+            
+            const onboards = notes.filter(n => n.type === 'onboarding');
+            const trades = notes.filter(n => n.type === 'newtrade');
+            
+            if (onboards.length > 0) {
+                rawText += 'Onboarding\n';
+                onboards.forEach((n, i) => {
+                    rawText += `${i+1}. ${n.shopName} ${n.phone} (${n.time})\n`;
+                });
+                rawText += '\n';
+            }
+            
+            if (trades.length > 0) {
+                rawText += 'New trade\n';
+                trades.forEach((n, i) => {
+                    rawText += `${i+1}. ${n.shopName} ${n.phone} (${n.time})\n`;
+                });
+            }
+            
+            document.getElementById('rawNotes').textContent = rawText;
+        }
+
+        function copyRawNotes() {
+            const text = document.getElementById('rawNotes').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Notes copied');
+            });
+        }
+
+        function processNotes() {
+            if (notes.length === 0) {
+                showToast('No notes to process');
+                return;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            let processed = [];
+            let duplicates = [];
+            
+            notes.forEach(note => {
+                if (note.type === 'onboarding') {
+                    const duplicateCheck = checkDuplicateOnboard(note.phone);
+                    if (duplicateCheck.isDuplicate) {
+                        duplicates.push(note);
+                        return;
+                    }
+                }
+                
+                if (note.type === 'newtrade') {
+                    const existingOnboard = reports.find(r => 
+                        r.phoneNumber === note.phone && 
+                        r.type === 'onboarding'
+                    );
+                    
+                    if (existingOnboard) {
+                        existingOnboard.checkmark = true;
+                    }
+                }
+                
+                processed.push({
+                    id: Date.now() + Math.random(),
+                    date: today,
+                    shopName: note.shopName,
+                    phoneNumber: note.phone,
+                    type: note.type,
+                    status: note.type === 'newtrade' ? 'traded' : 'not-traded',
+                    checkmark: false
+                });
+            });
+            
+            if (duplicates.length > 0) {
+                let message = 'Duplicate onboardings skipped:\n';
+                duplicates.forEach(d => {
+                    message += `\n• ${d.shopName} (${d.phone})`;
+                });
+                document.getElementById('duplicateMessage').textContent = message;
+                document.getElementById('noteDuplicateWarning').style.display = 'flex';
+            }
+            
+            if (processed.length > 0) {
+                reports = [...reports, ...processed];
+                syncToSupabase(processed);
+                localStorage.setItem('seviReports', JSON.stringify(reports));
+                
+                notes = notes.filter(n => !processed.some(p => p.phoneNumber === n.phone));
+                localStorage.setItem('seviNotes', JSON.stringify(notes));
+                
+                renderHome();
+                renderCalendar();
+                updateReports();
+                updateProgress();
+                updateAnalytics();
+                destroyCharts();
+                initCharts();
+                updateNotesDisplay();
+                
+                showToast(`Processed ${processed.length} notes`);
+            }
+        }
+
+        function clearNotes() {
+            if (confirm('Clear all notes?')) {
+                notes = [];
+                localStorage.setItem('seviNotes', JSON.stringify(notes));
+                updateNotesDisplay();
+                document.getElementById('noteDuplicateWarning').style.display = 'none';
+                showToast('Notes cleared');
+            }
+        }
+
+        // ==================== UI RENDERING ====================
+        function renderHome() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayReports = reports.filter(r => r.date === today);
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            const yesterdayReports = reports.filter(r => r.date === yesterday);
+            
+            const todayTrades = todayReports.filter(r => r.status === 'traded').length;
+            const todayOnboards = todayReports.filter(r => r.type === 'onboarding').length;
+            
+            document.getElementById('todayTrades').textContent = todayTrades;
+            document.getElementById('todayOnboards').textContent = todayOnboards;
+            
+            const conversion = todayReports.length ? Math.round((todayTrades / todayReports.length) * 100) : 0;
+            document.getElementById('todayConversion').textContent = conversion + '%';
+            
+            const yesterdayTrades = yesterdayReports.filter(r => r.status === 'traded').length;
+            const tradeTrend = yesterdayTrades ? ((todayTrades - yesterdayTrades) / yesterdayTrades * 100).toFixed(0) : 0;
+            document.getElementById('tradeTrend').textContent = (tradeTrend > 0 ? '+' : '') + tradeTrend + '%';
+            document.getElementById('tradeTrend').className = `stat-trend ${tradeTrend > 0 ? 'trend-up' : tradeTrend < 0 ? 'trend-down' : 'trend-neutral'}`;
+            
+            const yesterdayOnboards = yesterdayReports.filter(r => r.type === 'onboarding').length;
+            const onboardTrend = yesterdayOnboards ? ((todayOnboards - yesterdayOnboards) / yesterdayOnboards * 100).toFixed(0) : 0;
+            document.getElementById('onboardTrend').textContent = (onboardTrend > 0 ? '+' : '') + onboardTrend + '%';
+            document.getElementById('onboardTrend').className = `stat-trend ${onboardTrend > 0 ? 'trend-up' : onboardTrend < 0 ? 'trend-down' : 'trend-neutral'}`;
+            
+            const totalTrades = reports.filter(r => r.status === 'traded').length;
+            const totalShops = reports.length;
+            const checkmarks = reports.filter(r => r.checkmark === true).length;
+            const avgTrades = (totalTrades / 12).toFixed(1);
+            
+            const dayCounts = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    dayCounts[r.date] = (dayCounts[r.date] || 0) + 1;
+                }
+            });
+            
+            let bestCount = 0, bestDate = '';
+            Object.entries(dayCounts).forEach(([date, count]) => {
+                if (count > bestCount) { bestCount = count; bestDate = date; }
+            });
+            
+            document.getElementById('bestDayValue').textContent = bestCount;
+            document.getElementById('bestDayName').textContent = bestDate ? 
+                new Date(bestDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-';
+            document.getElementById('avgTrades').textContent = avgTrades;
+            document.getElementById('totalShopsPoll').textContent = totalShops;
+            document.getElementById('totalTradesPoll').textContent = totalTrades + ' trades';
+            
+            const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dayAverages = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    const dayName = weekDays[d.getDay() === 0 ? 6 : d.getDay() - 1];
+                    dayAverages[dayName] = (dayAverages[dayName] || 0) + 1;
+                }
+            });
+            
+            let strengthDay = { day: '', count: 0 };
+            let weaknessDay = { day: '', count: Infinity };
+            
+            Object.entries(dayAverages).forEach(([day, count]) => {
+                if (count > strengthDay.count) {
+                    strengthDay = { day, count };
+                }
+                if (count < weaknessDay.count) {
+                    weaknessDay = { day, count };
+                }
+            });
+            
+            document.getElementById('strengthDay').innerHTML = `<span>${strengthDay.count || 0}</span> trades on ${strengthDay.day || 'N/A'}`;
+            document.getElementById('weaknessDay').innerHTML = `<span>${weaknessDay.count !== Infinity ? weaknessDay.count : 0}</span> trades on ${weaknessDay.day || 'N/A'}`;
+            
+            let html = '';
+            todayReports.forEach(r => {
+                const typeText = r.type === 'onboarding' ? 'Onboarded' : 'Verified';
+                const typeClass = r.type === 'onboarding' ? 'type-onboard' : 'type-trade';
+                const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
+                const statusClass = r.status === 'traded' ? 'status-traded' : 'status-pending';
+                
+                html += `<tr>
+                    <td><div class="shop-info">${r.shopName}</div></td>
+                    <td><div class="phone-info">${r.phoneNumber}</div></td>
+                    <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                    <td><button class="status-badge ${statusClass} clickable" onclick="toggleStatus(${r.id})">${statusText}</button></td>
+                </tr>`;
+            });
+            
+            document.getElementById('todayActivityBody').innerHTML = html || 
+                '<tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity today. Add data using the + button.</td></tr>';
+            
+            updateGoals();
+        }
+
+        function updateGoals() {
+            const goals = MONTHLY_GOALS[1];
+            
+            const monthTrades = reports.filter(r => r.status === 'traded').length;
+            const monthOnboards = reports.filter(r => r.type === 'onboarding').length;
+            
+            document.getElementById('tradesProgress').textContent = `${monthTrades}/${goals.trades}`;
+            document.getElementById('onboardsProgress').textContent = `${monthOnboards}/${goals.onboards}`;
+            
+            const totalProgress = ((monthTrades + monthOnboards) / (goals.trades + goals.onboards)) * 100;
+            const percent = Math.min(100, Math.round(totalProgress));
+            document.getElementById('progressPercent').textContent = percent + '%';
+            
+            const degrees = (percent / 100) * 360;
+            document.getElementById('progressRing').style.background = 
+                `conic-gradient(white 0deg ${degrees}deg, rgba(255,255,255,0.2) ${degrees}deg 360deg)`;
+            
+            let rating = 'Poor';
+            if (percent >= 90) rating = 'Excellent';
+            else if (percent >= 70) rating = 'Good';
+            else if (percent >= 50) rating = 'Average';
+            
+            document.getElementById('monthlyRating').textContent = rating;
+        }
+
+        function renderCalendar() {
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+            const today = new Date().toISOString().split('T')[0];
+            const trainingEnd = new Date(TRAINING_END_DATE);
+            
+            const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dayAverages = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    const dayName = weekDays[d.getDay() === 0 ? 6 : d.getDay() - 1];
+                    dayAverages[dayName] = (dayAverages[dayName] || 0) + 1;
+                }
+            });
+            
+            let strengthDay = '';
+            let weaknessDay = '';
+            let maxAvg = 0, minAvg = Infinity;
+            Object.entries(dayAverages).forEach(([day, count]) => {
+                if (count > maxAvg) { maxAvg = count; strengthDay = day; }
+                if (count < minAvg) { minAvg = count; weaknessDay = day; }
+            });
+            
+            let html = '';
+            
+            for (let i = 0; i < startOffset; i++) {
+                html += '<div class="calendar-day disabled"></div>';
+            }
+            
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const dateObj = new Date(dateStr);
+                const dayName = weekDays[dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1];
+                const dayReports = reports.filter(r => r.date === dateStr);
+                const hasData = dayReports.length > 0;
+                const hasCheckmark = dayReports.some(r => r.checkmark === true);
+                const dayTrades = dayReports.filter(r => r.status === 'traded').length;
+                
+                let classes = 'calendar-day';
+                
+                if (dateObj < trainingEnd) {
+                    classes += ' training-period';
+                }
+                else if (dateStr > today) {
+                    classes += ' future-date';
+                }
+                else if (dateStr === today) {
+                    classes += hasCheckmark ? ' has-checkmark' : hasData ? ' has-data' : '';
+                }
+                else if (hasData) {
+                    if (dayName === strengthDay && dayTrades > 0) {
+                        classes += ' strength-day';
+                    } else if (dayName === weaknessDay && dayTrades > 0) {
+                        classes += ' weakness-day';
+                    } else if (hasCheckmark) {
+                        classes += ' has-checkmark';
+                    } else {
+                        classes += ' has-data';
+                    }
+                }
+                else {
+                    classes += ' past-view';
+                }
+                
+                const isSunday = dateObj.getDay() === 0;
+                if (isSunday) {
+                    classes += ' disabled';
+                }
+                
+                html += `<div class="${classes}" onclick="selectDate('${dateStr}')">
+                    <span class="day-number">${d}</span>
+                    ${hasData ? '<span class="day-indicator"></span>' : ''}
+                </div>`;
+            }
+            
+            document.getElementById('calendarDays').innerHTML = html;
+            document.getElementById('calendarMonth').textContent = 'February 2026';
+        }
+
+        function selectDate(dateStr) {
+            selectedDate = dateStr;
+            const dayReports = reports.filter(r => r.date === dateStr);
+            const editCheck = canEditDate(dateStr);
+            
+            const date = new Date(dateStr);
+            document.getElementById('sheetDate').textContent = 
+                date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            let modeHtml = '';
+            if (editCheck.reason === 'training') {
+                modeHtml = '<div class="view-only-badge">Training Period - View Only</div>';
+            } else if (editCheck.reason === 'past') {
+                modeHtml = '<div class="view-only-badge">Past Date - View Only</div>';
+            } else if (editCheck.reason === 'future') {
+                modeHtml = '<div class="view-only-badge">Future Date - Cannot Edit</div>';
+            } else if (editCheck.reason === 'today') {
+                modeHtml = '<div class="view-only-badge" style="background: var(--success);">Today - Editable</div>';
+            }
+            document.getElementById('sheetMode').innerHTML = modeHtml;
+            
+            const trades = dayReports.filter(r => r.status === 'traded').length;
+            const onboards = dayReports.filter(r => r.type === 'onboarding').length;
+            
+            document.getElementById('sheetStats').innerHTML = `
+                <div class="sheet-stat"><div class="sheet-stat-value">${dayReports.length}</div><div class="sheet-stat-label">Total</div></div>
+                <div class="sheet-stat"><div class="sheet-stat-value" style="color:#10b981;">${trades}</div><div class="sheet-stat-label">Trades</div></div>
+                <div class="sheet-stat"><div class="sheet-stat-value" style="color:#3b82f6;">${onboards}</div><div class="sheet-stat-label">Onboards</div></div>
+            `;
+            
+            let tableHtml = '';
+            dayReports.forEach(r => {
+                const typeText = r.type === 'onboarding' ? 'Onboarded' : 'Verified';
+                const typeClass = r.type === 'onboarding' ? 'type-onboard' : 'type-trade';
+                
+                if (r.checkmark) {
+                    tableHtml += `<tr>
+                        <td><div class="shop-info">${r.shopName}</div></td>
+                        <td><div class="phone-info">${r.phoneNumber}</div></td>
+                        <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                        <td><span class="checkmark-badge"><i class="fas fa-check"></i> Traded Later</span></td>
+                    </tr>`;
+                } else {
+                    const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
+                    const statusClass = r.status === 'traded' ? 'status-traded' : 'status-pending';
+                    
+                    if (editCheck.reason === 'today') {
+                        tableHtml += `<tr>
+                            <td><div class="shop-info">${r.shopName}</div></td>
+                            <td><div class="phone-info">${r.phoneNumber}</div></td>
+                            <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                            <td><button class="status-badge ${statusClass} clickable" onclick="toggleStatus(${r.id})">${statusText}</button></td>
+                        </tr>`;
+                    } else {
+                        tableHtml += `<tr>
+                            <td><div class="shop-info">${r.shopName}</div></td>
+                            <td><div class="phone-info">${r.phoneNumber}</div></td>
+                            <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        </tr>`;
+                    }
+                }
+            });
+            
+            document.getElementById('sheetTable').innerHTML = tableHtml || 
+                '<tr><td colspan="4" class="empty-state">No entries for this day</td></tr>';
+            
+            document.getElementById('dateSheet').classList.add('open');
+        }
+
+        function toggleStatus(id) {
+            const report = reports.find(r => r.id === id);
+            if (report) {
+                const today = new Date().toISOString().split('T')[0];
+                if (report.date !== today) {
+                    showToast('Can only update status for today');
+                    return;
+                }
+                
+                report.status = report.status === 'traded' ? 'not-traded' : 'traded';
+                
+                localStorage.setItem('seviReports', JSON.stringify(reports));
+                syncToSupabase([report]);
+                
+                renderHome();
+                if (selectedDate) selectDate(selectedDate);
+                updateReports();
+                updateProgress();
+                updateAnalytics();
+                destroyCharts();
+                initCharts();
+                
+                showToast('Status updated');
+            }
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar();
+        }
+
+        function updateReports() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayReports = reports.filter(r => r.date === today);
+            
+            if (todayReports.length === 0) {
+                document.getElementById('dailyReport').textContent = 'No data for today. Add data using the + button.';
+            } else {
+                const onboards = todayReports.filter(r => r.type === 'onboarding');
+                const newTrades = todayReports.filter(r => r.type === 'newtrade');
+                
+                const todayDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                
+                let report = todayDate + '\n\n';
+                report += 'Onboarding\n';
+                onboards.forEach((r, i) => { report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`; });
+                report += '\nNew trade\n';
+                newTrades.forEach((r, i) => { report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`; });
+                
+                document.getElementById('dailyReport').textContent = report;
+            }
+        }
+
+        function copyReport() {
+            const report = document.getElementById('dailyReport').textContent;
+            navigator.clipboard.writeText(report).then(() => showToast('Report copied'));
+        }
+
+        function shareToWhatsApp() {
+            const report = document.getElementById('dailyReport').textContent;
+            window.open(`https://wa.me/?text=${encodeURIComponent(report)}`, '_blank');
+        }
+
+        function updateProgress() {
+            let streak = 0;
+            let checkDate = new Date();
+            while (true) {
+                const dateStr = checkDate.toISOString().split('T')[0];
+                const dayHasTraded = reports.some(r => r.date === dateStr && r.status === 'traded');
+                if (dayHasTraded) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else break;
+            }
+            document.getElementById('streakCount').textContent = streak;
+            
+            const dayCounts = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    dayCounts[r.date] = (dayCounts[r.date] || 0) + 1;
+                }
+            });
+            
+            let bestCount = 0, bestDate = '';
+            Object.entries(dayCounts).forEach(([date, count]) => {
+                if (count > bestCount) { bestCount = count; bestDate = date; }
+            });
+            
+            document.getElementById('bestDayCount').textContent = bestCount;
+            document.getElementById('bestDayDate').textContent = bestDate ? 
+                new Date(bestDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-';
+            document.getElementById('totalShops').textContent = reports.length;
+        }
+
+        function updateAnalytics() {
+            const totalTrades = reports.filter(r => r.status === 'traded').length;
+            const totalOnboards = reports.filter(r => r.type === 'onboarding').length;
+            const totalCheckmarked = reports.filter(r => r.checkmark === true).length;
+            
+            document.getElementById('totalTrades').textContent = totalTrades;
+            document.getElementById('totalOnboards').textContent = totalOnboards;
+            document.getElementById('totalCheckmarked').textContent = totalCheckmarked;
+            
+            const conversion = reports.length ? Math.round((totalTrades / reports.length) * 100) : 0;
+            document.getElementById('totalConversion').textContent = conversion + '%';
+        }
+
+        // ==================== CHARTS ====================
+        function initCharts() {
+            const weekData = getWeeklyData();
+            
+            const ctx1 = document.getElementById('weeklyChart').getContext('2d');
+            if (charts.weekly) charts.weekly.destroy();
+            charts.weekly = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        data: weekData,
+                        backgroundColor: '#26658c',
+                        borderRadius: 6,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+            
+            const ctx2 = document.getElementById('monthlyChart').getContext('2d');
+            if (charts.monthly) charts.monthly.destroy();
+            charts.monthly = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['W1', 'W2', 'W3', 'W4'],
+                    datasets: [{
+                        data: getMonthlyData(),
+                        borderColor: '#013f4a',
+                        backgroundColor: 'transparent',
+                        tension: 0.4,
+                        pointBackgroundColor: '#013f4a',
+                        pointRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+            
+            const ctx3 = document.getElementById('conversionChart').getContext('2d');
+            if (charts.conversion) charts.conversion.destroy();
+            charts.conversion = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: ['W1', 'W2', 'W3', 'W4'],
+                    datasets: [{
+                        data: getConversionData(),
+                        borderColor: '#10b981',
+                        backgroundColor: '#10b98120',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+            
+            const ctx4 = document.getElementById('distributionChart').getContext('2d');
+            if (charts.distribution) charts.distribution.destroy();
+            charts.distribution = new Chart(ctx4, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Onboards', 'Trades'],
+                    datasets: [{
+                        data: [
+                            reports.filter(r => r.type === 'onboarding').length,
+                            reports.filter(r => r.status === 'traded').length
+                        ],
+                        backgroundColor: ['#013f4a', '#26658c'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '70%' }
+            });
+        }
+
+        function destroyCharts() {
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            charts = {};
+        }
+
+        function getWeeklyData() {
+            const days = [0,0,0,0,0,0,0];
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    const day = d.getDay();
+                    if (day >= 1 && day <= 7) {
+                        days[day-1] += 1;
+                    }
+                }
+            });
+            return days;
+        }
+
+        function getMonthlyData() {
+            const weeks = [0,0,0,0];
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    if (d.getMonth() === 1) {
+                        const week = Math.floor((d.getDate() - 1) / 7);
+                        if (week < 4) weeks[week]++;
+                    }
+                }
+            });
+            return weeks;
+        }
+
+        function getConversionData() {
+            const weeks = [0,0,0,0];
+            for (let week = 0; week < 4; week++) {
+                const weekReports = reports.filter(r => {
+                    const d = new Date(r.date);
+                    const reportWeek = Math.floor((d.getDate() - 1) / 7);
+                    return d.getMonth() === 1 && reportWeek === week;
+                });
+                const traded = weekReports.filter(r => r.status === 'traded').length;
+                weeks[week] = weekReports.length ? Math.round((traded / weekReports.length) * 100) : 0;
+            }
+            return weeks;
+        }
+
+        // ==================== UTILITIES ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            document.getElementById('goalsContainer').style.display = tab === 'home' ? 'block' : 'none';
+        }
+
+        function openAIModal() {
+            document.getElementById('aiDuplicateWarning').style.display = 'none';
+            document.getElementById('aiModal').classList.add('active');
+        }
+
+        function closeAIModal() {
+            document.getElementById('aiModal').classList.remove('active');
+        }
+
+        function closeSheet() {
+            document.getElementById('dateSheet').classList.remove('open');
+        }
+
+        function updateDateDisplay() {
+            const today = new Date();
+            document.getElementById('currentDate').textContent = 
+                today.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function refreshData() {
+            renderHome();
+            showToast('Data refreshed');
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            
+            destroyCharts();
+            initCharts();
+        }
+
+        function checkTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                currentTheme = saved;
+                document.documentElement.setAttribute('data-theme', saved);
+                const icon = document.querySelector('.theme-toggle i');
+                icon.className = saved === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            }
+        }
+    </script>
+</body>
+</html>
