@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sevi · Field Ops</title>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -18,151 +18,110 @@
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
         }
 
         :root {
-            --bg-primary: #0A0F1E;
-            --bg-surface: #151A2D;
-            --bg-card: #1E2439;
-            --text-primary: #FFFFFF;
-            --text-secondary: #A0A8C0;
-            --text-tertiary: #6B7280;
-            --accent: #134e5e;
-            --accent-light: #1c6b80;
-            --accent-dark: #0d3a47;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --error: #EF4444;
-            --border: #2A3045;
-            --gradient-start: #134e5e;
-            --gradient-end: #1c6b80;
-            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+            --bg-primary: #f0f7fa;
+            --bg-surface: #ffffff;
+            --text-primary: #013f4a;
+            --text-secondary: #26658c;
+            --text-tertiary: #5f7d95;
+            --border-light: #d9e6f0;
+            --accent: #013f4a;
+            --accent-hover: #26658c;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #26658c;
+            --checkmark: #10b981;
+            --view-only: #94a3b8;
+            --strength: #10b981;
+            --weakness: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a1a24;
+            --bg-surface: #013f4a;
+            --text-primary: #ffffff;
+            --text-secondary: #d9e6f0;
+            --text-tertiary: #a0c0d0;
+            --border-light: #26658c;
+            --accent: #26658c;
+            --accent-hover: #3a7ca5;
         }
 
         body {
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
         }
 
         #app {
-            width: 100%;
             max-width: 480px;
-            height: 100vh;
-            max-height: -webkit-fill-available;
-            background: var(--bg-primary);
+            margin: 0 auto;
+            background: var(--bg-surface);
+            min-height: 100vh;
             position: relative;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            box-shadow: 0 0 30px rgba(1,63,74,0.1);
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .slide-in {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .scale-in {
-            animation: scaleIn 0.3s ease-out;
-        }
-
-        /* Header - Fixed at top */
+        /* Header */
         .header {
             padding: 20px 16px 12px;
-            background: var(--bg-primary);
-            animation: fadeIn 0.5s ease-out;
-            flex-shrink: 0;
-            border-bottom: 1px solid var(--border);
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-light);
         }
 
         .greeting-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .greeting {
             font-size: 24px;
             font-weight: 700;
             color: var(--text-primary);
-            letter-spacing: -0.5px;
         }
 
         .greeting span {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--accent-hover);
         }
 
         .date-badge {
-            background: var(--bg-card);
+            background: var(--bg-primary);
             padding: 8px 14px;
             border-radius: 30px;
             font-size: 13px;
             font-weight: 500;
             color: var(--text-secondary);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-light);
             display: inline-flex;
             align-items: center;
             gap: 6px;
             margin-bottom: 12px;
         }
 
-        .date-badge i {
-            color: var(--accent);
-            font-size: 12px;
+        .theme-toggle {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
         }
 
         /* Goals Card */
         .goals-container {
-            background: var(--bg-card);
-            border-radius: 24px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            border-radius: 20px;
             padding: 16px;
-            margin-top: 4px;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            animation: scaleIn 0.5s ease-out;
+            margin-top: 8px;
+            color: white;
         }
 
         .goal-header {
@@ -175,16 +134,15 @@
         .goal-title {
             font-size: 16px;
             font-weight: 600;
-            color: var(--text-primary);
+            opacity: 0.9;
         }
 
         .goal-rating {
-            background: var(--bg-surface);
+            background: rgba(255,255,255,0.2);
             padding: 4px 12px;
             border-radius: 30px;
             font-size: 12px;
             font-weight: 600;
-            color: var(--accent);
         }
 
         .goal-progress-row {
@@ -204,33 +162,24 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: conic-gradient(var(--accent) 0deg 0deg, var(--border) 0deg 360deg);
+            background: conic-gradient(white 0deg 0deg, rgba(255,255,255,0.2) 0deg 360deg);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.5s ease;
         }
 
         .progress-ring-inner {
-            width: 56px;
-            height: 56px;
-            background: var(--bg-card);
+            width: 54px;
+            height: 54px;
+            background: var(--accent);
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-
-        .progress-ring-inner span:first-child {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .progress-ring-inner span:last-child {
-            font-size: 9px;
-            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
         }
 
         .progress-stats {
@@ -242,33 +191,27 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 13px;
-            padding: 2px 0;
-            border-bottom: 1px dashed var(--border);
         }
 
         .progress-stat-label {
-            color: var(--text-secondary);
+            opacity: 0.8;
         }
 
         .progress-stat-value {
             font-weight: 700;
-            color: var(--text-primary);
         }
 
-        /* Main Content - Scrollable */
+        /* Main Content */
         .main-content {
             flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
             padding: 16px;
-            padding-bottom: 90px;
-            -webkit-overflow-scrolling: touch;
+            padding-bottom: 80px;
+            overflow-y: auto;
         }
 
         /* Tab Content */
         .tab-content {
             display: none;
-            animation: fadeIn 0.4s ease-out;
         }
 
         .tab-content.active {
@@ -278,22 +221,99 @@
         /* Cards */
         .card {
             background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
             padding: 16px;
             margin-bottom: 16px;
-            transition: all 0.2s ease;
-            animation: slideIn 0.4s ease-out;
+            box-shadow: 0 4px 12px rgba(1,63,74,0.05);
         }
 
         .card-title {
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: var(--text-primary);
+        }
+
+        /* Poll / Performance Summary */
+        .poll-container {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .poll-header {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+
+        .poll-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .poll-item {
+            text-align: center;
+        }
+
+        .poll-value {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .poll-label {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .poll-strength {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .strength-day {
+            flex: 1;
+            padding: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .strength-day span {
+            font-weight: 700;
+            display: block;
+            font-size: 13px;
+        }
+
+        .weakness-day {
+            flex: 1;
+            padding: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .weakness-day span {
+            font-weight: 700;
+            display: block;
+            font-size: 13px;
+            color: #fef9c3;
         }
 
         /* Stats Grid */
@@ -305,60 +325,38 @@
         }
 
         .stat-item {
-            background: var(--bg-card);
-            border-radius: 18px;
+            background: var(--bg-primary);
+            border-radius: 16px;
             padding: 12px 4px;
             text-align: center;
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-
-        .stat-item:active {
-            background: var(--accent);
-            transform: scale(0.98);
         }
 
         .stat-label {
             font-size: 11px;
             color: var(--text-tertiary);
             margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
 
         .stat-number {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--text-primary);
             line-height: 1.2;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .stat-trend {
             font-size: 10px;
             font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 10px;
-            display: inline-block;
         }
 
-        .trend-up { 
-            color: var(--success);
-            background: rgba(16,185,129,0.1);
-        }
-        .trend-down { 
-            color: var(--error);
-            background: rgba(239,68,68,0.1);
-        }
-        .trend-neutral { 
-            color: var(--text-tertiary);
-            background: rgba(107,114,128,0.1);
-        }
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--error); }
+        .trend-neutral { color: var(--text-tertiary); }
 
         /* Tables */
         .table-container {
-            overflow-x: hidden;
-            border-radius: 16px;
+            overflow-x: auto;
         }
 
         .data-table {
@@ -373,40 +371,24 @@
             font-size: 11px;
             font-weight: 600;
             color: var(--text-tertiary);
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            border-bottom: 1px solid var(--border-light);
         }
 
         .data-table td {
             padding: 10px 6px;
-            border-bottom: 1px solid var(--border);
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .data-table tr:active {
-            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
         }
 
         .shop-info {
-            font-weight: 600;
+            font-weight: 500;
             color: var(--text-primary);
             font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 110px;
         }
 
         .phone-info {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--text-secondary);
             font-family: monospace;
-            letter-spacing: 0.3px;
         }
 
         .type-badge {
@@ -415,45 +397,66 @@
             border-radius: 16px;
             font-size: 10px;
             font-weight: 600;
-            transition: all 0.2s ease;
         }
 
         .type-onboard {
-            background: rgba(19,78,94,0.15);
-            color: #1c6b80;
+            background: #26658c20;
+            color: #26658c;
         }
 
         .type-trade {
-            background: rgba(16,185,129,0.15);
-            color: #34D399;
+            background: #10b98120;
+            color: #10b981;
         }
 
         .status-badge {
             display: inline-block;
             padding: 4px 10px;
-            border-radius: 16px;
-            font-size: 10px;
+            border-radius: 20px;
+            font-size: 11px;
             font-weight: 600;
-            cursor: pointer;
             border: none;
             background: none;
-            transition: all 0.2s ease;
-            min-width: 60px;
-            text-align: center;
         }
 
-        .status-badge:active {
-            transform: scale(0.95);
+        .status-badge.clickable {
+            cursor: pointer;
+        }
+
+        .status-badge.clickable:active {
+            opacity: 0.7;
         }
 
         .status-traded {
-            background: rgba(16,185,129,0.15);
-            color: #10B981;
+            background: #10b98120;
+            color: #10b981;
         }
 
         .status-pending {
-            background: rgba(245,158,11,0.15);
-            color: #F59E0B;
+            background: #f59e0b20;
+            color: #f59e0b;
+        }
+
+        .status-view {
+            background: var(--bg-primary);
+            color: var(--text-tertiary);
+            cursor: default;
+        }
+
+        .checkmark-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #10b98120;
+            color: #10b981;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .checkmark-badge i {
+            font-size: 10px;
         }
 
         /* Calendar */
@@ -471,22 +474,14 @@
         }
 
         .calendar-nav button {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
             border-radius: 20px;
             padding: 6px 12px;
             cursor: pointer;
             color: var(--text-secondary);
             font-size: 12px;
             margin-left: 6px;
-            transition: all 0.2s ease;
-            min-width: 36px;
-        }
-
-        .calendar-nav button:active {
-            background: var(--accent);
-            color: white;
-            transform: scale(0.95);
         }
 
         .calendar-weekdays {
@@ -516,36 +511,49 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: var(--bg-card);
-            border-radius: 14px;
+            background: var(--bg-primary);
+            border-radius: 12px;
             font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             position: relative;
-            transition: all 0.2s ease;
-            min-height: 0;
-        }
-
-        .calendar-day:active:not(.disabled) {
-            transform: scale(0.95);
-            background: var(--accent);
-            color: white;
         }
 
         .calendar-day.has-data {
             background: var(--accent);
             color: white;
-            animation: pulse 2s infinite;
+        }
+
+        .calendar-day.has-checkmark {
+            background: var(--success);
+            color: white;
+        }
+
+        .calendar-day.strength-day {
+            background: var(--strength);
+            color: white;
+        }
+
+        .calendar-day.weakness-day {
+            background: var(--weakness);
+            color: white;
+        }
+
+        .calendar-day.training-period {
+            opacity: 0.5;
+            background: var(--bg-primary);
+            border: 1px dashed var(--error);
+            cursor: not-allowed;
+        }
+
+        .calendar-day.future-date {
+            opacity: 0.3;
+            pointer-events: none;
         }
 
         .calendar-day.disabled {
-            opacity: 0.2;
+            opacity: 0.3;
             pointer-events: none;
-            background: transparent;
-        }
-
-        .calendar-day.today {
-            border: 2px solid var(--accent);
         }
 
         .day-number {
@@ -563,20 +571,21 @@
 
         /* Bottom Sheet */
         .bottom-sheet {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
+            max-width: 480px;
+            margin: 0 auto;
             background: var(--bg-surface);
-            border-radius: 28px 28px 0 0;
+            border-radius: 24px 24px 0 0;
             padding: 20px;
             transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.3s ease-out;
             z-index: 1000;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--border-light);
             max-height: 70vh;
             overflow-y: auto;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
         }
 
         .bottom-sheet.open {
@@ -597,24 +606,17 @@
         }
 
         .close-sheet {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
             width: 36px;
             height: 36px;
-            border-radius: 18px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             color: var(--text-secondary);
             font-size: 16px;
-            transition: all 0.2s ease;
-        }
-
-        .close-sheet:active {
-            background: var(--error);
-            color: white;
-            transform: rotate(90deg);
         }
 
         .sheet-stats {
@@ -622,76 +624,177 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             margin-bottom: 20px;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 12px;
         }
 
         .sheet-stat {
-            background: var(--bg-card);
-            border-radius: 18px;
-            padding: 12px 4px;
             text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .sheet-stat:active {
-            transform: scale(0.98);
-            background: var(--accent);
         }
 
         .sheet-stat-value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 2px;
         }
 
         .sheet-stat-label {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
 
-        /* FAB - Robot */
+        /* Assistant Modal */
+        .assistant-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .assistant-modal.active {
+            display: flex;
+        }
+
+        .assistant-content {
+            background: var(--bg-surface);
+            border-radius: 24px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .assistant-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .assistant-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .assistant-subtitle {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .assistant-input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+
+        .assistant-response {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .response-highlight {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .response-lowlight {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        /* FABs */
         .fab-robot {
-            position: absolute;
-            bottom: 90px;
-            right: 16px;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            max-width: 480px;
+            margin: 0 auto;
             width: 56px;
             height: 56px;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            background: var(--accent-hover);
             border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 24px;
-            box-shadow: 0 8px 20px rgba(19,78,94,0.4);
+            box-shadow: 0 8px 20px rgba(1,63,74,0.3);
             cursor: pointer;
             z-index: 100;
             border: none;
-            transition: all 0.2s ease;
-            animation: float 3s ease-in-out infinite;
         }
 
-        .fab-robot:active {
-            transform: scale(0.95);
-            box-shadow: 0 4px 12px rgba(19,78,94,0.6);
+        .fab-plus {
+            position: fixed;
+            bottom: 80px;
+            right: 90px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(1,63,74,0.3);
+            cursor: pointer;
+            z-index: 100;
+            border: none;
         }
 
-        /* Bottom Navigation - Fixed */
+        /* Bottom Navigation */
         .bottom-nav {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
+            max-width: 480px;
+            margin: 0 auto;
             background: var(--bg-surface);
-            border-top: 1px solid var(--border);
+            border-top: 1px solid var(--border-light);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 8px 0 16px;
+            padding: 8px 0 12px;
             z-index: 100;
-            backdrop-filter: blur(10px);
         }
 
         .nav-item {
@@ -700,141 +803,76 @@
             align-items: center;
             gap: 2px;
             color: var(--text-tertiary);
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 500;
             cursor: pointer;
             background: none;
             border: none;
             padding: 4px 0;
-            transition: all 0.2s ease;
-            position: relative;
-            flex: 1;
         }
 
         .nav-item i {
             font-size: 20px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-item:active {
-            color: var(--accent);
-            transform: translateY(-2px);
         }
 
         .nav-item.active {
             color: var(--accent);
         }
 
-        .nav-item.active i {
-            transform: translateY(-2px);
-        }
-
-        .nav-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            border-radius: 2px;
-            background: var(--accent);
-            animation: scaleIn 0.3s ease-out;
-        }
-
-        .nav-plus {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: white;
-            width: 48px;
-            height: 48px;
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-top: -24px;
-            box-shadow: 0 8px 20px rgba(19,78,94,0.4);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .nav-plus:active {
-            transform: scale(0.95);
-            margin-top: -20px;
-        }
-
-        .nav-plus.active {
-            color: white;
-        }
-
-        .nav-plus.active::after {
-            display: none;
-        }
-
-        /* Modal */
+        /* AI Input Modal */
         .modal {
             display: none;
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.7);
             z-index: 2000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
         }
 
         .modal.active {
             display: flex;
-            animation: fadeIn 0.3s ease-out;
         }
 
         .modal-content {
             background: var(--bg-surface);
-            border-radius: 28px;
+            border-radius: 24px;
             padding: 24px;
             width: 90%;
             max-width: 400px;
             max-height: 80vh;
             overflow-y: auto;
-            animation: scaleIn 0.4s ease-out;
-            border: 1px solid var(--border);
         }
 
         .modal h3 {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             margin-bottom: 6px;
             color: var(--text-primary);
         }
 
         .modal p {
-            color: var(--text-secondary);
+            color: var(--text-tertiary);
             margin-bottom: 20px;
             font-size: 13px;
-            line-height: 1.5;
         }
 
         .modal textarea {
             width: 100%;
-            min-height: 150px;
+            min-height: 200px;
             padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            background: var(--bg-primary);
             color: var(--text-primary);
             font-size: 13px;
             line-height: 1.6;
             margin-bottom: 20px;
             resize: vertical;
             font-family: 'Inter', monospace;
-            transition: all 0.2s ease;
-        }
-
-        .modal textarea:focus {
-            outline: none;
-            border-color: var(--accent);
         }
 
         .modal-actions {
@@ -845,28 +883,22 @@
         .btn {
             flex: 1;
             padding: 14px;
-            border-radius: 28px;
+            border-radius: 30px;
             border: none;
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
-
-        .btn:active {
-            transform: scale(0.97);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            background: var(--accent);
             color: white;
         }
 
         .btn-secondary {
-            background: var(--bg-card);
+            background: var(--bg-primary);
             color: var(--text-primary);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-light);
         }
 
         /* Notes Input */
@@ -875,34 +907,25 @@
         }
 
         .notes-label {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-secondary);
             margin-bottom: 6px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
 
         .notes-field {
             width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            background: var(--bg-card);
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            background: var(--bg-primary);
             color: var(--text-primary);
             font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .notes-field:focus {
-            outline: none;
-            border-color: var(--accent);
         }
 
         .notes-radio-group {
             display: flex;
             gap: 20px;
-            margin: 16px 0;
+            margin: 12px 0;
         }
 
         .notes-radio {
@@ -911,19 +934,11 @@
             gap: 6px;
             color: var(--text-secondary);
             font-size: 14px;
-            cursor: pointer;
-        }
-
-        .notes-radio input[type="radio"] {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--accent);
-            cursor: pointer;
         }
 
         .raw-notes-display {
-            background: var(--bg-card);
-            border-radius: 18px;
+            background: var(--bg-primary);
+            border-radius: 12px;
             padding: 16px;
             margin: 16px 0;
             font-family: monospace;
@@ -931,9 +946,6 @@
             white-space: pre-wrap;
             max-height: 150px;
             overflow-y: auto;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            line-height: 1.6;
         }
 
         /* Variance Indicators */
@@ -941,32 +953,32 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 10px;
-            border-radius: 18px;
+            padding: 2px 8px;
+            border-radius: 20px;
             font-size: 10px;
             font-weight: 600;
             margin-left: 6px;
         }
 
         .variance-positive {
-            background: rgba(16,185,129,0.15);
-            color: #10B981;
+            background: #10b98120;
+            color: #10b981;
         }
 
         .variance-negative {
-            background: rgba(239,68,68,0.15);
-            color: #EF4444;
+            background: #ef444420;
+            color: #ef4444;
         }
 
         .variance-neutral {
-            background: var(--bg-card);
+            background: var(--bg-surface);
             color: var(--text-tertiary);
         }
 
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 30px 12px;
+            padding: 30px 16px;
             color: var(--text-tertiary);
         }
 
@@ -974,34 +986,31 @@
             font-size: 40px;
             margin-bottom: 12px;
             opacity: 0.3;
-            animation: float 3s ease-in-out infinite;
         }
 
         /* Chart Containers */
         .chart-container {
-            height: 150px;
-            margin: 16px 0 8px;
-            padding: 8px;
-            background: var(--bg-card);
-            border-radius: 18px;
+            height: 160px;
+            margin: 16px 0;
         }
 
         /* Toast */
         .toast {
-            position: absolute;
-            bottom: 120px;
-            left: 16px;
-            right: 16px;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            position: fixed;
+            bottom: 140px;
+            left: 20px;
+            right: 20px;
+            max-width: 440px;
+            margin: 0 auto;
+            background: var(--accent);
             color: white;
-            padding: 14px 20px;
+            padding: 14px 18px;
             border-radius: 30px;
             text-align: center;
-            font-weight: 600;
+            font-weight: 500;
             font-size: 14px;
             z-index: 3000;
-            animation: slideUp 0.3s ease-out;
-            box-shadow: 0 8px 20px rgba(19,78,94,0.4);
+            animation: slideUp 0.3s ease;
         }
 
         @keyframes slideUp {
@@ -1009,65 +1018,57 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* Loading Spinner */
-        .loading-spinner {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            z-index: 3000;
+        /* Weekly Report */
+        .weekly-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+        .week-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
         }
 
-        .loading-spinner.active {
-            display: block;
+        .week-card .week-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
         }
 
-        /* Date Input */
-        input[type="date"] {
-            color-scheme: dark;
+        .week-card .week-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 4px;
+        .week-strength {
+            border-left: 4px solid var(--strength);
         }
 
-        ::-webkit-scrollbar-track {
-            background: var(--bg-card);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 2px;
+        .week-weakness {
+            border-left: 4px solid var(--weakness);
         }
     </style>
 </head>
 <body>
     <div id="app">
-        <!-- Loading Spinner -->
-        <div class="loading-spinner" id="loadingSpinner"></div>
-
         <!-- Header -->
         <div class="header">
             <div class="greeting-row">
-                <div class="greeting">
-                    Hello <span>Richard</span>
+                <div class="greeting" id="greeting">
+                    Good morning, <span>Richard</span>
+                </div>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
                 </div>
             </div>
             <div class="date-badge">
                 <i class="far fa-calendar-alt"></i>
-                <span id="currentDate">Loading...</span>
+                <span id="currentDate">26 Feb 2026</span>
             </div>
             
             <!-- Goals Card -->
@@ -1081,7 +1082,6 @@
                         <div class="progress-ring" id="progressRing">
                             <div class="progress-ring-inner">
                                 <span id="progressPercent">0%</span>
-                                <span>done</span>
                             </div>
                         </div>
                     </div>
@@ -1103,34 +1103,66 @@
         <div class="main-content" id="mainContent">
             <!-- Home Tab -->
             <div id="home-tab" class="tab-content active">
-                <div class="card">
-                    <div class="card-title">
-                        <span id="homeSummaryTitle">Yesterday's Summary</span>
-                        <span class="variance-badge variance-neutral" id="dailyVariance">vs previous</span>
+                <!-- Poll / Performance Summary -->
+                <div class="poll-container">
+                    <div class="poll-header">Your Performance Overview</div>
+                    <div class="poll-grid">
+                        <div class="poll-item">
+                            <div class="poll-value" id="bestDayValue">0</div>
+                            <div class="poll-label">Best Day</div>
+                            <div style="font-size:10px; opacity:0.8;" id="bestDayName">-</div>
+                        </div>
+                        <div class="poll-item">
+                            <div class="poll-value" id="avgTrades">0</div>
+                            <div class="poll-label">Avg Trades</div>
+                            <div style="font-size:10px; opacity:0.8;">per day</div>
+                        </div>
+                        <div class="poll-item">
+                            <div class="poll-value" id="totalShopsPoll">0</div>
+                            <div class="poll-label">Total Shops</div>
+                            <div style="font-size:10px; opacity:0.8;" id="totalTradesPoll">0 trades</div>
+                        </div>
                     </div>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-label">Trades</div>
-                            <div class="stat-number" id="todayTrades">0</div>
-                            <div class="stat-trend trend-neutral" id="tradeTrend">0%</div>
+                    <div class="poll-strength">
+                        <div class="strength-day" id="strengthDay">
+                            <span>0</span>
+                            trades
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Onboards</div>
-                            <div class="stat-number" id="todayOnboards">0</div>
-                            <div class="stat-trend trend-neutral" id="onboardTrend">0%</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Conversion</div>
-                            <div class="stat-number" id="todayConversion">0%</div>
-                            <div class="stat-trend trend-neutral" id="conversionTrend">0%</div>
+                        <div class="weakness-day" id="weaknessDay">
+                            <span>0</span>
+                            trades
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-title">
-                        <span id="activityTitle">Yesterday's Activity</span>
-                        <span onclick="refreshData()" style="cursor:pointer; padding: 8px;">
+                        Today's Summary (26 Feb)
+                        <span class="variance-badge variance-neutral" id="dailyVariance">vs yesterday</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Trades</div>
+                            <div class="stat-number" id="todayTrades">0</div>
+                            <div class="stat-trend" id="tradeTrend">+0%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Onboards</div>
+                            <div class="stat-number" id="todayOnboards">0</div>
+                            <div class="stat-trend" id="onboardTrend">+0%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Conversion</div>
+                            <div class="stat-number" id="todayConversion">0%</div>
+                            <div class="stat-trend" id="conversionTrend">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Today's Activity
+                        <span onclick="refreshData()" style="cursor:pointer;">
                             <i class="fas fa-sync-alt"></i>
                         </span>
                     </div>
@@ -1145,7 +1177,7 @@
                                 </tr>
                             </thead>
                             <tbody id="todayActivityBody">
-                                <tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity</td></tr>
+                                <tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity today. Add data using the + button.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1173,6 +1205,13 @@
                         <div class="weekday">S</div>
                     </div>
                     <div class="calendar-grid" id="calendarDays"></div>
+                    <div style="margin-top: 12px; font-size: 11px; color: var(--text-tertiary);">
+                        <p><span style="color: var(--error);">⬤</span> Training period - View only</p>
+                        <p><span style="color: var(--accent);">⬤</span> Past dates with data - View only</p>
+                        <p><span style="color: var(--success);">⬤</span> Today - Can add/edit</p>
+                        <p><span style="color: var(--strength);">⬤</span> Strength day</p>
+                        <p><span style="color: var(--weakness);">⬤</span> Weakness day</p>
+                    </div>
                 </div>
             </div>
 
@@ -1185,13 +1224,35 @@
                             <button class="btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="copyReport()">
                                 <i class="far fa-copy"></i>
                             </button>
-                            <button class="btn-primary" style="padding:6px 12px; font-size:12px;" onclick="shareToWhatsApp()">
+                            <button class="btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="shareToWhatsApp()">
                                 <i class="fab fa-whatsapp"></i>
                             </button>
                         </div>
                     </div>
-                    <div style="background: var(--bg-card); padding:20px; border-radius:18px; font-family: monospace; white-space: pre-wrap; font-size:13px; line-height:1.8; color: var(--text-secondary);" id="dailyReport">
-                        Loading...
+                    <div style="background: var(--bg-primary); padding:20px; border-radius:16px; font-family: monospace; white-space: pre-wrap; font-size:13px; line-height:1.8;" id="dailyReport">
+                        No data for today. Add data using the + button.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Weekly Report</div>
+                    <div class="weekly-summary" id="weeklySummary">
+                        <!-- Generated by JS -->
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Week</th>
+                                    <th>Trades</th>
+                                    <th>Onboards</th>
+                                    <th>Conversion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weeklyTable">
+                                <!-- Generated by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1201,7 +1262,7 @@
                 <div class="card">
                     <div class="card-title">
                         Quick Notes
-                        <span onclick="clearNotes()" style="cursor:pointer; padding: 8px;">
+                        <span onclick="clearNotes()" style="cursor:pointer;">
                             <i class="fas fa-trash"></i>
                         </span>
                     </div>
@@ -1213,7 +1274,7 @@
                     
                     <div class="notes-input-group">
                         <div class="notes-label">Phone Number</div>
-                        <input type="text" class="notes-field" id="notePhone" placeholder="072449218" inputmode="numeric">
+                        <input type="text" class="notes-field" id="notePhone" placeholder="072449218">
                     </div>
                     
                     <div class="notes-radio-group">
@@ -1228,6 +1289,11 @@
                     <button class="btn btn-primary" style="width:100%; margin-bottom:16px;" onclick="addNote()">
                         <i class="fas fa-plus"></i> Add Note
                     </button>
+                    
+                    <div id="noteDuplicateWarning" class="duplicate-warning" style="display:none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="duplicateMessage"></span>
+                    </div>
                     
                     <div class="notes-label">Today's Notes (<span id="noteCount">0</span>)</div>
                     <div class="raw-notes-display" id="rawNotes">No notes yet</div>
@@ -1251,17 +1317,17 @@
                         <div class="stat-item">
                             <div class="stat-label">Streak</div>
                             <div class="stat-number" id="streakCount">0</div>
-                            <div class="stat-trend trend-neutral">days</div>
+                            <div class="stat-label">days</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Best Day</div>
                             <div class="stat-number" id="bestDayCount">0</div>
-                            <div class="stat-trend trend-neutral" id="bestDayDate">-</div>
+                            <div class="stat-label" id="bestDayDate">-</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Total</div>
                             <div class="stat-number" id="totalShops">0</div>
-                            <div class="stat-trend trend-neutral">shops</div>
+                            <div class="stat-label">shops</div>
                         </div>
                     </div>
                 </div>
@@ -1300,18 +1366,21 @@
                 <div class="card">
                     <div class="card-title">Stats</div>
                     <table class="data-table">
-                        <tr><td>Total Trades</td><td><strong id="totalTrades">0</strong></td></tr>
+                        <tr><td>Total Trades (Verified)</td><td><strong id="totalTrades">0</strong></td></tr>
                         <tr><td>Total Onboards</td><td><strong id="totalOnboards">0</strong></td></tr>
+                        <tr><td>Shops with Checkmark</td><td><strong id="totalCheckmarked">0</strong></td></tr>
                         <tr><td>Conversion Rate</td><td><strong id="totalConversion">0%</strong></td></tr>
-                        <tr><td>Avg Daily</td><td><strong id="avgDaily">0</strong></td></tr>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Robot FAB -->
-        <button class="fab-robot" onclick="openAIModal()">
+        <!-- FABs -->
+        <button class="fab-robot" onclick="openAssistant()">
             <i class="fas fa-robot"></i>
+        </button>
+        <button class="fab-plus" onclick="openAIModal()">
+            <i class="fas fa-plus"></i>
         </button>
 
         <!-- Bottom Navigation -->
@@ -1328,9 +1397,6 @@
                 <i class="fas fa-file-alt"></i>
                 <span>Reports</span>
             </button>
-            <button class="nav-item nav-plus" onclick="openAIModal()">
-                <i class="fas fa-plus"></i>
-            </button>
             <button class="nav-item" onclick="switchTab('notes')">
                 <i class="fas fa-pen"></i>
                 <span>Notes</span>
@@ -1345,16 +1411,18 @@
             </button>
         </div>
 
-        <!-- AI Input Modal -->
+        <!-- AI Input Modal (for + button) -->
         <div class="modal" id="aiModal">
             <div class="modal-content">
                 <h3>Add Daily Data</h3>
-                <p>Paste your raw field notes for the selected date</p>
-                <div style="margin-bottom: 16px;">
-                    <label class="notes-label">Select Date</label>
-                    <input type="date" id="aiDate" class="notes-field" value="2026-02-26" min="2026-02-14" max="2026-02-26">
+                <p>Paste your raw field notes. The system will organize them.</p>
+                <div id="aiDuplicateWarning" class="duplicate-warning" style="display:none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="aiDuplicateMessage"></span>
                 </div>
-                <textarea id="aiInput" placeholder="Onboarding
+                <textarea id="aiInput" placeholder="Example:
+26 Feb
+Onboarding
 1. Kensafe Retail 072449218
 2. Mama Hans 0721437447
 
@@ -1367,6 +1435,32 @@ New trade
             </div>
         </div>
 
+        <!-- Assistant Modal (Robot Assistant) -->
+        <div class="assistant-modal" id="assistantModal">
+            <div class="assistant-content">
+                <div class="assistant-header">
+                    <div class="assistant-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="assistant-title">Your Assistant</div>
+                        <div class="assistant-subtitle">Ask me about your performance</div>
+                    </div>
+                </div>
+                
+                <textarea class="assistant-input" id="assistantQuestion" placeholder="e.g., Which day did I perform best? What's my weakness? Show weekly summary" rows="3"></textarea>
+                
+                <div class="assistant-response" id="assistantResponse">
+                    Ask me a question to get insights about your performance.
+                </div>
+                
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-secondary" style="flex:1;" onclick="closeAssistant()">Close</button>
+                    <button class="btn btn-primary" style="flex:1;" onclick="askAssistant()">Ask</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Bottom Sheet for Date Details -->
         <div class="bottom-sheet" id="dateSheet">
             <div class="sheet-header">
@@ -1374,7 +1468,8 @@ New trade
                 <button class="close-sheet" onclick="closeSheet()">✕</button>
             </div>
             <div class="sheet-stats" id="sheetStats"></div>
-            <div style="max-height: 300px; overflow-y: auto;">
+            <div id="sheetMode" style="margin-bottom: 12px;"></div>
+            <div style="max-height: 250px; overflow-y: auto;">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -1404,41 +1499,19 @@ New trade
         let selectedDate = null;
         let currentMonth = 1; // February
         let currentYear = 2026;
-        let today = new Date();
-        let currentDate = formatDate(today);
+        let currentTheme = 'light';
 
         // Monthly Goals
         const MONTHLY_GOALS = {
             1: { trades: 20, onboards: 30 } // February
         };
 
-        // Helper function to format date as YYYY-MM-DD
-        function formatDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        // Get yesterday's date
-        function getYesterdayDate() {
-            const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
-            return formatDate(yesterday);
-        }
-
-        // Check if date is editable (14th onwards and not future)
-        function isDateEditable(dateStr) {
-            const date = new Date(dateStr);
-            const minDate = new Date('2026-02-14');
-            const today_date = new Date(currentDate);
-            
-            return date >= minDate && date <= today_date;
-        }
+        // Training period end date (no editing before this)
+        const TRAINING_END_DATE = '2026-02-13';
 
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', async () => {
-            showLoading();
+            updateGreeting();
             await initializeData();
             updateDateDisplay();
             renderHome();
@@ -1448,44 +1521,121 @@ New trade
             updateAnalytics();
             initCharts();
             updateNotesDisplay();
-            hideLoading();
+            checkTheme();
         });
 
-        function showLoading() {
-            document.getElementById('loadingSpinner').classList.add('active');
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = "Good evening";
+            if (hour < 12) greeting = "Good morning";
+            else if (hour < 17) greeting = "Good afternoon";
+            document.getElementById('greeting').innerHTML = `${greeting}, <span>Richard</span>`;
         }
 
-        function hideLoading() {
-            setTimeout(() => {
-                document.getElementById('loadingSpinner').classList.remove('active');
-            }, 500);
-        }
-
-        // ==================== INITIALIZE WITH DATA ====================
+        // ==================== INITIALIZE WITH HISTORICAL DATA ====================
         async function initializeData() {
-            // Load from localStorage or initialize with sample data for 14th-26th
-            const stored = localStorage.getItem('seviReports');
-            if (stored) {
-                reports = JSON.parse(stored);
-            } else {
-                // Add sample data for 14th Feb (first day)
-                reports = [
-                    // 14th February data
-                    { id: Date.now() + 1, date: "2026-02-14", shopName: "Alpha Store", phoneNumber: "0712345678", type: "onboarding", status: "not-traded" },
-                    { id: Date.now() + 2, date: "2026-02-14", shopName: "Beta Shop", phoneNumber: "0723456789", type: "newtrade", status: "traded" },
-                    
-                    // 25th February data (your original data)
-                    { id: Date.now() + 3, date: "2026-02-25", shopName: "Kensafe Retail", phoneNumber: "072449218", type: "onboarding", status: "not-traded" },
-                    { id: Date.now() + 4, date: "2026-02-25", shopName: "Mama Hans", phoneNumber: "0721437447", type: "onboarding", status: "not-traded" },
-                    { id: Date.now() + 5, date: "2026-02-25", shopName: "Jackie Shop", phoneNumber: "0723357880", type: "onboarding", status: "not-traded" },
-                    { id: Date.now() + 6, date: "2026-02-25", shopName: "Local Pub", phoneNumber: "0725975519", type: "onboarding", status: "not-traded" },
-                    { id: Date.now() + 7, date: "2026-02-25", shopName: "Daddy Ocholla", phoneNumber: "0729673273", type: "onboarding", status: "not-traded" },
-                    { id: Date.now() + 8, date: "2026-02-25", shopName: "Come and see", phoneNumber: "0736468481", type: "newtrade", status: "traded" },
-                    { id: Date.now() + 9, date: "2026-02-25", shopName: "Opiyo Monic", phoneNumber: "0724645297", type: "newtrade", status: "traded" },
-                    { id: Date.now() + 10, date: "2026-02-25", shopName: "Nbraview Autospare", phoneNumber: "0716324556", type: "newtrade", status: "traded" }
-                ];
-                localStorage.setItem('seviReports', JSON.stringify(reports));
-            }
+            // All historical data
+            reports = [
+                // 25 FEB - Historical data
+                { id: 2501, date: "2026-02-25", shopName: "Kensafe Retail", phoneNumber: "072449218", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2502, date: "2026-02-25", shopName: "Mama Hans", phoneNumber: "0721437447", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2503, date: "2026-02-25", shopName: "Jackie Shop", phoneNumber: "0723357880", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2504, date: "2026-02-25", shopName: "Local Pub", phoneNumber: "0725975519", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2505, date: "2026-02-25", shopName: "Daddy Ocholla", phoneNumber: "0729673273", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2506, date: "2026-02-25", shopName: "Come and see", phoneNumber: "0736468481", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2507, date: "2026-02-25", shopName: "Opiyo Monic", phoneNumber: "0724645297", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2508, date: "2026-02-25", shopName: "Nbraview Autospare", phoneNumber: "0716324556", type: "newtrade", status: "traded", checkmark: false },
+
+                // 24 FEB
+                { id: 2401, date: "2026-02-24", shopName: "Mama Wilma", phoneNumber: "0723305464", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2402, date: "2026-02-24", shopName: "Vincent Ouma", phoneNumber: "0746179554", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2403, date: "2026-02-24", shopName: "Nyar pap ndege", phoneNumber: "0701694355", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2404, date: "2026-02-24", shopName: "Mary Shop", phoneNumber: "0743097806", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2405, date: "2026-02-24", shopName: "RNB kinyozi", phoneNumber: "0714951052", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2406, date: "2026-02-24", shopName: "Favour Beauty Shop", phoneNumber: "0797867354", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2407, date: "2026-02-24", shopName: "Sarah Hotel", phoneNumber: "0719590159", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2408, date: "2026-02-24", shopName: "Liquid Bar", phoneNumber: "0729322177", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2409, date: "2026-02-24", shopName: "Awuor Kennedy", phoneNumber: "0746256022", type: "newtrade", status: "not-traded", checkmark: false },
+
+                // 23 FEB
+                { id: 2301, date: "2026-02-23", shopName: "Mama Ivy", phoneNumber: "0707196303", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2302, date: "2026-02-23", shopName: "Japolo Wuon Akuru", phoneNumber: "0729531031", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2303, date: "2026-02-23", shopName: "JM Traders", phoneNumber: "0701267266", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2304, date: "2026-02-23", shopName: "Ken Bakers", phoneNumber: "0746256022", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2305, date: "2026-02-23", shopName: "Enchipai Chemist", phoneNumber: "0724221382", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2306, date: "2026-02-23", shopName: "Tausi Shop", phoneNumber: "0110701039", type: "newtrade", status: "traded", checkmark: false },
+
+                // 21 FEB
+                { id: 2101, date: "2026-02-21", shopName: "Sarah Hotel", phoneNumber: "0719590159", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 2102, date: "2026-02-21", shopName: "Nyaseme Shop", phoneNumber: "0727243181", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2103, date: "2026-02-21", shopName: "Favour Beauty Shop", phoneNumber: "0797867354", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 2104, date: "2026-02-21", shopName: "Nya ugenya shop", phoneNumber: "0707379204", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2105, date: "2026-02-21", shopName: "Ayah Cyprian Haya", phoneNumber: "0720951322", type: "newtrade", status: "traded", checkmark: false },
+                { id: 2106, date: "2026-02-21", shopName: "Paul bites", phoneNumber: "0745696667", type: "newtrade", status: "traded", checkmark: false },
+
+                // 20 FEB
+                { id: 2001, date: "2026-02-20", shopName: "Becky's shop", phoneNumber: "0714147476", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2002, date: "2026-02-20", shopName: "Tausi Shop", phoneNumber: "0110701039", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 2003, date: "2026-02-20", shopName: "Evelyn Ochieng", phoneNumber: "0794762672", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2004, date: "2026-02-20", shopName: "Lama Huraan mini shop", phoneNumber: "0724645279", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2005, date: "2026-02-20", shopName: "Nya ugenya AutoSpare", phoneNumber: "0701828015", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2006, date: "2026-02-20", shopName: "Mamake Shop", phoneNumber: "0768096912", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 2007, date: "2026-02-20", shopName: "Jokraft Enterprise", phoneNumber: "0791805619", type: "newtrade", status: "traded", checkmark: false },
+
+                // 19 FEB
+                { id: 1901, date: "2026-02-19", shopName: "Irene shop", phoneNumber: "0716148745", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1902, date: "2026-02-19", shopName: "Come and see", phoneNumber: "0736468481", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1903, date: "2026-02-19", shopName: "Zabibu Shop", phoneNumber: "0745253685", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1904, date: "2026-02-19", shopName: "Simeo Baba", phoneNumber: "0713632055", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1905, date: "2026-02-19", shopName: "Nya ugenya shop", phoneNumber: "0707379204", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1906, date: "2026-02-19", shopName: "Liquid Bar and Restaurant", phoneNumber: "0729322177", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1907, date: "2026-02-19", shopName: "Lengo Shop", phoneNumber: "07955826481", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1908, date: "2026-02-19", shopName: "Sacco Bakers", phoneNumber: "0727305155", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1909, date: "2026-02-19", shopName: "Irene shop", phoneNumber: "0114879600", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1910, date: "2026-02-19", shopName: "Njeri Shop", phoneNumber: "0723723939", type: "newtrade", status: "traded", checkmark: false },
+
+                // 18 FEB
+                { id: 1801, date: "2026-02-18", shopName: "Jokraft", phoneNumber: "0791805619", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1802, date: "2026-02-18", shopName: "Scobet", phoneNumber: "0769081170", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1803, date: "2026-02-18", shopName: "Nubraview", phoneNumber: "0716324556", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1804, date: "2026-02-18", shopName: "Hubco engineering", phoneNumber: "0741640120", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1805, date: "2026-02-18", shopName: "Njeri Shop", phoneNumber: "0723723939", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1806, date: "2026-02-18", shopName: "Twins Hotel", phoneNumber: "0721874818", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1807, date: "2026-02-18", shopName: "Millicent", phoneNumber: "0714429282", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1808, date: "2026-02-18", shopName: "Josephine", phoneNumber: "0723247448", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1809, date: "2026-02-18", shopName: "Odero Millicent", phoneNumber: "0700265269", type: "newtrade", status: "traded", checkmark: false },
+
+                // 17 FEB
+                { id: 1701, date: "2026-02-17", shopName: "Juvian Shop & Hotel", phoneNumber: "0729410818", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1702, date: "2026-02-17", shopName: "Fast Food", phoneNumber: "0726119358", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1703, date: "2026-02-17", shopName: "Twins Hotel", phoneNumber: "0721874818", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1704, date: "2026-02-17", shopName: "Lilian Onyango", phoneNumber: "0792644676", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1705, date: "2026-02-17", shopName: "Babu Shop", phoneNumber: "0754041523", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1706, date: "2026-02-17", shopName: "Vivian Cynthia Shop", phoneNumber: "0114883502", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1707, date: "2026-02-17", shopName: "Ochieng Evalyne Atieno", phoneNumber: "0732361677", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1708, date: "2026-02-17", shopName: "Juvian Shop & Mpesa", phoneNumber: "0729410818", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1709, date: "2026-02-17", shopName: "Fast Food", phoneNumber: "0726119358", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1710, date: "2026-02-17", shopName: "Mali Mali shop", phoneNumber: "0757743710", type: "newtrade", status: "traded", checkmark: false },
+
+                // 16 FEB
+                { id: 1601, date: "2026-02-16", shopName: "Paul bites", phoneNumber: "0745696667", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1602, date: "2026-02-16", shopName: "Alibaba Shop", phoneNumber: "0741271112", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1603, date: "2026-02-16", shopName: "Ebenezer Salon", phoneNumber: "0723247448", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1604, date: "2026-02-16", shopName: "All season shop", phoneNumber: "0714429282", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1605, date: "2026-02-16", shopName: "Mercy Hotel", phoneNumber: "0748675398", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1606, date: "2026-02-16", shopName: "Abok sellah Aoko", phoneNumber: "0728559605", type: "newtrade", status: "traded", checkmark: false },
+                { id: 1607, date: "2026-02-16", shopName: "Wich e dhano", phoneNumber: "0769898366", type: "newtrade", status: "traded", checkmark: false },
+
+                // 14 FEB
+                { id: 1401, date: "2026-02-14", shopName: "Mali Mali shop", phoneNumber: "0757743710", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1402, date: "2026-02-14", shopName: "Pinky Autospares", phoneNumber: "0700265296", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1403, date: "2026-02-14", shopName: "Aperi Cosmetics", phoneNumber: "0729385440", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1404, date: "2026-02-14", shopName: "Sacco Bakers", phoneNumber: "0727305155", type: "onboarding", status: "not-traded", checkmark: true },
+                { id: 1405, date: "2026-02-14", shopName: "Quick Snack Pack Caffe", phoneNumber: "0720951322", type: "onboarding", status: "not-traded", checkmark: true }
+            ];
+            
+            // Save to localStorage and Supabase
+            localStorage.setItem('seviReports', JSON.stringify(reports));
             await syncToSupabase(reports);
         }
 
@@ -1500,30 +1650,195 @@ New trade
             }
         }
 
-        // ==================== AI DATA PROCESSING ====================
-        function processAIData() {
-            showLoading();
-            const rawText = document.getElementById('aiInput').value;
-            const selectedDate = document.getElementById('aiDate').value;
+        // ==================== DATE VALIDATION ====================
+        function canEditDate(dateStr) {
+            const today = new Date().toISOString().split('T')[0];
+            const date = new Date(dateStr);
+            const trainingEnd = new Date(TRAINING_END_DATE);
             
-            // Check if date is editable
-            if (!isDateEditable(selectedDate)) {
-                showToast('Cannot add data for future dates or before 14th Feb');
-                hideLoading();
-                return;
+            // Cannot edit training period (before 14 Feb)
+            if (date < trainingEnd) {
+                return { canEdit: false, reason: 'training' };
             }
             
+            // Cannot edit future dates
+            if (dateStr > today) {
+                return { canEdit: false, reason: 'future' };
+            }
+            
+            // Can only edit today
+            if (dateStr === today) {
+                return { canEdit: true, reason: 'today' };
+            }
+            
+            // Past dates with data - view only
+            return { canEdit: false, reason: 'past' };
+        }
+
+        // ==================== DUPLICATE CHECK ====================
+        function checkDuplicateOnboard(phoneNumber) {
+            // Check if this phone number already exists as onboarding anywhere in the system
+            const existingOnboard = reports.find(r => 
+                r.phoneNumber === phoneNumber && 
+                r.type === 'onboarding'
+            );
+            
+            if (existingOnboard) {
+                return {
+                    isDuplicate: true,
+                    existingEntry: existingOnboard
+                };
+            }
+            return { isDuplicate: false };
+        }
+
+        // ==================== ASSISTANT FUNCTION ====================
+        function openAssistant() {
+            document.getElementById('assistantModal').classList.add('active');
+            document.getElementById('assistantResponse').innerHTML = 'Ask me a question to get insights about your performance.';
+            document.getElementById('assistantQuestion').value = '';
+        }
+
+        function closeAssistant() {
+            document.getElementById('assistantModal').classList.remove('active');
+        }
+
+        function askAssistant() {
+            const question = document.getElementById('assistantQuestion').value.toLowerCase();
+            let response = '';
+            
+            // Calculate insights
+            const dayPerformance = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    dayPerformance[r.date] = (dayPerformance[r.date] || 0) + 1;
+                }
+            });
+            
+            // Find best day
+            let bestDay = { date: '', count: 0 };
+            // Find worst day (among days with data)
+            let worstDay = { date: '', count: Infinity };
+            
+            Object.entries(dayPerformance).forEach(([date, count]) => {
+                if (count > bestDay.count) {
+                    bestDay = { date, count };
+                }
+                if (count < worstDay.count && count > 0) {
+                    worstDay = { date, count };
+                }
+            });
+            
+            // Calculate weekly averages
+            const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dayAverages = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    const dayName = weekDays[d.getDay() === 0 ? 6 : d.getDay() - 1];
+                    dayAverages[dayName] = (dayAverages[dayName] || 0) + 1;
+                }
+            });
+            
+            // Find strength day (highest average)
+            let strengthDay = { day: '', count: 0 };
+            // Find weakness day (lowest average)
+            let weaknessDay = { day: '', count: Infinity };
+            
+            Object.entries(dayAverages).forEach(([day, count]) => {
+                if (count > strengthDay.count) {
+                    strengthDay = { day, count };
+                }
+                if (count < weaknessDay.count) {
+                    weaknessDay = { day, count };
+                }
+            });
+            
+            if (question.includes('best day') || question.includes('perform well')) {
+                if (bestDay.date) {
+                    const date = new Date(bestDay.date);
+                    const dayName = weekDays[date.getDay() === 0 ? 6 : date.getDay() - 1];
+                    response = `Your best performance was on ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })} (${dayName}) with ${bestDay.count} trades.`;
+                } else {
+                    response = 'No performance data available yet.';
+                }
+            }
+            else if (question.includes('weakness') || question.includes('worst')) {
+                if (worstDay.date && worstDay.count !== Infinity) {
+                    const date = new Date(worstDay.date);
+                    const dayName = weekDays[date.getDay() === 0 ? 6 : date.getDay() - 1];
+                    response = `Your weakest day was on ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })} (${dayName}) with ${worstDay.count} trades. Consider analyzing what went wrong that day.`;
+                } else {
+                    response = 'No performance data available yet.';
+                }
+            }
+            else if (question.includes('strength') || question.includes('strong')) {
+                if (strengthDay.day) {
+                    response = `Your strongest day is ${strengthDay.day} with an average of ${(strengthDay.count/4).toFixed(1)} trades. You perform best on ${strengthDay.day}s!`;
+                } else {
+                    response = 'No performance data available yet.';
+                }
+            }
+            else if (question.includes('weekly') || question.includes('summary')) {
+                const weeks = getWeeklySummary();
+                response = 'Weekly Performance Summary:\n';
+                weeks.forEach((week, index) => {
+                    response += `\nWeek ${index + 1}: ${week.trades} trades, ${week.onboards} onboards, ${week.conversion}% conversion`;
+                });
+            }
+            else if (question.includes('total') || question.includes('overall')) {
+                const totalTrades = reports.filter(r => r.status === 'traded').length;
+                const totalOnboards = reports.filter(r => r.type === 'onboarding').length;
+                const conversion = reports.length ? Math.round((totalTrades / reports.length) * 100) : 0;
+                response = `Overall Performance:\nTotal Trades: ${totalTrades}\nTotal Onboards: ${totalOnboards}\nOverall Conversion: ${conversion}%\nTotal Shops Visited: ${reports.length}`;
+            }
+            else {
+                response = 'I can help you with:\n- "Which day did I perform best?"\n- "What is my weakness?"\n- "Show my strength day"\n- "Weekly summary"\n- "Overall performance"';
+            }
+            
+            document.getElementById('assistantResponse').innerHTML = response.replace(/\n/g, '<br>');
+        }
+
+        // ==================== AI DATA PROCESSING ====================
+        function processAIData() {
+            const rawText = document.getElementById('aiInput').value;
             const lines = rawText.split('\n');
             
+            let currentDate = null;
             let currentSection = null;
             let processed = [];
+            let duplicates = [];
+            let today = new Date().toISOString().split('T')[0];
             
             for (let line of lines) {
                 line = line.trim();
                 if (!line) continue;
                 
+                // Check for date
+                if (line.match(/^\d{1,2}\s+[A-Za-z]{3}/)) {
+                    const [day, month] = line.split(' ');
+                    const months = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06',
+                                   'Jul':'07', 'Aug':'08', 'Sep':'09', 'Oct':'10', 'Nov':'11', 'Dec':'12'};
+                    if (months[month]) {
+                        currentDate = `2026-${months[month]}-${day.padStart(2,'0')}`;
+                        
+                        // Validate if we can edit this date
+                        const editCheck = canEditDate(currentDate);
+                        if (!editCheck.canEdit) {
+                            if (editCheck.reason === 'training') {
+                                showToast('Cannot add data for training period (before 14 Feb)');
+                            } else if (editCheck.reason === 'future') {
+                                showToast('Cannot add data for future dates');
+                            } else if (editCheck.reason === 'past') {
+                                showToast('Past dates cannot be edited - only viewed');
+                            }
+                            return;
+                        }
+                    }
+                }
+                
                 // Check for sections
-                if (line.toLowerCase().includes('onboarding') || line.toLowerCase().includes('onboard')) {
+                else if (line.toLowerCase().includes('onboarding') || line.toLowerCase().includes('onboard')) {
                     currentSection = 'onboarding';
                 }
                 else if (line.toLowerCase().includes('new trade') || line.toLowerCase().includes('trade')) {
@@ -1533,24 +1848,67 @@ New trade
                 // Extract shop data
                 else if (line.match(/^\d+\./)) {
                     let text = line.replace(/^\d+\.\s*/, '');
-                    const phoneMatch = text.match(/0\d{9}|0\d{2}\s?\d{3}\s?\d{3}/);
+                    const phoneMatch = text.match(/0\d{9}|0\d{2}\s?\d{3}\s?\d{3}|01\d{8}/);
                     
                     if (phoneMatch) {
                         let phoneNumber = phoneMatch[0].replace(/\s/g, '');
                         let shopName = text.replace(phoneMatch[0], '').trim().replace(/[.,]$/, '');
                         
-                        if (shopName && phoneNumber) {
+                        if (shopName && phoneNumber && currentDate) {
+                            // For onboarding entries - check for duplicates
+                            if (currentSection === 'onboarding') {
+                                const duplicateCheck = checkDuplicateOnboard(phoneNumber);
+                                if (duplicateCheck.isDuplicate) {
+                                    duplicates.push({
+                                        shopName,
+                                        phoneNumber,
+                                        existing: duplicateCheck.existingEntry
+                                    });
+                                    continue; // Skip adding this entry
+                                }
+                            }
+                            
+                            // For new trade entries - check if this phone was onboarded before
+                            if (currentSection === 'newtrade') {
+                                const existingOnboard = reports.find(r => 
+                                    r.phoneNumber === phoneNumber && 
+                                    r.type === 'onboarding'
+                                );
+                                
+                                if (existingOnboard) {
+                                    // Add checkmark to the previous onboarding entry
+                                    existingOnboard.checkmark = true;
+                                    
+                                    // Update in storage
+                                    localStorage.setItem('seviReports', JSON.stringify(reports));
+                                    syncToSupabase([existingOnboard]);
+                                }
+                            }
+                            
                             processed.push({
                                 id: Date.now() + Math.random(),
-                                date: selectedDate,
+                                date: currentDate,
                                 shopName: shopName,
                                 phoneNumber: phoneNumber,
                                 type: currentSection || 'onboarding',
-                                status: currentSection === 'newtrade' ? 'traded' : 'not-traded'
+                                status: currentSection === 'newtrade' ? 'traded' : 'not-traded',
+                                checkmark: false
                             });
                         }
                     }
                 }
+            }
+            
+            // Show duplicate warnings
+            if (duplicates.length > 0) {
+                let message = 'Duplicate onboardings skipped:\n';
+                duplicates.forEach(d => {
+                    message += `\n• ${d.shopName} (${d.phoneNumber}) already onboarded on ${d.existing.date}`;
+                });
+                document.getElementById('aiDuplicateMessage').textContent = message;
+                document.getElementById('aiDuplicateWarning').style.display = 'flex';
+            } else {
+                document.getElementById('aiDuplicateWarning').style.display = 'none';
             }
             
             if (processed.length > 0) {
@@ -1567,12 +1925,11 @@ New trade
                 initCharts();
                 
                 closeAIModal();
-                showToast(`✅ Added ${processed.length} shops for ${selectedDate}`);
+                showToast(`Added ${processed.length} shops`);
                 document.getElementById('aiInput').value = '';
-            } else {
-                showToast('❌ No valid data found');
+            } else if (duplicates.length === 0) {
+                showToast('No valid data found');
             }
-            hideLoading();
         }
 
         // ==================== NOTES SYSTEM ====================
@@ -1585,6 +1942,19 @@ New trade
                 showToast('Please enter shop name and phone');
                 return;
             }
+            
+            // Check for duplicate onboard in notes
+            if (type === 'onboarding') {
+                const duplicateCheck = checkDuplicateOnboard(phone);
+                if (duplicateCheck.isDuplicate) {
+                    document.getElementById('duplicateMessage').innerHTML = 
+                        `${shopName} (${phone}) already onboarded on ${duplicateCheck.existingEntry.date}`;
+                    document.getElementById('noteDuplicateWarning').style.display = 'flex';
+                    return;
+                }
+            }
+            
+            document.getElementById('noteDuplicateWarning').style.display = 'none';
             
             const now = new Date();
             const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -1614,7 +1984,8 @@ New trade
                 return;
             }
             
-            let rawText = `${currentDate}\n\n`;
+            const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            let rawText = today + '\n\n';
             
             const onboards = notes.filter(n => n.type === 'onboarding');
             const trades = notes.filter(n => n.type === 'newtrade');
@@ -1622,7 +1993,7 @@ New trade
             if (onboards.length > 0) {
                 rawText += 'Onboarding\n';
                 onboards.forEach((n, i) => {
-                    rawText += `${i+1}. ${n.shopName} ${n.phone}\n`;
+                    rawText += `${i+1}. ${n.shopName} ${n.phone} (${n.time})\n`;
                 });
                 rawText += '\n';
             }
@@ -1630,7 +2001,7 @@ New trade
             if (trades.length > 0) {
                 rawText += 'New trade\n';
                 trades.forEach((n, i) => {
-                    rawText += `${i+1}. ${n.shopName} ${n.phone}\n`;
+                    rawText += `${i+1}. ${n.shopName} ${n.phone} (${n.time})\n`;
                 });
             }
             
@@ -1650,39 +2021,73 @@ New trade
                 return;
             }
             
-            showLoading();
+            const today = new Date().toISOString().split('T')[0];
             let processed = [];
+            let duplicates = [];
             
             notes.forEach(note => {
+                // Check for duplicate onboard
+                if (note.type === 'onboarding') {
+                    const duplicateCheck = checkDuplicateOnboard(note.phone);
+                    if (duplicateCheck.isDuplicate) {
+                        duplicates.push(note);
+                        return; // Skip this note
+                    }
+                }
+                
+                // Check if this new trade corresponds to a previous onboard
+                if (note.type === 'newtrade') {
+                    const existingOnboard = reports.find(r => 
+                        r.phoneNumber === note.phone && 
+                        r.type === 'onboarding'
+                    );
+                    
+                    if (existingOnboard) {
+                        // Add checkmark to the previous onboarding entry
+                        existingOnboard.checkmark = true;
+                    }
+                }
+                
                 processed.push({
                     id: Date.now() + Math.random(),
-                    date: currentDate,
+                    date: today,
                     shopName: note.shopName,
                     phoneNumber: note.phone,
                     type: note.type,
-                    status: note.type === 'newtrade' ? 'traded' : 'not-traded'
+                    status: note.type === 'newtrade' ? 'traded' : 'not-traded',
+                    checkmark: false
                 });
             });
             
-            reports = [...reports, ...processed];
-            syncToSupabase(processed);
-            localStorage.setItem('seviReports', JSON.stringify(reports));
+            if (duplicates.length > 0) {
+                let message = 'Duplicate onboardings skipped:\n';
+                duplicates.forEach(d => {
+                    message += `\n• ${d.shopName} (${d.phone})`;
+                });
+                document.getElementById('duplicateMessage').textContent = message;
+                document.getElementById('noteDuplicateWarning').style.display = 'flex';
+            }
             
-            // Clear notes
-            notes = [];
-            localStorage.setItem('seviNotes', JSON.stringify(notes));
-            
-            renderHome();
-            renderCalendar();
-            updateReports();
-            updateProgress();
-            updateAnalytics();
-            destroyCharts();
-            initCharts();
-            updateNotesDisplay();
-            
-            showToast(`✅ Processed ${processed.length} notes for today`);
-            hideLoading();
+            if (processed.length > 0) {
+                reports = [...reports, ...processed];
+                syncToSupabase(processed);
+                localStorage.setItem('seviReports', JSON.stringify(reports));
+                
+                // Clear processed notes
+                notes = notes.filter(n => !processed.some(p => p.phoneNumber === n.phone));
+                localStorage.setItem('seviNotes', JSON.stringify(notes));
+                
+                renderHome();
+                renderCalendar();
+                updateReports();
+                updateProgress();
+                updateAnalytics();
+                destroyCharts();
+                initCharts();
+                updateNotesDisplay();
+                
+                showToast(`Processed ${processed.length} notes`);
+            }
         }
 
         function clearNotes() {
@@ -1690,58 +2095,125 @@ New trade
                 notes = [];
                 localStorage.setItem('seviNotes', JSON.stringify(notes));
                 updateNotesDisplay();
+                document.getElementById('noteDuplicateWarning').style.display = 'none';
                 showToast('Notes cleared');
             }
         }
 
+        // ==================== WEEKLY REPORT ====================
+        function getWeeklySummary() {
+            const weeks = [
+                { name: 'Week 1 (1-7 Feb)', trades: 0, onboards: 0, total: 0 },
+                { name: 'Week 2 (8-14 Feb)', trades: 0, onboards: 0, total: 0 },
+                { name: 'Week 3 (15-21 Feb)', trades: 0, onboards: 0, total: 0 },
+                { name: 'Week 4 (22-28 Feb)', trades: 0, onboards: 0, total: 0 }
+            ];
+            
+            reports.forEach(r => {
+                const d = new Date(r.date);
+                if (d.getMonth() === 1) { // February
+                    const day = d.getDate();
+                    let weekIndex = 0;
+                    if (day >= 1 && day <= 7) weekIndex = 0;
+                    else if (day >= 8 && day <= 14) weekIndex = 1;
+                    else if (day >= 15 && day <= 21) weekIndex = 2;
+                    else if (day >= 22 && day <= 28) weekIndex = 3;
+                    
+                    if (r.status === 'traded') weeks[weekIndex].trades++;
+                    if (r.type === 'onboarding') weeks[weekIndex].onboards++;
+                    weeks[weekIndex].total++;
+                }
+            });
+            
+            return weeks.map(w => ({
+                ...w,
+                conversion: w.total ? Math.round((w.trades / w.total) * 100) : 0
+            }));
+        }
+
         // ==================== UI RENDERING ====================
         function renderHome() {
-            // Show yesterday's data by default
-            const yesterday = getYesterdayDate();
-            const displayDate = yesterday;
+            const today = new Date().toISOString().split('T')[0];
+            const todayReports = reports.filter(r => r.date === today);
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            const yesterdayReports = reports.filter(r => r.date === yesterday);
             
-            const dayReports = reports.filter(r => r.date === displayDate);
-            
-            // Update title to show yesterday
-            const formattedDate = new Date(displayDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-            document.getElementById('homeSummaryTitle').textContent = `${formattedDate}'s Summary`;
-            document.getElementById('activityTitle').textContent = `${formattedDate}'s Activity`;
-            
-            const todayTrades = dayReports.filter(r => r.status === 'traded').length;
-            const todayOnboards = dayReports.filter(r => r.type === 'onboarding').length;
+            // Today's stats
+            const todayTrades = todayReports.filter(r => r.status === 'traded').length;
+            const todayOnboards = todayReports.filter(r => r.type === 'onboarding').length;
             
             document.getElementById('todayTrades').textContent = todayTrades;
             document.getElementById('todayOnboards').textContent = todayOnboards;
             
-            const conversion = dayReports.length ? Math.round((todayTrades / dayReports.length) * 100) : 0;
+            const conversion = todayReports.length ? Math.round((todayTrades / todayReports.length) * 100) : 0;
             document.getElementById('todayConversion').textContent = conversion + '%';
             
-            // Calculate trends vs previous day
-            const prevDate = new Date(displayDate);
-            prevDate.setDate(prevDate.getDate() - 1);
-            const prevDateStr = formatDate(prevDate);
-            const prevReports = reports.filter(r => r.date === prevDateStr);
-            const prevTrades = prevReports.filter(r => r.status === 'traded').length;
-            const prevOnboards = prevReports.filter(r => r.type === 'onboarding').length;
-            
-            const tradeTrend = prevTrades ? Math.round(((todayTrades - prevTrades) / prevTrades) * 100) : 0;
-            const onboardTrend = prevOnboards ? Math.round(((todayOnboards - prevOnboards) / prevOnboards) * 100) : 0;
-            
+            // Calculate variances with yesterday
+            const yesterdayTrades = yesterdayReports.filter(r => r.status === 'traded').length;
+            const tradeTrend = yesterdayTrades ? ((todayTrades - yesterdayTrades) / yesterdayTrades * 100).toFixed(0) : 0;
             document.getElementById('tradeTrend').textContent = (tradeTrend > 0 ? '+' : '') + tradeTrend + '%';
             document.getElementById('tradeTrend').className = `stat-trend ${tradeTrend > 0 ? 'trend-up' : tradeTrend < 0 ? 'trend-down' : 'trend-neutral'}`;
             
+            const yesterdayOnboards = yesterdayReports.filter(r => r.type === 'onboarding').length;
+            const onboardTrend = yesterdayOnboards ? ((todayOnboards - yesterdayOnboards) / yesterdayOnboards * 100).toFixed(0) : 0;
             document.getElementById('onboardTrend').textContent = (onboardTrend > 0 ? '+' : '') + onboardTrend + '%';
             document.getElementById('onboardTrend').className = `stat-trend ${onboardTrend > 0 ? 'trend-up' : onboardTrend < 0 ? 'trend-down' : 'trend-neutral'}`;
             
-            document.getElementById('conversionTrend').textContent = '0%';
-            document.getElementById('conversionTrend').className = 'stat-trend trend-neutral';
+            // Update poll data
+            const totalTrades = reports.filter(r => r.status === 'traded').length;
+            const totalShops = reports.length;
+            const avgTrades = (totalTrades / 26).toFixed(1); // Approximate days
             
-            document.getElementById('dailyVariance').textContent = 'vs previous day';
+            // Find best day
+            const dayCounts = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    dayCounts[r.date] = (dayCounts[r.date] || 0) + 1;
+                }
+            });
+            
+            let bestCount = 0, bestDate = '';
+            Object.entries(dayCounts).forEach(([date, count]) => {
+                if (count > bestCount) { bestCount = count; bestDate = date; }
+            });
+            
+            document.getElementById('bestDayValue').textContent = bestCount;
+            document.getElementById('bestDayName').textContent = bestDate ? 
+                new Date(bestDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-';
+            document.getElementById('avgTrades').textContent = avgTrades;
+            document.getElementById('totalShopsPoll').textContent = totalShops;
+            document.getElementById('totalTradesPoll').textContent = totalTrades + ' trades';
+            
+            // Calculate strength and weakness days
+            const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dayAverages = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    const dayName = weekDays[d.getDay() === 0 ? 6 : d.getDay() - 1];
+                    dayAverages[dayName] = (dayAverages[dayName] || 0) + 1;
+                }
+            });
+            
+            let strengthDay = { day: '', count: 0 };
+            let weaknessDay = { day: '', count: Infinity };
+            
+            Object.entries(dayAverages).forEach(([day, count]) => {
+                if (count > strengthDay.count) {
+                    strengthDay = { day, count };
+                }
+                if (count < weaknessDay.count) {
+                    weaknessDay = { day, count };
+                }
+            });
+            
+            document.getElementById('strengthDay').innerHTML = `<span>${strengthDay.count || 0}</span> trades on ${strengthDay.day || 'N/A'}`;
+            document.getElementById('weaknessDay').innerHTML = `<span>${weaknessDay.count !== Infinity ? weaknessDay.count : 0}</span> trades on ${weaknessDay.day || 'N/A'}`;
             
             // Today's activity table
             let html = '';
-            dayReports.forEach(r => {
-                const typeText = r.type === 'onboarding' ? 'Onboard' : 'Verified';
+            todayReports.forEach(r => {
+                const typeText = r.type === 'onboarding' ? 'Onboarded' : 'Verified';
                 const typeClass = r.type === 'onboarding' ? 'type-onboard' : 'type-trade';
                 const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
                 const statusClass = r.status === 'traded' ? 'status-traded' : 'status-pending';
@@ -1750,12 +2222,12 @@ New trade
                     <td><div class="shop-info">${r.shopName}</div></td>
                     <td><div class="phone-info">${r.phoneNumber}</div></td>
                     <td><span class="type-badge ${typeClass}">${typeText}</span></td>
-                    <td><button class="status-badge ${statusClass}" onclick="toggleStatus(${r.id})">${statusText}</button></td>
+                    <td><button class="status-badge ${statusClass} clickable" onclick="toggleStatus(${r.id})">${statusText}</button></td>
                 </tr>`;
             });
             
             document.getElementById('todayActivityBody').innerHTML = html || 
-                '<tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity for this day</td></tr>';
+                '<tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity today. Add data using the + button.</td></tr>';
             
             updateGoals();
         }
@@ -1763,6 +2235,7 @@ New trade
         function updateGoals() {
             const goals = MONTHLY_GOALS[1];
             
+            // Count only traded status for trades
             const monthTrades = reports.filter(r => r.status === 'traded').length;
             const monthOnboards = reports.filter(r => r.type === 'onboarding').length;
             
@@ -1775,7 +2248,7 @@ New trade
             
             const degrees = (percent / 100) * 360;
             document.getElementById('progressRing').style.background = 
-                `conic-gradient(var(--accent) 0deg ${degrees}deg, var(--border) ${degrees}deg 360deg)`;
+                `conic-gradient(white 0deg ${degrees}deg, rgba(255,255,255,0.2) ${degrees}deg 360deg)`;
             
             let rating = 'Poor';
             if (percent >= 90) rating = 'Excellent';
@@ -1789,6 +2262,27 @@ New trade
             const firstDay = new Date(currentYear, currentMonth, 1);
             const lastDay = new Date(currentYear, currentMonth + 1, 0);
             const startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+            const today = new Date().toISOString().split('T')[0];
+            const trainingEnd = new Date(TRAINING_END_DATE);
+            
+            // Calculate strength/weakness days
+            const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dayAverages = {};
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    const dayName = weekDays[d.getDay() === 0 ? 6 : d.getDay() - 1];
+                    dayAverages[dayName] = (dayAverages[dayName] || 0) + 1;
+                }
+            });
+            
+            let strengthDay = '';
+            let weaknessDay = '';
+            let maxAvg = 0, minAvg = Infinity;
+            Object.entries(dayAverages).forEach(([day, count]) => {
+                if (count > maxAvg) { maxAvg = count; strengthDay = day; }
+                if (count < minAvg) { minAvg = count; weaknessDay = day; }
+            });
             
             let html = '';
             
@@ -1800,17 +2294,49 @@ New trade
             // Current month days
             for (let d = 1; d <= lastDay.getDate(); d++) {
                 const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const dateObj = new Date(dateStr);
+                const dayName = weekDays[dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1];
                 const dayReports = reports.filter(r => r.date === dateStr);
                 const hasData = dayReports.length > 0;
-                
-                // Check if date is editable (14th onwards and not future)
-                const editable = isDateEditable(dateStr);
-                const isToday = dateStr === currentDate;
+                const hasCheckmark = dayReports.some(r => r.checkmark === true);
+                const dayTrades = dayReports.filter(r => r.status === 'traded').length;
                 
                 let classes = 'calendar-day';
-                if (hasData) classes += ' has-data';
-                if (!editable) classes += ' disabled';
-                if (isToday) classes += ' today';
+                
+                // Training period (before 14 Feb)
+                if (dateObj < trainingEnd) {
+                    classes += ' training-period';
+                }
+                // Future dates
+                else if (dateStr > today) {
+                    classes += ' future-date';
+                }
+                // Today
+                else if (dateStr === today) {
+                    classes += hasCheckmark ? ' has-checkmark' : hasData ? ' has-data' : '';
+                }
+                // Past dates with data
+                else if (hasData) {
+                    if (dayName === strengthDay && dayTrades > 0) {
+                        classes += ' strength-day';
+                    } else if (dayName === weaknessDay && dayTrades > 0) {
+                        classes += ' weakness-day';
+                    } else if (hasCheckmark) {
+                        classes += ' has-checkmark';
+                    } else {
+                        classes += ' has-data';
+                    }
+                }
+                // Past dates without data
+                else {
+                    classes += ' past-view';
+                }
+                
+                // Sundays (15th, 22nd were Sundays)
+                const isSunday = dateObj.getDay() === 0;
+                if (isSunday) {
+                    classes += ' disabled';
+                }
                 
                 html += `<div class="${classes}" onclick="selectDate('${dateStr}')">
                     <span class="day-number">${d}</span>
@@ -1823,60 +2349,88 @@ New trade
         }
 
         function selectDate(dateStr) {
-            if (!isDateEditable(dateStr)) {
-                showToast('Cannot view/edit dates before 14th Feb or future dates');
-                return;
-            }
-            
             selectedDate = dateStr;
             const dayReports = reports.filter(r => r.date === dateStr);
+            const editCheck = canEditDate(dateStr);
             
-            const dateObj = new Date(dateStr);
-            const formattedDate = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-            document.getElementById('sheetDate').textContent = formattedDate;
+            const date = new Date(dateStr);
+            document.getElementById('sheetDate').textContent = 
+                date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            // Show mode indicator
+            let modeHtml = '';
+            if (editCheck.reason === 'training') {
+                modeHtml = '<div class="view-only-badge">Training Period - View Only</div>';
+            } else if (editCheck.reason === 'past') {
+                modeHtml = '<div class="view-only-badge">Past Date - View Only</div>';
+            } else if (editCheck.reason === 'future') {
+                modeHtml = '<div class="view-only-badge">Future Date - Cannot Edit</div>';
+            } else if (editCheck.reason === 'today') {
+                modeHtml = '<div class="view-only-badge" style="background: var(--success);">Today - Editable</div>';
+            }
+            document.getElementById('sheetMode').innerHTML = modeHtml;
             
             const trades = dayReports.filter(r => r.status === 'traded').length;
             const onboards = dayReports.filter(r => r.type === 'onboarding').length;
+            const checkmarked = dayReports.filter(r => r.checkmark === true).length;
             
             document.getElementById('sheetStats').innerHTML = `
-                <div class="sheet-stat">
-                    <div class="sheet-stat-value" style="color: var(--accent);">${dayReports.length}</div>
-                    <div class="sheet-stat-label">Total</div>
-                </div>
-                <div class="sheet-stat">
-                    <div class="sheet-stat-value" style="color: #10B981;">${trades}</div>
-                    <div class="sheet-stat-label">Trades</div>
-                </div>
-                <div class="sheet-stat">
-                    <div class="sheet-stat-value" style="color: #1c6b80;">${onboards}</div>
-                    <div class="sheet-stat-label">Onboards</div>
-                </div>
+                <div class="sheet-stat"><div class="sheet-stat-value">${dayReports.length}</div><div class="sheet-stat-label">Total</div></div>
+                <div class="sheet-stat"><div class="sheet-stat-value" style="color:#10b981;">${trades}</div><div class="sheet-stat-label">Trades</div></div>
+                <div class="sheet-stat"><div class="sheet-stat-value" style="color:#3b82f6;">${onboards}</div><div class="sheet-stat-label">Onboards</div></div>
             `;
             
             let tableHtml = '';
             dayReports.forEach(r => {
-                const typeText = r.type === 'onboarding' ? 'Onboard' : 'Verified';
+                const typeText = r.type === 'onboarding' ? 'Onboarded' : 'Verified';
                 const typeClass = r.type === 'onboarding' ? 'type-onboard' : 'type-trade';
-                const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
-                const statusClass = r.status === 'traded' ? 'status-traded' : 'status-pending';
                 
-                tableHtml += `<tr>
-                    <td><div class="shop-info">${r.shopName}</div></td>
-                    <td><div class="phone-info">${r.phoneNumber}</div></td>
-                    <td><span class="type-badge ${typeClass}">${typeText}</span></td>
-                    <td><button class="status-badge ${statusClass}" onclick="toggleStatus(${r.id})">${statusText}</button></td>
-                </tr>`;
+                if (r.checkmark) {
+                    tableHtml += `<tr>
+                        <td><div class="shop-info">${r.shopName}</div></td>
+                        <td><div class="phone-info">${r.phoneNumber}</div></td>
+                        <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                        <td><span class="checkmark-badge"><i class="fas fa-check"></i> Traded Later</span></td>
+                    </tr>`;
+                } else {
+                    const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
+                    const statusClass = r.status === 'traded' ? 'status-traded' : 'status-pending';
+                    
+                    // Only make status clickable if it's today
+                    if (editCheck.reason === 'today') {
+                        tableHtml += `<tr>
+                            <td><div class="shop-info">${r.shopName}</div></td>
+                            <td><div class="phone-info">${r.phoneNumber}</div></td>
+                            <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                            <td><button class="status-badge ${statusClass} clickable" onclick="toggleStatus(${r.id})">${statusText}</button></td>
+                        </tr>`;
+                    } else {
+                        tableHtml += `<tr>
+                            <td><div class="shop-info">${r.shopName}</div></td>
+                            <td><div class="phone-info">${r.phoneNumber}</div></td>
+                            <td><span class="type-badge ${typeClass}">${typeText}</span></td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        </tr>`;
+                    }
+                }
             });
             
             document.getElementById('sheetTable').innerHTML = tableHtml || 
-                '<tr><td colspan="4" class="empty-state"><i class="fas fa-store"></i><br>No activity for this date</td></tr>';
-                
+                '<tr><td colspan="4" class="empty-state">No entries for this day</td></tr>';
+            
             document.getElementById('dateSheet').classList.add('open');
         }
 
         function toggleStatus(id) {
             const report = reports.find(r => r.id === id);
             if (report) {
+                // Check if this is today's date
+                const today = new Date().toISOString().split('T')[0];
+                if (report.date !== today) {
+                    showToast('Can only update status for today');
+                    return;
+                }
+                
                 report.status = report.status === 'traded' ? 'not-traded' : 'traded';
                 
                 localStorage.setItem('seviReports', JSON.stringify(reports));
@@ -1890,7 +2444,7 @@ New trade
                 destroyCharts();
                 initCharts();
                 
-                showToast(`Status updated to ${report.status === 'traded' ? 'Traded' : 'Pending'}`);
+                showToast('Status updated');
             }
         }
 
@@ -1902,19 +2456,51 @@ New trade
         }
 
         function updateReports() {
-            // Show report for today
-            const dayReports = reports.filter(r => r.date === currentDate);
+            const today = new Date().toISOString().split('T')[0];
+            const todayReports = reports.filter(r => r.date === today);
             
-            const onboards = dayReports.filter(r => r.type === 'onboarding');
-            const newTrades = dayReports.filter(r => r.type === 'newtrade');
+            if (todayReports.length === 0) {
+                document.getElementById('dailyReport').textContent = 'No data for today. Add data using the + button.';
+            } else {
+                const onboards = todayReports.filter(r => r.type === 'onboarding');
+                const newTrades = todayReports.filter(r => r.type === 'newtrade');
+                
+                const todayDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                
+                let report = todayDate + '\n\n';
+                report += 'Onboarding\n';
+                onboards.forEach((r, i) => { report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`; });
+                report += '\nNew trade\n';
+                newTrades.forEach((r, i) => { report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`; });
+                
+                document.getElementById('dailyReport').textContent = report;
+            }
             
-            let report = `${currentDate}\n\n`;
-            report += 'Onboarding\n';
-            onboards.forEach((r, i) => { report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`; });
-            report += '\nNew trade\n';
-            newTrades.forEach((r, i) => { report += `${i+1}. ${r.shopName} ${r.phoneNumber}\n`; });
+            // Update weekly report
+            const weeks = getWeeklySummary();
+            let weeklyHtml = '';
+            weeks.forEach((week, index) => {
+                weeklyHtml += `
+                    <div class="week-card ${week.trades > week.onboards ? 'week-strength' : 'week-weakness'}">
+                        <div class="week-label">${week.name}</div>
+                        <div class="week-value">${week.trades} trades</div>
+                        <div style="font-size:11px; color:var(--text-tertiary);">${week.onboards} onboards</div>
+                        <div style="font-size:11px; color:var(--text-tertiary);">${week.conversion}% conv</div>
+                    </div>
+                `;
+            });
+            document.getElementById('weeklySummary').innerHTML = weeklyHtml;
             
-            document.getElementById('dailyReport').textContent = report || 'No data for today';
+            let tableRows = '';
+            weeks.forEach(week => {
+                tableRows += `<tr>
+                    <td>${week.name}</td>
+                    <td>${week.trades}</td>
+                    <td>${week.onboards}</td>
+                    <td>${week.conversion}%</td>
+                </tr>`;
+            });
+            document.getElementById('weeklyTable').innerHTML = tableRows;
         }
 
         function copyReport() {
@@ -1928,109 +2514,74 @@ New trade
         }
 
         function updateProgress() {
-            // Calculate streak (consecutive days with traded items)
+            // Calculate streak
             let streak = 0;
-            let checkDate = new Date(currentDate);
+            let checkDate = new Date();
             while (true) {
-                const dateStr = formatDate(checkDate);
-                const hasTraded = reports.some(r => r.date === dateStr && r.status === 'traded');
-                if (hasTraded) {
+                const dateStr = checkDate.toISOString().split('T')[0];
+                const dayHasTraded = reports.some(r => r.date === dateStr && r.status === 'traded');
+                const dayHasCheckmark = reports.some(r => r.date === dateStr && r.checkmark === true);
+                if (dayHasTraded || dayHasCheckmark) {
                     streak++;
                     checkDate.setDate(checkDate.getDate() - 1);
-                } else {
-                    break;
-                }
+                } else break;
             }
-            
             document.getElementById('streakCount').textContent = streak;
             
-            // Find best day
-            const dailyCounts = {};
+            // Best day (by traded status)
+            const dayCounts = {};
             reports.forEach(r => {
                 if (r.status === 'traded') {
-                    dailyCounts[r.date] = (dailyCounts[r.date] || 0) + 1;
+                    dayCounts[r.date] = (dayCounts[r.date] || 0) + 1;
                 }
             });
             
-            let bestDay = { date: '', count: 0 };
-            Object.entries(dailyCounts).forEach(([date, count]) => {
-                if (count > bestDay.count) {
-                    bestDay = { date, count };
-                }
+            let bestCount = 0, bestDate = '';
+            Object.entries(dayCounts).forEach(([date, count]) => {
+                if (count > bestCount) { bestCount = count; bestDate = date; }
             });
             
-            document.getElementById('bestDayCount').textContent = bestDay.count;
-            document.getElementById('bestDayDate').textContent = bestDay.date ? new Date(bestDay.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-';
+            document.getElementById('bestDayCount').textContent = bestCount;
+            document.getElementById('bestDayDate').textContent = bestDate ? 
+                new Date(bestDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '-';
             document.getElementById('totalShops').textContent = reports.length;
         }
 
         function updateAnalytics() {
             const totalTrades = reports.filter(r => r.status === 'traded').length;
             const totalOnboards = reports.filter(r => r.type === 'onboarding').length;
+            const totalCheckmarked = reports.filter(r => r.checkmark === true).length;
             
             document.getElementById('totalTrades').textContent = totalTrades;
             document.getElementById('totalOnboards').textContent = totalOnboards;
+            document.getElementById('totalCheckmarked').textContent = totalCheckmarked;
             
             const conversion = reports.length ? Math.round((totalTrades / reports.length) * 100) : 0;
             document.getElementById('totalConversion').textContent = conversion + '%';
-            
-            // Average daily (last 7 days)
-            const last7Days = [];
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(currentDate);
-                date.setDate(date.getDate() - i);
-                last7Days.push(formatDate(date));
-            }
-            
-            const tradesLast7Days = reports.filter(r => last7Days.includes(r.date) && r.status === 'traded').length;
-            document.getElementById('avgDaily').textContent = Math.round(tradesLast7Days / 7);
         }
 
         // ==================== CHARTS ====================
         function initCharts() {
-            // Weekly chart - last 7 days
-            const last7Days = [];
-            const labels = [];
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(currentDate);
-                date.setDate(date.getDate() - i);
-                last7Days.push(formatDate(date));
-                labels.push(date.toLocaleDateString('en-GB', { weekday: 'short' }));
-            }
-            
-            const weeklyData = last7Days.map(date => 
-                reports.filter(r => r.date === date && r.status === 'traded').length
-            );
+            // Weekly chart
+            const weekData = getWeeklyData();
             
             const ctx1 = document.getElementById('weeklyChart').getContext('2d');
             if (charts.weekly) charts.weekly.destroy();
             charts.weekly = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     datasets: [{
-                        data: weeklyData,
-                        backgroundColor: '#134e5e',
+                        data: weekData,
+                        backgroundColor: '#26658c',
                         borderRadius: 6,
                         barPercentage: 0.6
                     }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { 
-                            grid: { color: '#2A3045' }, 
-                            ticks: { color: '#6B7280', stepSize: 1 },
-                            beginAtZero: true
-                        },
-                        x: { grid: { display: false }, ticks: { color: '#6B7280' } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
             
-            // Monthly chart - weeks
+            // Monthly chart
             const ctx2 = document.getElementById('monthlyChart').getContext('2d');
             if (charts.monthly) charts.monthly.destroy();
             charts.monthly = new Chart(ctx2, {
@@ -2038,76 +2589,33 @@ New trade
                 data: {
                     labels: ['W1', 'W2', 'W3', 'W4'],
                     datasets: [{
-                        data: [
-                            reports.filter(r => r.date >= '2026-02-01' && r.date <= '2026-02-07' && r.status === 'traded').length,
-                            reports.filter(r => r.date >= '2026-02-08' && r.date <= '2026-02-14' && r.status === 'traded').length,
-                            reports.filter(r => r.date >= '2026-02-15' && r.date <= '2026-02-21' && r.status === 'traded').length,
-                            reports.filter(r => r.date >= '2026-02-22' && r.date <= '2026-02-28' && r.status === 'traded').length
-                        ],
-                        borderColor: '#134e5e',
-                        backgroundColor: 'rgba(19,78,94,0.1)',
+                        data: getMonthlyData(),
+                        borderColor: '#013f4a',
+                        backgroundColor: 'transparent',
                         tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: '#134e5e',
-                        pointBorderColor: '#fff',
-                        pointRadius: 3,
-                        pointHoverRadius: 5
+                        pointBackgroundColor: '#013f4a',
+                        pointRadius: 4
                     }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { 
-                            grid: { color: '#2A3045' }, 
-                            ticks: { color: '#6B7280', stepSize: 1 },
-                            beginAtZero: true
-                        },
-                        x: { grid: { display: false }, ticks: { color: '#6B7280' } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
             
-            // Conversion trend
+            // Conversion chart
             const ctx3 = document.getElementById('conversionChart').getContext('2d');
             if (charts.conversion) charts.conversion.destroy();
-            const weeklyConversion = last7Days.map(date => {
-                const dayReports = reports.filter(r => r.date === date);
-                const dayTrades = dayReports.filter(r => r.status === 'traded').length;
-                return dayReports.length ? Math.round((dayTrades / dayReports.length) * 100) : 0;
-            });
-            
             charts.conversion = new Chart(ctx3, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: ['W1', 'W2', 'W3', 'W4'],
                     datasets: [{
-                        data: weeklyConversion,
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16,185,129,0.1)',
+                        data: getConversionData(),
+                        borderColor: '#10b981',
+                        backgroundColor: '#10b98120',
                         fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#10B981',
-                        pointBorderColor: '#fff',
-                        pointRadius: 3,
-                        pointHoverRadius: 5
+                        tension: 0.4
                     }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { 
-                            grid: { color: '#2A3045' }, 
-                            ticks: { color: '#6B7280', callback: value => value + '%' },
-                            beginAtZero: true,
-                            max: 100
-                        },
-                        x: { grid: { display: false }, ticks: { color: '#6B7280' } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
             
             // Distribution chart
@@ -2120,35 +2628,63 @@ New trade
                     datasets: [{
                         data: [
                             reports.filter(r => r.type === 'onboarding').length,
-                            reports.filter(r => r.type === 'newtrade').length
+                            reports.filter(r => r.status === 'traded').length
                         ],
-                        backgroundColor: ['#134e5e', '#1c6b80'],
-                        borderWidth: 0,
-                        hoverOffset: 5
+                        backgroundColor: ['#013f4a', '#26658c'],
+                        borderWidth: 0
                     }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { 
-                            position: 'bottom',
-                            labels: { color: '#A0A8C0', font: { size: 11 } }
-                        } 
-                    }, 
-                    cutout: '70%',
-                    animation: { animateScale: true, animateRotate: true }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '70%' }
             });
         }
 
         function destroyCharts() {
             Object.values(charts).forEach(chart => {
-                if (chart && typeof chart.destroy === 'function') {
-                    chart.destroy();
-                }
+                if (chart) chart.destroy();
             });
             charts = {};
+        }
+
+        function getWeeklyData() {
+            const days = [0,0,0,0,0,0,0];
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    const day = d.getDay(); // 0 = Sunday, 1 = Monday
+                    if (day >= 1 && day <= 7) {
+                        days[day-1] += 1;
+                    }
+                }
+            });
+            return days;
+        }
+
+        function getMonthlyData() {
+            const weeks = [0,0,0,0];
+            reports.forEach(r => {
+                if (r.status === 'traded') {
+                    const d = new Date(r.date);
+                    if (d.getMonth() === 1) { // February
+                        const week = Math.floor((d.getDate() - 1) / 7);
+                        if (week < 4) weeks[week]++;
+                    }
+                }
+            });
+            return weeks;
+        }
+
+        function getConversionData() {
+            const weeks = [0,0,0,0];
+            for (let week = 0; week < 4; week++) {
+                const weekReports = reports.filter(r => {
+                    const d = new Date(r.date);
+                    const reportWeek = Math.floor((d.getDate() - 1) / 7);
+                    return d.getMonth() === 1 && reportWeek === week;
+                });
+                const traded = weekReports.filter(r => r.status === 'traded').length;
+                weeks[week] = weekReports.length ? Math.round((traded / weekReports.length) * 100) : 0;
+            }
+            return weeks;
         }
 
         // ==================== UTILITIES ====================
@@ -2164,12 +2700,7 @@ New trade
         }
 
         function openAIModal() {
-            // Set max date to today, min date to 14th Feb
-            const dateInput = document.getElementById('aiDate');
-            dateInput.max = currentDate;
-            dateInput.min = '2026-02-14';
-            dateInput.value = currentDate; // Default to today
-            
+            document.getElementById('aiDuplicateWarning').style.display = 'none';
             document.getElementById('aiModal').classList.add('active');
         }
 
@@ -2182,24 +2713,44 @@ New trade
         }
 
         function updateDateDisplay() {
-            const dateObj = new Date(currentDate);
-            const formatted = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            document.getElementById('currentDate').textContent = formatted;
+            const today = new Date();
+            document.getElementById('currentDate').textContent = 
+                today.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         }
 
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.textContent = message;
-            document.getElementById('app').appendChild(toast);
+            document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
 
         function refreshData() {
-            showLoading();
             renderHome();
-            hideLoading();
             showToast('Data refreshed');
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            
+            destroyCharts();
+            initCharts();
+        }
+
+        function checkTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                currentTheme = saved;
+                document.documentElement.setAttribute('data-theme', saved);
+                const icon = document.querySelector('.theme-toggle i');
+                icon.className = saved === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            }
         }
     </script>
 </body>
