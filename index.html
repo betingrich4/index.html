@@ -37,6 +37,8 @@
             --view-only: #94a3b8;
             --strength: #10b981;
             --weakness: #f59e0b;
+            --search-highlight: #fff3bf;
+            --search-highlight-dark: #f59e0b;
         }
 
         [data-theme="dark"] {
@@ -48,6 +50,8 @@
             --border-light: #26658c;
             --accent: #26658c;
             --accent-hover: #3a7ca5;
+            --search-highlight: #f59e0b;
+            --search-highlight-dark: #fff3bf;
         }
 
         body {
@@ -92,6 +96,120 @@
             color: var(--accent-hover);
         }
 
+        .theme-toggle {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            border: 2px solid var(--border-light);
+            border-radius: 40px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-hover);
+            box-shadow: 0 0 0 3px rgba(38,101,140,0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            margin-top: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: var(--bg-primary);
+        }
+
+        .search-result-item.highlight {
+            background: var(--search-highlight);
+            border-left: 4px solid var(--search-highlight-dark);
+        }
+
+        .search-result-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .search-result-phone {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .search-result-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .search-result-traded {
+            background: #10b98120;
+            color: #10b981;
+        }
+
+        .search-result-pending {
+            background: #f59e0b20;
+            color: #f59e0b;
+        }
+
         .date-badge {
             background: var(--bg-primary);
             padding: 8px 14px;
@@ -104,15 +222,6 @@
             align-items: center;
             gap: 6px;
             margin-bottom: 12px;
-        }
-
-        .theme-toggle {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            padding: 8px 12px;
-            cursor: pointer;
-            color: var(--text-secondary);
         }
 
         /* Goals Card */
@@ -457,6 +566,11 @@
 
         .checkmark-badge i {
             font-size: 10px;
+        }
+
+        .search-highlight-row {
+            background: var(--search-highlight) !important;
+            border-left: 4px solid var(--search-highlight-dark);
         }
 
         /* Calendar */
@@ -1066,6 +1180,14 @@
                     <i class="fas fa-moon"></i>
                 </div>
             </div>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by shop name or phone number..." oninput="handleSearch()">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
             <div class="date-badge">
                 <i class="far fa-calendar-alt"></i>
                 <span id="currentDate">26 Feb 2026</span>
@@ -1500,6 +1622,7 @@ New trade
         let currentMonth = 1; // February
         let currentYear = 2026;
         let currentTheme = 'light';
+        let searchTimeout = null;
 
         // Monthly Goals
         const MONTHLY_GOALS = {
@@ -1534,7 +1657,7 @@ New trade
 
         // ==================== INITIALIZE WITH HISTORICAL DATA ====================
         async function initializeData() {
-            // All historical data
+            // All historical data with Pinky Autospare marked as traded
             reports = [
                 // 25 FEB - Historical data
                 { id: 2501, date: "2026-02-25", shopName: "Kensafe Retail", phoneNumber: "072449218", type: "onboarding", status: "not-traded", checkmark: false },
@@ -1626,9 +1749,9 @@ New trade
                 { id: 1606, date: "2026-02-16", shopName: "Abok sellah Aoko", phoneNumber: "0728559605", type: "newtrade", status: "traded", checkmark: false },
                 { id: 1607, date: "2026-02-16", shopName: "Wich e dhano", phoneNumber: "0769898366", type: "newtrade", status: "traded", checkmark: false },
 
-                // 14 FEB
+                // 14 FEB - Updated Pinky Autospare to traded and verified
                 { id: 1401, date: "2026-02-14", shopName: "Mali Mali shop", phoneNumber: "0757743710", type: "onboarding", status: "not-traded", checkmark: true },
-                { id: 1402, date: "2026-02-14", shopName: "Pinky Autospares", phoneNumber: "0700265296", type: "onboarding", status: "not-traded", checkmark: false },
+                { id: 1402, date: "2026-02-14", shopName: "Pinky Autospares", phoneNumber: "0700265296", type: "onboarding", status: "traded", checkmark: false }, // Marked as traded
                 { id: 1403, date: "2026-02-14", shopName: "Aperi Cosmetics", phoneNumber: "0729385440", type: "onboarding", status: "not-traded", checkmark: false },
                 { id: 1404, date: "2026-02-14", shopName: "Sacco Bakers", phoneNumber: "0727305155", type: "onboarding", status: "not-traded", checkmark: true },
                 { id: 1405, date: "2026-02-14", shopName: "Quick Snack Pack Caffe", phoneNumber: "0720951322", type: "onboarding", status: "not-traded", checkmark: true }
@@ -1648,6 +1771,86 @@ New trade
             } catch (error) {
                 console.error('Sync error:', error);
             }
+        }
+
+        // ==================== SEARCH FUNCTIONALITY ====================
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (searchTimeout) clearTimeout(searchTimeout);
+            
+            searchTimeout = setTimeout(() => {
+                if (query.length < 2) {
+                    resultsContainer.classList.remove('active');
+                    return;
+                }
+                
+                const results = reports.filter(r => 
+                    r.shopName.toLowerCase().includes(query) || 
+                    r.phoneNumber.includes(query)
+                ).slice(0, 10); // Limit to 10 results
+                
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<div class="search-result-item">No shops found</div>';
+                    resultsContainer.classList.add('active');
+                    return;
+                }
+                
+                let html = '';
+                results.forEach(r => {
+                    const statusClass = r.status === 'traded' ? 'search-result-traded' : 'search-result-pending';
+                    const statusText = r.status === 'traded' ? 'Traded' : 'Pending';
+                    const typeText = r.type === 'onboarding' ? 'Onboarded' : 'Verified';
+                    
+                    html += `
+                        <div class="search-result-item" onclick="highlightShop('${r.phoneNumber}')">
+                            <div>
+                                <div class="search-result-name">${r.shopName}</div>
+                                <div class="search-result-phone">${r.phoneNumber} | ${r.date}</div>
+                            </div>
+                            <div>
+                                <span class="search-result-badge ${statusClass}">${statusText}</span>
+                                <span style="margin-left:6px; font-size:10px; color:var(--text-tertiary);">${typeText}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = html;
+                resultsContainer.classList.add('active');
+            }, 300);
+        }
+
+        function highlightShop(phoneNumber) {
+            // Close search results
+            document.getElementById('searchResults').classList.remove('active');
+            document.getElementById('searchInput').value = '';
+            
+            // Remove any existing highlights
+            document.querySelectorAll('.search-highlight-row').forEach(el => {
+                el.classList.remove('search-highlight-row');
+            });
+            
+            // Find and highlight all rows with this phone number across all tables
+            const allTables = ['todayActivityBody', 'sheetTable', 'allDataTable'];
+            allTables.forEach(tableId => {
+                const table = document.getElementById(tableId);
+                if (table) {
+                    const rows = table.getElementsByTagName('tr');
+                    for (let row of rows) {
+                        if (row.innerHTML.includes(phoneNumber)) {
+                            row.classList.add('search-highlight-row');
+                            // Scroll to first occurrence
+                            if (tableId === 'todayActivityBody') {
+                                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }
+                    }
+                }
+            });
+            
+            showToast(`Found shops with phone ${phoneNumber}`);
         }
 
         // ==================== DATE VALIDATION ====================
